@@ -1,0 +1,24 @@
+{
+  "name": "@M324/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@M324/db": "*",
+    "@M324/env": "*",
+    "better-auth": "1.5.5",
+    "dotenv": "^17.2.2",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@M324/config": "*",
+    "typescript": "^6"
+  }
+}

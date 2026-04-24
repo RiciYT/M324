@@ -1,0 +1,40 @@
+{
+  "name": "M324",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @M324/db db:push",
+    "db:studio": "turbo -F @M324/db db:studio",
+    "db:generate": "turbo -F @M324/db db:generate",
+    "db:migrate": "turbo -F @M324/db db:migrate",
+    "db:start": "turbo -F @M324/db db:start",
+    "db:watch": "turbo -F @M324/db db:watch",
+    "db:stop": "turbo -F @M324/db db:stop",
+    "db:down": "turbo -F @M324/db db:down",
+    "check": "ultracite check",
+    "fix": "ultracite fix"
+  },
+  "dependencies": {
+    "@M324/env": "*",
+    "dotenv": "^17.2.2",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@M324/config": "*",
+    "@biomejs/biome": "2.4.12",
+    "@types/node": "^22.13.14",
+    "turbo": "^2.8.12",
+    "typescript": "^6",
+    "ultracite": "7.6.1"
+  },
+  "packageManager": "npm@11.12.1"
+}
