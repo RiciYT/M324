@@ -1,8 +1,15 @@
 import { createDb } from "@M324/db";
-import * as schema from "@M324/db/schema/auth";
+import { account, session, user, verification } from "@M324/db/schema/auth";
 import { env } from "@M324/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+
+const schema = {
+  account,
+  session,
+  user,
+  verification,
+};
 
 export function createAuth() {
   const db = createDb();

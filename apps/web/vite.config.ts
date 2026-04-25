@@ -7,6 +7,36 @@ export default defineConfig({
   server: {
     port: 3001,
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: true,
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return;
+          }
+
+          if (id.includes("react") || id.includes("scheduler")) {
+            return "vendor-react";
+          }
+
+          if (id.includes("@tanstack")) {
+            return "vendor-tanstack";
+          }
+
+          if (id.includes("better-auth")) {
+            return "vendor-auth";
+          }
+
+          if (id.includes("@base-ui") || id.includes("lucide-react")) {
+            return "vendor-ui";
+          }
+
+          return "vendor";
+        },
+      },
+    },
+  },
   resolve: {
     tsconfigPaths: true,
   },
