@@ -13,9 +13,9 @@
   "dependencies": {
     "@M324/db": "*",
     "@M324/env": "*",
-    "better-auth": "1.5.5",
-    "dotenv": "^17.2.2",
-    "zod": "^4.1.13"
+    "better-auth": "1.6.9",
+    "dotenv": "^17.4.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@M324/config": "*",

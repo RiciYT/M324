@@ -8,13 +8,13 @@
     "./web": "./src/web.ts"
   },
   "dependencies": {
-    "@t3-oss/env-core": "^0.13.1",
-    "dotenv": "^17.2.2",
-    "zod": "^4.1.13"
+    "@t3-oss/env-core": "^0.13.11",
+    "dotenv": "^17.4.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@M324/config": "*",
-    "@types/node": "^22.13.14",
+    "@types/node": "^25.6.0",
     "typescript": "^6"
   }
 }

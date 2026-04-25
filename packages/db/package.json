@@ -21,15 +21,15 @@
   },
   "dependencies": {
     "@M324/env": "*",
-    "dotenv": "^17.2.2",
-    "drizzle-orm": "^0.45.1",
-    "pg": "^8.17.1",
-    "zod": "^4.1.13"
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@M324/config": "*",
-    "@types/pg": "^8.16.0",
-    "drizzle-kit": "^0.31.8",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^6"
   }
 }
