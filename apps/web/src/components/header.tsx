@@ -10,11 +10,18 @@ export default function Header() {
   ] as const;
 
   return (
-    <div>
-      <div className="flex flex-row items-center justify-between px-2 py-1">
-        <nav className="flex gap-4 text-lg">
+    <header className="border-b bg-background/95">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Main navigation" className="flex items-center gap-1">
           {links.map(({ to, label }) => (
-            <Link key={to} to={to}>
+            <Link
+              activeProps={{
+                className: "bg-muted text-foreground",
+              }}
+              className="rounded-md px-3 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground"
+              key={to}
+              to={to}
+            >
               {label}
             </Link>
           ))}
@@ -24,7 +31,6 @@ export default function Header() {
           <UserMenu />
         </div>
       </div>
-      <hr />
-    </div>
+    </header>
   );
 }

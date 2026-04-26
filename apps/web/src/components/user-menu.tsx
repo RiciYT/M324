@@ -1,4 +1,4 @@
-import { Button } from "@M324/ui/components/button";
+import { Button, buttonVariants } from "@M324/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +23,8 @@ export default function UserMenu() {
 
   if (!session) {
     return (
-      <Link to="/login">
-        <Button variant="outline">Sign In</Button>
+      <Link className={buttonVariants({ variant: "outline" })} to="/login">
+        Sign In
       </Link>
     );
   }
