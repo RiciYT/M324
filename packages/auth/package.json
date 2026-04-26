@@ -3,18 +3,18 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
+      "default": "./dist/index.mjs"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "build": "tsdown"
+  },
   "dependencies": {
     "@M324/db": "*",
     "@M324/env": "*",
     "better-auth": "1.6.9",
     "dotenv": "^17.4.2",
+    "tsdown": "^0.21.10",
     "zod": "^4.3.6"
   },
   "devDependencies": {

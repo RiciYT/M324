@@ -3,13 +3,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./src/index.ts"
+      "default": "./dist/index.mjs"
     },
-    "./*": {
-      "default": "./src/*.ts"
+    "./schema/auth": {
+      "default": "./dist/schema/auth.mjs"
     }
   },
   "scripts": {
+    "build": "tsdown",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
@@ -24,6 +25,7 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.20.0",
+    "tsdown": "^0.21.10",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./server": "./src/server.ts",
-    "./web": "./src/web.ts"
+    "./server": "./dist/server.mjs",
+    "./web": "./dist/web.mjs"
+  },
+  "scripts": {
+    "build": "tsdown"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
     "dotenv": "^17.4.2",
+    "tsdown": "^0.21.10",
     "zod": "^4.3.6"
   },
   "devDependencies": {
