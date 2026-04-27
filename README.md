@@ -7,8 +7,11 @@ M324 ist eine TypeScript-Monorepo-Anwendung auf Basis von Better-T-Stack. Das Pr
 - **Frontend:** React 19, Vite, TanStack Router, Tailwind CSS 4, lokale shadcn/ui-Primitives
 - **Backend:** Node.js, Hono, Better Auth, tsx für Entwicklung, tsdown für Builds
 - **Datenbank:** PostgreSQL, Drizzle ORM, Drizzle Kit, Docker Compose für lokale Datenbank
+- **Cloud-Datenbank:** Neon PostgreSQL für die deployte Produktionsumgebung
 - **Monorepo:** npm Workspaces und Turborepo
 - **Qualität:** TypeScript, Ultracite, Biome
+- **Tests:** Vitest für Unit Tests
+- **CI/CD:** GitHub Actions für Qualitätschecks und Vercel Git Integration für Deployments
 
 ## Projektstruktur
 
@@ -26,6 +29,8 @@ M324/
 │   └── db/                  # Geteiltes Datenbank-Package
 │       ├── src/schema/      # Drizzle-Schema
 │       └── src/migrations/  # SQL-Migrationen
+├── .github/
+│   └── workflows/ci.yml     # Automatisierte CI-Pipeline
 ├── docker-compose.yml       # Lokale PostgreSQL-Instanz
 ├── turbo.json               # Task-Pipeline für das Monorepo
 ├── biome.jsonc              # Ultracite/Biome-Konfiguration
@@ -50,6 +55,26 @@ Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
 - `BETTER_AUTH_URL`
 - `CORS_ORIGIN`
 - `VITE_SERVER_URL`
+
+Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pushes auf `main` und bei Pull Requests. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach Unit Tests, Ultracite/Biome-Checks, TypeScript-Checks und den Workspace-Build aus.
+
+Das Deployment läuft über die Vercel Git Integration. Commits auf `main` erzeugen Production Deployments, Pull Requests beziehungsweise Branches erzeugen Preview Deployments.
+
+## Deployment und Environments
+
+Das Projekt besteht aus drei deploybaren Komponenten:
+
+- **Web-App:** `m324-web` auf Vercel, erreichbar über `https://m324-web.vercel.app`
+- **API:** `m324-server` auf Vercel, erreichbar über `https://m324-server.vercel.app`
+- **Datenbank:** Neon PostgreSQL als Cloud-Datenbank für die deployte Umgebung
+
+Die Umgebungen sind so getrennt:
+
+- **Development:** lokale `.env` Dateien, Vite/Hono über `npm run dev`, PostgreSQL über Docker Compose
+- **Preview:** automatische Vercel Preview Deployments für Branches und Pull Requests
+- **Production:** automatische Vercel Production Deployments von `main` mit Neon PostgreSQL über `DATABASE_URL`
+
+Lokal wird PostgreSQL über Docker Compose gestartet. In Preview und Production zeigt `DATABASE_URL` auf Neon.
 
 ## Voraussetzungen
 
@@ -126,6 +151,7 @@ npm run dev          # Frontend, Backend und abhängige Workspace-Tasks starten
 npm run dev:web      # Nur das Frontend starten
 npm run dev:server   # Nur die API starten
 npm run build        # Alle Workspaces bauen
+npm run test         # Unit Tests mit Vitest ausführen
 npm run check-types  # TypeScript-Prüfungen ausführen
 npm run check        # Ultracite/Biome-Prüfung
 npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
@@ -169,6 +195,7 @@ import { Button } from "@/components/button";
 Vor Abgabe oder Commit sollten mindestens diese Checks laufen:
 
 ```bash
+npm run test
 npm run check-types
 npm run check
 npm run build
@@ -179,3 +206,19 @@ Formatierung und viele Linting-Probleme lassen sich automatisch beheben:
 ```bash
 npm run fix
 ```
+
+## Zusatzleistungen
+
+Umgesetzte Zusatzleistungen:
+
+- **CI/CD Deployment:** Vercel deployed Web-App und API automatisch über die GitHub-Integration. Zusätzlich prüft `.github/workflows/ci.yml` jeden Push auf `main` und Pull Requests.
+- **Container-Tool:** `docker-compose.yml` startet eine lokale PostgreSQL-Datenbank mit Healthcheck und persistierendem Volume.
+- **Pipeline Environments:** Development läuft lokal, Preview läuft über Vercel Branch-/PR-Deployments und Production über Vercel Deployments von `main`.
+- **Deploybare Datenbank:** Neon PostgreSQL wird als Cloud-Datenbank für die deployte Anwendung verwendet.
+- **Unit Tests:** Vitest deckt aktuell 10 sinnvolle Unit Tests für Logging und UI-Utility-Verhalten ab.
+- **Applikationslogs:** Der Server erzeugt strukturierte JSON-Logs für Serverstart, Environment, Datenbank-Konfiguration, CORS, Request-Start, Request-Ende, Auth-Requests, Healthchecks, Favicon-Requests und Fehler.
+
+Noch sinnvoll als nächster Schritt:
+
+- Integrationstests gegen API und Testdatenbank ergänzen.
+- Observability mit Grafana/Loki oder einem vergleichbaren Stack auf die strukturierten Logs aufsetzen.
