@@ -19,7 +19,14 @@ app.use(
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
+app.get("/favicon.ico", (c) => c.body(null, 204));
 app.get("/", (c) => c.text("OK"));
+
+app.onError((error, c) => {
+  console.error(`${c.req.method} ${c.req.path} failed`, error);
+
+  return c.json({ error: "Internal Server Error" }, 500);
+});
 
 export default app;
 
