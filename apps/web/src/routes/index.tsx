@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
 const stackItems = [
   {
     title: "React Frontend",
-    description: "Vite, TanStack Router und Tailwind CSS 4 fur schnelle Views.",
+    description: "Vite, TanStack Router und Tailwind CSS 4 für schnelle Views.",
     icon: GitBranch,
   },
   {
@@ -26,7 +26,7 @@ const stackItems = [
   {
     title: "Drizzle Datenbank",
     description:
-      "Geteiltes Schema, Migrationen und PostgreSQL uber Workspaces.",
+      "Geteiltes Schema, Migrationen und PostgreSQL über Workspaces.",
     icon: Database,
   },
 ] as const;
@@ -35,7 +35,7 @@ const workflowItems = [
   "Lokale Entwicklung mit Turbo starten",
   "Auth und API gegen die Server-App testen",
   "Datenbankschema mit Drizzle versionieren",
-  "Qualitat mit Ultracite, Vitest und TypeScript sichern",
+  "Qualität mit Ultracite, Vitest und TypeScript sichern",
 ] as const;
 
 function HomeComponent() {
@@ -47,7 +47,7 @@ function HomeComponent() {
             M324 Starter Workspace
           </p>
           <h1 className="max-w-3xl text-balance font-semibold text-4xl tracking-normal sm:text-5xl">
-            Eine saubere Basis fur Web, API und Datenbank.
+            Eine saubere Basis für Web, API und Datenbank.
           </h1>
           <p className="mt-5 max-w-2xl text-pretty text-base text-muted-foreground leading-7">
             Dieses Projekt ist ein TypeScript-Monorepo mit React-Frontend,
@@ -60,7 +60,7 @@ function HomeComponent() {
               className="inline-flex h-10 items-center justify-center gap-2 bg-primary px-4 font-medium text-primary-foreground text-sm transition-[background-color,scale] duration-150 hover:bg-primary/90 active:scale-[0.96]"
               to="/dashboard"
             >
-              Dashboard offnen
+              Dashboard öffnen
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
             <Link
@@ -76,7 +76,7 @@ function HomeComponent() {
           <div>
             <h2 className="font-medium text-lg">Projektzustand</h2>
             <p className="mt-2 text-muted-foreground text-sm leading-6">
-              Die Kernteile sind getrennt, buildbar und bereit fur weitere
+              Die Kernteile sind getrennt, buildbar und bereit für weitere
               Features.
             </p>
           </div>
@@ -126,10 +126,10 @@ function HomeComponent() {
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
           <div>
             <h2 className="font-medium text-2xl tracking-normal">
-              Der nachste sinnvolle Schritt
+              Der nächste sinnvolle Schritt
             </h2>
             <p className="mt-3 max-w-md text-muted-foreground text-sm leading-6">
-              Nutze diese Seite als Startpunkt fur Demo, Entwicklung und
+              Nutze diese Seite als Startpunkt für Demo, Entwicklung und
               Projektabgabe. Alles Wichtige ist erreichbar, ohne dass man erst
               im Repository suchen muss.
             </p>
@@ -159,7 +159,7 @@ function HomeComponent() {
               strokeWidth={1.8}
             />
             <p className="max-w-2xl text-muted-foreground text-sm leading-6">
-              Qualitatschecks laufen uber Ultracite, TypeScript, Vitest und den
+              Qualitätschecks laufen über Ultracite, TypeScript, Vitest und den
               Turborepo-Build.
             </p>
           </div>
