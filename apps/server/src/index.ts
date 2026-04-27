@@ -2,8 +2,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
-import { auth } from "./auth";
-import { env } from "./env";
+import { auth } from "./auth.js";
+import { env } from "./env.js";
 
 const app = new Hono();
 
