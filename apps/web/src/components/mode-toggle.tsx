@@ -1,11 +1,11 @@
-import { Button } from "@M324/ui/components/button";
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@M324/ui/components/dropdown-menu";
-import { Moon, Sun } from "lucide-react";
+} from "@/components/dropdown-menu";
 
 import { useTheme } from "@/components/theme-provider";
 

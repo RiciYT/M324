@@ -1,11 +1,10 @@
-import { Toaster } from "@M324/ui/components/sonner";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
 } from "@tanstack/react-router";
-
 import Header from "@/components/header";
+import { Toaster } from "@/components/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "../index.css";

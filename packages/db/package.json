@@ -20,20 +20,19 @@
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
-    "db:start": "docker compose up -d",
-    "db:watch": "docker compose up",
-    "db:stop": "docker compose stop",
-    "db:down": "docker compose down"
+    "db:start": "docker compose --project-directory ../.. up -d",
+    "db:watch": "docker compose --project-directory ../.. up",
+    "db:stop": "docker compose --project-directory ../.. stop",
+    "db:down": "docker compose --project-directory ../.. down"
   },
   "dependencies": {
-    "@M324/env": "*",
+    "@t3-oss/env-core": "^0.13.11",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.20.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@M324/config": "*",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsdown": "^0.21.10",

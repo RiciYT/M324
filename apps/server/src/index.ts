@@ -1,8 +1,9 @@
-import { auth } from "@M324/auth";
-import { env } from "@M324/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+
+import { auth } from "./auth";
+import { env } from "./env";
 
 const app = new Hono();
 

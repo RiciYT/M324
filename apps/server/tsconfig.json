@@ -1,5 +1,5 @@
 {
-  "extends": "@M324/config/tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",

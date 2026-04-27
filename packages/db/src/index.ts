@@ -1,5 +1,6 @@
-import { env } from "@M324/env/server";
 import { drizzle } from "drizzle-orm/node-postgres";
+
+import { env } from "./env";
 
 import {
   account,

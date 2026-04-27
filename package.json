@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/db"
   ],
   "type": "module",
   "scripts": {
@@ -16,15 +16,14 @@
     "db:studio": "turbo -F @M324/db db:studio",
     "db:generate": "turbo -F @M324/db db:generate",
     "db:migrate": "turbo -F @M324/db db:migrate",
-    "db:start": "turbo -F @M324/db db:start",
-    "db:watch": "turbo -F @M324/db db:watch",
-    "db:stop": "turbo -F @M324/db db:stop",
-    "db:down": "turbo -F @M324/db db:down",
+    "db:start": "docker compose up -d",
+    "db:watch": "docker compose up",
+    "db:stop": "docker compose stop",
+    "db:down": "docker compose down",
     "check": "ultracite check",
     "fix": "ultracite fix"
   },
   "dependencies": {
-    "@M324/env": "*",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.20.0",
@@ -32,14 +31,19 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
-    "@M324/config": "*",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.27.7",
     "tsx": "^4.21.0",
     "turbo": "^2.9.6",
     "typescript": "^6",
-    "ultracite": "7.6.1"
+    "ultracite": "^7.6.2"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.12"
+    }
   },
   "packageManager": "npm@11.13.0"
 }

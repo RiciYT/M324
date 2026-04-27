@@ -10,10 +10,9 @@
     "start": "node dist/index.mjs"
   },
   "dependencies": {
-    "@M324/auth": "*",
     "@M324/db": "*",
-    "@M324/env": "*",
     "@hono/node-server": "^2.0.0",
+    "@t3-oss/env-core": "^0.13.11",
     "better-auth": "1.6.9",
     "dotenv": "^17.4.2",
     "hono": "^4.12.15",
@@ -21,7 +20,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@M324/config": "*",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",
     "typescript": "^6"

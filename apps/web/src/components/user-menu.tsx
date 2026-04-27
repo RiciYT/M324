@@ -1,4 +1,5 @@
-import { Button } from "@M324/ui/components/button";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Button } from "@/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,9 +8,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@M324/ui/components/dropdown-menu";
-import { Skeleton } from "@M324/ui/components/skeleton";
-import { Link, useNavigate } from "@tanstack/react-router";
+} from "@/components/dropdown-menu";
+import { Skeleton } from "@/components/skeleton";
 
 import { authClient } from "@/lib/auth-client";
 
