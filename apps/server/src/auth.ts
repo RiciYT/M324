@@ -3,7 +3,7 @@ import { account, session, user, verification } from "@M324/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
-import { env } from "./env";
+import { env } from "./env.js";
 
 const schema = {
   account,
