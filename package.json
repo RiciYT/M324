@@ -16,6 +16,7 @@
     "db:studio": "turbo -F @M324/db db:studio",
     "db:generate": "turbo -F @M324/db db:generate",
     "db:migrate": "turbo -F @M324/db db:migrate",
+    "db:seed": "turbo -F @M324/db db:seed",
     "db:start": "docker compose up -d",
     "db:watch": "docker compose up",
     "db:stop": "docker compose stop",

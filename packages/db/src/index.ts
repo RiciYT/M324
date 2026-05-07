@@ -12,11 +12,26 @@ import {
   verification,
 } from "./schema/auth";
 
+import {
+  bet,
+  betRelations,
+  market,
+  marketRelations,
+  transaction,
+  transactionRelations,
+} from "./schema/markets";
+
 const schema = {
   account,
   accountRelations,
+  bet,
+  betRelations,
+  market,
+  marketRelations,
   session,
   sessionRelations,
+  transaction,
+  transactionRelations,
   user,
   userRelations,
   verification,
