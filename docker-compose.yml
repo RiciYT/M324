@@ -19,5 +19,38 @@ services:
       retries: 5
     restart: unless-stopped
 
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: M324-loki
+    command: -config.file=/etc/loki/config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./ops/observability/loki-config.yml:/etc/loki/config.yaml:ro
+      - M324_loki_data:/loki
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: M324-grafana
+    depends_on:
+      - loki
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_ROOT_URL: http://localhost:3001
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./ops/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - M324_grafana_data:/var/lib/grafana
+    restart: unless-stopped
+
 volumes:
   M324_postgres_data:
+  M324_loki_data:
+  M324_grafana_data:

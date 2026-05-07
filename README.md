@@ -54,6 +54,9 @@ Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
 - `CORS_ORIGIN`
+- `LOKI_URL`
+- `LOKI_USERNAME`
+- `LOKI_PASSWORD`
 - `VITE_SERVER_URL`
 
 Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pushes auf `main` und bei Pull Requests. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach Unit Tests, Ultracite/Biome-Checks, TypeScript-Checks und den Workspace-Build aus.
@@ -104,6 +107,7 @@ DATABASE_URL=postgres://postgres:password@localhost:5432/M324
 BETTER_AUTH_SECRET=ersetze-diesen-wert-durch-einen-langen-zufaelligen-string
 BETTER_AUTH_URL=http://localhost:3000
 CORS_ORIGIN=http://localhost:5173
+LOKI_URL=http://localhost:3100/loki/api/v1/push
 NODE_ENV=development
 ```
 
@@ -143,6 +147,8 @@ Danach sind die Dienste erreichbar unter:
 
 - Web-App: [http://localhost:5173](http://localhost:5173)
 - API: [http://localhost:3000](http://localhost:3000)
+- Loki API: [http://localhost:3100/ready](http://localhost:3100/ready)
+- Grafana: [http://localhost:3001](http://localhost:3001)
 
 ## Wichtige Befehle
 
@@ -169,6 +175,23 @@ npm run db:generate  # Drizzle-Migrationen generieren
 npm run db:migrate   # Migrationen ausführen
 npm run db:studio    # Drizzle Studio öffnen
 ```
+
+## Observability
+
+Das Repository bringt jetzt einen lokalen Observability-Stack mit:
+
+- **Loki** sammelt strukturierte Server-Logs
+- **Grafana** ist bereits mit Loki verbunden
+- Ein Dashboard `M324 Server Observability` wird automatisch provisioniert
+
+Lokaler Ablauf:
+
+1. `npm run db:start`
+2. `LOKI_URL=http://localhost:3100/loki/api/v1/push` in `apps/server/.env` setzen
+3. `npm run dev` starten
+4. Grafana unter [http://localhost:3001/d/m324-observability](http://localhost:3001/d/m324-observability) öffnen
+
+Falls ihr später eine Preview- oder Cloud-URL habt, kann dieselbe Server-Logik auch dorthin pushen, solange `LOKI_URL` erreichbar ist. Optional könnt ihr zusätzlich `LOKI_USERNAME` und `LOKI_PASSWORD` für Basic Auth setzen.
 
 ## UI-Anpassungen
 
