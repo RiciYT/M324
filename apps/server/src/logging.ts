@@ -50,10 +50,8 @@ const defaultLokiRuntimeConfig: LokiRuntimeConfig = {
   username: process.env.LOKI_USERNAME,
 };
 
-const createLokiAuthHeader = (
-  username: string,
-  password: string
-): string => `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+const createLokiAuthHeader = (username: string, password: string): string =>
+  `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
 
 export const createLogEntry = (
   level: LogLevel,
@@ -80,7 +78,9 @@ export const createLokiPayload = (
         event: entry.event,
         level: entry.level,
       },
-      values: [[`${Date.parse(entry.timestamp) * 1_000_000}`, JSON.stringify(entry)]],
+      values: [
+        [`${Date.parse(entry.timestamp) * 1_000_000}`, JSON.stringify(entry)],
+      ],
     },
   ],
 });
@@ -137,7 +137,7 @@ export const writeLog = (
     console.info(serializedEntry);
   }
 
-  void sendLogToLoki(entry, defaultLokiRuntimeConfig).catch((error: unknown) => {
+  sendLogToLoki(entry, defaultLokiRuntimeConfig).catch((error: unknown) => {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown Loki transport error";
 
