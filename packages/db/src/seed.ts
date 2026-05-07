@@ -16,69 +16,101 @@ interface SeedMarket {
 
 const seedMarkets: SeedMarket[] = [
   {
-    title: "Wird die Mensa nächste Woche wieder Pizza haben?",
+    title: "Hält Rockstar den 19.11.2026 für GTA 6 ohne dritte Verschiebung?",
     description:
-      "Pizza war letzte Woche der heimliche Star. Schafft sie das Comeback?",
-    daysUntilClose: 7,
+      "Bereits zweimal verschoben. YES wenn das Spiel genau am 19.11. live geht.",
+    daysUntilClose: 196,
+  },
+  {
+    title: "Wird Sam Altman 2026 nochmal kurzzeitig aus OpenAI gefeuert?",
+    description:
+      "Reenactment der November-2023-Saga. Jede dokumentierte Entlassung zählt.",
+    daysUntilClose: 238,
   },
   {
     title:
-      "Schafft die ITB2c-Klasse die M324-Präsentation ohne Live-Demo-Crash?",
+      "Sagt Jensen Huang in der nächsten Nvidia-Keynote das Wort 'AI' mehr als 100 Mal?",
     description:
-      "Murphy's Law trifft auf Vercel-Cold-Start. YES wenn alles klappt.",
-    daysUntilClose: 21,
+      "Live im Stream mitzählen. Slides zählen nicht — nur Gesprochenes.",
+    daysUntilClose: 60,
+  },
+  {
+    title: "Erreicht Rust 2026 zum ersten Mal die TIOBE-Top-10?",
+    description:
+      "Aktueller Stand: stagniert um Platz 13. Dezember-Ranking ist Stichtag.",
+    daysUntilClose: 238,
   },
   {
     title:
-      "Wird OpenAI vor Anthropic ein neues Flagship-Modell veröffentlichen?",
-    description: "GPT-6 vs Claude 5 — wer drückt zuerst auf den Launch-Knopf?",
-    daysUntilClose: 60,
+      "Veröffentlicht OpenAI 2026 ein wirklich offenes Modell unter Apache-2.0 oder MIT?",
+    description:
+      "'Open weights' zählen NICHT. Es muss eine echte Open-Source-Lizenz sein.",
+    daysUntilClose: 238,
   },
   {
-    title: "Bleibt 'Skibidi Toilet' bis Ende 2026 ein Meme?",
-    description: "Internet-Halbwertszeit ist kurz. Überlebt das Meme das Jahr?",
-    daysUntilClose: 90,
+    title: "Erscheint Half-Life 3 vor GTA 6?",
+    description:
+      "Der Klassiker. Stichtag ist der GTA-6-Release. Wir alle wissen die Antwort.",
+    daysUntilClose: 196,
   },
   {
-    title: "Wird das nächste Apple Event mehr als 5x das Wort 'AI' enthalten?",
-    description: "Cupertinos AI-Hype-Counter. Live im Stream mitzählen.",
-    daysUntilClose: 45,
+    title:
+      "Erscheint das 'Sea of Sorrow'-DLC für Hollow Knight: Silksong noch 2026?",
+    description:
+      "Team Cherry und Termine — eine Liebesgeschichte. YES wenn DLC live geht.",
+    daysUntilClose: 238,
   },
   {
-    title: "Wird Bitcoin in den nächsten 30 Tagen über 100k stehen?",
-    description: "Stichtag ist der Schlusskurs am Ablaufdatum.",
-    daysUntilClose: 30,
+    title:
+      "Bekommt The Elder Scrolls VI 2026 endlich ein Release-Datum-Fenster?",
+    description:
+      "Quartal oder Monat reicht. 'Sometime in the future' zählt nicht als Fenster.",
+    daysUntilClose: 238,
   },
   {
-    title: "Gewinnt YB die nächste Super-League-Saison?",
-    description: "Bern oder St. Gallen oder doch Basel?",
-    daysUntilClose: 75,
+    title:
+      "Verkauft GTA 6 in den ersten 24 Stunden für mehr als 1 Milliarde Dollar?",
+    description:
+      "GTA 5 hatte 800M$. Schafft die Fortsetzung den 9-stelligen Bonus-Schritt?",
+    daysUntilClose: 197,
   },
   {
-    title: "Veröffentlicht Vercel 2026 wieder neue Free-Tier-Limits?",
-    description: "Der jährliche Schreckmoment für Hobby-Devs.",
-    daysUntilClose: 90,
+    title: "Bekommt CS2 2026 einen offiziellen Battle-Royale-Modus?",
+    description:
+      "Valve hat es nie offiziell ausgeschlossen — und nie bestätigt. Klassiker.",
+    daysUntilClose: 238,
   },
   {
-    title: "Friert die SBB nächste Woche Frostpläne wegen Schneechaos ein?",
-    description: "Die jährliche Frage — Winter vs. Pünktlichkeit.",
-    daysUntilClose: 7,
+    title: "Wird Steam Deck 2 von Valve offiziell angekündigt bis 31.12.2026?",
+    description:
+      "Ankündigung reicht — Release-Datum nicht nötig. Roadmap-Folie zählt.",
+    daysUntilClose: 238,
   },
   {
-    title: "Wird Grafana noch dieses Jahr ein neues Major-Release machen?",
-    description: "Major = neue Hauptversionsnummer auf grafana.com/blog.",
-    daysUntilClose: 60,
+    title:
+      "Halten Avengers: Doomsday UND Dune: Messiah ihren 'Dunesday'-Release am 18.12.2026?",
+    description:
+      "Der Mega-Clash. YES nur wenn BEIDE Filme exakt am 18.12. starten.",
+    daysUntilClose: 225,
+  },
+  {
+    title: "Erscheint der Solo Leveling Movie noch in 2026?",
+    description:
+      "Production Committee plant 'late 2026', Arbeit war im Q1 noch nicht gestartet.",
+    daysUntilClose: 238,
+  },
+  {
+    title:
+      "Erreicht Linux 2026 erstmals mehr als 5 % Desktop-Marktanteil laut StatCounter?",
+    description:
+      "Year of the Linux Desktop, dieses Mal aber wirklich. Dezember-Snapshot zählt.",
+    daysUntilClose: 238,
   },
   {
     title: "Schafft Mathias seine IPA mit Note ≥ 5?",
     description:
       "Smart Ticket Helper auf der Zielgeraden — gemeinsame Daumen-Drück-Aktion.",
     daysUntilClose: 14,
-  },
-  {
-    title: "Wird der M324-Lehrer in der Präsentation 'pingelig' sagen?",
-    description: "Klassiker-Insider. Mindestens 1x = YES.",
-    daysUntilClose: 21,
   },
 ];
 
