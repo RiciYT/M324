@@ -54,6 +54,9 @@
     },
     "db:down": {
       "cache": false
+    },
+    "db:reset": {
+      "cache": false
     }
   }
 }

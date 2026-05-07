@@ -29,7 +29,8 @@
     "db:start": "docker compose --project-directory ../.. up -d",
     "db:watch": "docker compose --project-directory ../.. up",
     "db:stop": "docker compose --project-directory ../.. stop",
-    "db:down": "docker compose --project-directory ../.. down"
+    "db:down": "docker compose --project-directory ../.. down",
+    "db:reset": "docker compose --project-directory ../.. down -v"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
