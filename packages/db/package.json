@@ -11,19 +11,26 @@
       "development": "./src/schema/auth.ts",
       "types": "./dist/schema/auth.d.mts",
       "default": "./dist/schema/auth.mjs"
+    },
+    "./schema/markets": {
+      "development": "./src/schema/markets.ts",
+      "types": "./dist/schema/markets.d.mts",
+      "default": "./dist/schema/markets.mjs"
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts src/schema/auth.ts --format esm --dts --out-dir dist",
+    "build": "tsdown src/index.ts src/schema/auth.ts src/schema/markets.ts --format esm --dts --out-dir dist",
     "check-types": "tsc --noEmit",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx --env-file=../../apps/server/.env src/seed.ts",
     "db:start": "docker compose --project-directory ../.. up -d",
     "db:watch": "docker compose --project-directory ../.. up",
     "db:stop": "docker compose --project-directory ../.. stop",
-    "db:down": "docker compose --project-directory ../.. down"
+    "db:down": "docker compose --project-directory ../.. down",
+    "db:reset": "docker compose --project-directory ../.. down -v"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.11",
