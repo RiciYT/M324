@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
 
+import { BalanceBadge } from "./balance-badge";
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
 
 export default function Header() {
   const links = [
     { to: "/", label: "Home" },
-    { to: "/dashboard", label: "Dashboard" },
+    { to: "/markets", label: "Markets" },
+    { to: "/portfolio", label: "Portfolio" },
+    { to: "/leaderboard", label: "Leaderboard" },
   ] as const;
 
   return (
@@ -20,6 +23,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <BalanceBadge />
           <ModeToggle />
           <UserMenu />
         </div>
