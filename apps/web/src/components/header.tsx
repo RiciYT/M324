@@ -1,12 +1,17 @@
 import { Link } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
 
+import { BalanceBadge } from "./balance-badge";
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
 
 export default function Header() {
+  const { data: session } = authClient.useSession();
   const links = [
     { to: "/", label: "Home" },
-    { to: "/dashboard", label: "Dashboard" },
+    { to: "/markets", label: "Markets" },
+    { to: "/portfolio", label: "Portfolio" },
+    { to: "/leaderboard", label: "Leaderboard" },
   ] as const;
 
   return (
@@ -20,6 +25,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          {session ? <BalanceBadge /> : null}
           <ModeToggle />
           <UserMenu />
         </div>
