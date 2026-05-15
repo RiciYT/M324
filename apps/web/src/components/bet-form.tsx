@@ -38,6 +38,7 @@ export function BetForm({ marketId }: BetFormProps) {
     <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
       <div className="grid grid-cols-2 gap-2">
         <Button
+          aria-pressed={side === "yes"}
           onClick={() => setSide("yes")}
           type="button"
           variant={side === "yes" ? "default" : "outline"}
@@ -45,6 +46,7 @@ export function BetForm({ marketId }: BetFormProps) {
           YES
         </Button>
         <Button
+          aria-pressed={side === "no"}
           onClick={() => setSide("no")}
           type="button"
           variant={side === "no" ? "default" : "outline"}

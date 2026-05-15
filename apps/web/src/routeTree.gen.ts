@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MarketsIndexRouteImport } from './routes/markets.index'
 import { Route as MarketsNewRouteImport } from './routes/markets.new'
 import { Route as MarketsMarketidRouteImport } from './routes/markets.$marketid'
 
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketsIndexRoute = MarketsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MarketsRoute,
+} as any)
 const MarketsNewRoute = MarketsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -68,16 +74,17 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/markets/$marketid': typeof MarketsMarketidRoute
   '/markets/new': typeof MarketsNewRoute
+  '/markets/': typeof MarketsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
-  '/markets': typeof MarketsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
   '/markets/$marketid': typeof MarketsMarketidRoute
   '/markets/new': typeof MarketsNewRoute
+  '/markets': typeof MarketsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +96,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/markets/$marketid': typeof MarketsMarketidRoute
   '/markets/new': typeof MarketsNewRoute
+  '/markets/': typeof MarketsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,16 +109,17 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/markets/$marketid'
     | '/markets/new'
+    | '/markets/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/leaderboard'
     | '/login'
-    | '/markets'
     | '/portfolio'
     | '/markets/$marketid'
     | '/markets/new'
+    | '/markets'
   id:
     | '__root__'
     | '/'
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/markets/$marketid'
     | '/markets/new'
+    | '/markets/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/markets/': {
+      id: '/markets/'
+      path: '/'
+      fullPath: '/markets/'
+      preLoaderRoute: typeof MarketsIndexRouteImport
+      parentRoute: typeof MarketsRoute
+    }
     '/markets/new': {
       id: '/markets/new'
       path: '/new'
@@ -196,11 +213,13 @@ declare module '@tanstack/react-router' {
 interface MarketsRouteChildren {
   MarketsMarketidRoute: typeof MarketsMarketidRoute
   MarketsNewRoute: typeof MarketsNewRoute
+  MarketsIndexRoute: typeof MarketsIndexRoute
 }
 
 const MarketsRouteChildren: MarketsRouteChildren = {
   MarketsMarketidRoute: MarketsMarketidRoute,
   MarketsNewRoute: MarketsNewRoute,
+  MarketsIndexRoute: MarketsIndexRoute,
 }
 
 const MarketsRouteWithChildren =
