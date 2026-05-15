@@ -12,6 +12,7 @@ import {
 } from "@/components/card";
 import { useMarket } from "@/lib/market-hooks";
 
+const canResolveMarkets = false;
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
   dateStyle: "full",
@@ -92,24 +93,27 @@ function MarketDetailRoute() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Admin</CardTitle>
-              <CardDescription>
-                Visible in mock mode so the resolve flow can be designed.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-2">
-              <Button variant="outline">
-                <ShieldCheck aria-hidden="true" data-icon="inline-start" />
-                YES
-              </Button>
-              <Button variant="outline">
-                <ShieldCheck aria-hidden="true" data-icon="inline-start" />
-                NO
-              </Button>
-            </CardContent>
-          </Card>
+          {canResolveMarkets ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin</CardTitle>
+                <CardDescription>
+                  Resolve controls are shown only when admin access is
+                  available.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-2">
+                <Button variant="outline">
+                  <ShieldCheck aria-hidden="true" data-icon="inline-start" />
+                  YES
+                </Button>
+                <Button variant="outline">
+                  <ShieldCheck aria-hidden="true" data-icon="inline-start" />
+                  NO
+                </Button>
+              </CardContent>
+            </Card>
+          ) : null}
         </aside>
       </section>
     </main>

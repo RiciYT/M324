@@ -42,6 +42,26 @@ export interface LeaderboardEntry {
 
 const DEMO_DELAY_MS = 180;
 
+const createMarketSlug = (title: string) =>
+  title
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/^-|-$/g, "")
+    .slice(0, 48);
+
+const createUniqueMarketId = (title: string) => {
+  const baseSlug = createMarketSlug(title) || "market";
+  let candidate = baseSlug;
+  let suffix = 2;
+
+  while (mockMarkets.some((market) => market.id === candidate)) {
+    candidate = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+};
+
 const mockMarkets: Market[] = [
   {
     id: "gta-release",
@@ -151,8 +171,8 @@ export const apiClient = {
   }): Promise<Market> {
     await waitForMockResponse();
 
-    return {
-      id: input.title.toLowerCase().replaceAll(" ", "-").slice(0, 48),
+    const market: Market = {
+      id: createUniqueMarketId(input.title),
       title: input.title,
       description: input.description,
       createdBy: "You",
@@ -161,6 +181,10 @@ export const apiClient = {
       yesPool: 0,
       noPool: 0,
     };
+
+    mockMarkets.unshift(market);
+
+    return market;
   },
   async getLeaderboard(): Promise<LeaderboardEntry[]> {
     await waitForMockResponse();
@@ -202,7 +226,7 @@ export const apiClient = {
   }): Promise<{ accepted: true }> {
     await waitForMockResponse();
 
-    if (input.amount <= 0) {
+    if (!Number.isFinite(input.amount) || input.amount <= 0) {
       throw new Error("Amount must be greater than zero");
     }
 
