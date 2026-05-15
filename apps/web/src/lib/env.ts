@@ -7,7 +7,7 @@ export const env = createEnv({
     VITE_SERVER_URL: z.url(),
   },
   runtimeEnv: {
-    VITE_SERVER_URL: import.meta.env.VITE_SERVER_URL ?? "http://localhost:3000",
+    VITE_SERVER_URL: import.meta.env.VITE_SERVER_URL ?? (import.meta.env.DEV ? "http://localhost:3000" : undefined),
   },
   emptyStringAsUndefined: true,
 });
