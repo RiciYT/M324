@@ -19,7 +19,7 @@ const getErrorMessage = (error: unknown) =>
 
 function useAsyncData<T>(
   fetcher: () => Promise<T>,
-  dependencies: React.DependencyList,
+  dependencies: React.DependencyList
 ): AsyncState<T> {
   const [state, setState] = useState<AsyncState<T>>({
     isLoading: true,
