@@ -17,16 +17,19 @@ interface AsyncState<TData> {
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Unexpected request error";
 
-export function useMarkets(): AsyncState<Market[]> {
-  const [state, setState] = useState<AsyncState<Market[]>>({
+function useAsyncData<T>(
+  fetcher: () => Promise<T>,
+  dependencies: React.DependencyList,
+): AsyncState<T> {
+  const [state, setState] = useState<AsyncState<T>>({
     isLoading: true,
   });
 
   useEffect(() => {
     let isActive = true;
+    setState({ isLoading: true, data: undefined, error: undefined });
 
-    apiClient
-      .getMarkets()
+    fetcher()
       .then((data) => {
         if (isActive) {
           setState({ data, isLoading: false });
@@ -41,138 +44,37 @@ export function useMarkets(): AsyncState<Market[]> {
     return () => {
       isActive = false;
     };
-  }, []);
+    // biome-ignore lint/correctness/useExhaustiveDependencies: caller explicitly provides the dependencies
+  }, dependencies);
 
   return state;
+}
+
+export function useMarkets(): AsyncState<Market[]> {
+  return useAsyncData(() => apiClient.getMarkets(), []);
 }
 
 export function useMarket(id: string): AsyncState<Market> {
-  const [state, setState] = useState<AsyncState<Market>>({
-    isLoading: true,
-  });
-
-  useEffect(() => {
-    let isActive = true;
-
-    apiClient
-      .getMarket(id)
-      .then((data) => {
-        if (!isActive) {
-          return;
-        }
-
-        if (!data) {
-          setState({ error: "Market not found", isLoading: false });
-          return;
-        }
-
-        setState({ data, isLoading: false });
-      })
-      .catch((error: unknown) => {
-        if (isActive) {
-          setState({ error: getErrorMessage(error), isLoading: false });
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
+  return useAsyncData(async () => {
+    const data = await apiClient.getMarket(id);
+    if (!data) {
+      throw new Error("Market not found");
+    }
+    return data;
   }, [id]);
-
-  return state;
 }
 
 export function useWallet(): AsyncState<Wallet> {
-  const [state, setState] = useState<AsyncState<Wallet>>({
-    isLoading: true,
-  });
-
-  useEffect(() => {
-    let isActive = true;
-
-    apiClient
-      .getWallet()
-      .then((data) => {
-        if (isActive) {
-          setState({ data, isLoading: false });
-        }
-      })
-      .catch((error: unknown) => {
-        if (isActive) {
-          setState({ error: getErrorMessage(error), isLoading: false });
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  return state;
+  return useAsyncData(() => apiClient.getWallet(), []);
 }
 
 export function usePortfolio(): AsyncState<{
   positions: PortfolioPosition[];
   transactions: Transaction[];
 }> {
-  const [state, setState] = useState<
-    AsyncState<{
-      positions: PortfolioPosition[];
-      transactions: Transaction[];
-    }>
-  >({
-    isLoading: true,
-  });
-
-  useEffect(() => {
-    let isActive = true;
-
-    apiClient
-      .getPortfolio()
-      .then((data) => {
-        if (isActive) {
-          setState({ data, isLoading: false });
-        }
-      })
-      .catch((error: unknown) => {
-        if (isActive) {
-          setState({ error: getErrorMessage(error), isLoading: false });
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  return state;
+  return useAsyncData(() => apiClient.getPortfolio(), []);
 }
 
 export function useLeaderboard(): AsyncState<LeaderboardEntry[]> {
-  const [state, setState] = useState<AsyncState<LeaderboardEntry[]>>({
-    isLoading: true,
-  });
-
-  useEffect(() => {
-    let isActive = true;
-
-    apiClient
-      .getLeaderboard()
-      .then((data) => {
-        if (isActive) {
-          setState({ data, isLoading: false });
-        }
-      })
-      .catch((error: unknown) => {
-        if (isActive) {
-          setState({ error: getErrorMessage(error), isLoading: false });
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
-
-  return state;
+  return useAsyncData(() => apiClient.getLeaderboard(), []);
 }
