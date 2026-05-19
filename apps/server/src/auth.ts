@@ -27,7 +27,8 @@ export function createAuth() {
     }),
     trustedOrigins,
     account: {
-      storeStateStrategy: "cookie",
+      skipStateCookieCheck: true,
+      storeStateStrategy: "database",
     },
     emailAndPassword: {
       enabled: true,
