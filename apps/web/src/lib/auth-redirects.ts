@@ -4,9 +4,9 @@ export function createAuthRedirectUrls(origin: string) {
   const normalizedOrigin = origin.replace(TRAILING_SLASHES_PATTERN, "");
 
   return {
-    callbackURL: `${normalizedOrigin}/dashboard`,
+    callbackURL: `${normalizedOrigin}/markets`,
     errorCallbackURL: `${normalizedOrigin}/login`,
-    newUserCallbackURL: `${normalizedOrigin}/dashboard`,
+    newUserCallbackURL: `${normalizedOrigin}/markets`,
   };
 }
 
