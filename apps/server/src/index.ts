@@ -2,7 +2,7 @@ import { createDb } from "@M324/db";
 import { user } from "@M324/db/schema/auth";
 import { bet, market, transaction } from "@M324/db/schema/markets";
 import { randomUUID } from "node:crypto";
-import { desc, eq, ne, sql } from "drizzle-orm";
+import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -35,6 +35,10 @@ const resolveMarketInput = z.object({
 });
 
 type MarketSide = "yes" | "no";
+
+const DAILY_CLAIM_AMOUNT = 1000;
+const DAILY_CLAIM_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+const DAILY_CLAIM_REASON = "daily_claim";
 
 writeLog("info", logEvents.environmentLoaded, "Server environment loaded", {
   nodeEnv: env.NODE_ENV,
@@ -139,8 +143,69 @@ app.post("/api/markets", async (c) => {
 app.get("/api/wallet", async (c) => {
   const sessionUser = await getSessionUser(c);
 
+  if (!sessionUser) {
+    return c.json({ error: "Authentication required" }, 401);
+  }
+
+  const dailyClaim = await getDailyClaimState(sessionUser.id);
+
   return c.json({
-    credits: sessionUser?.credits ?? 0,
+    canClaimDailyCoins: dailyClaim.canClaimDailyCoins,
+    credits: sessionUser.credits,
+    nextDailyClaimAt: dailyClaim.nextDailyClaimAt?.toISOString(),
+  });
+});
+
+app.post("/api/wallet/claim", async (c) => {
+  const sessionUser = await getSessionUser(c);
+
+  if (!sessionUser) {
+    return c.json({ error: "Authentication required" }, 401);
+  }
+
+  const dailyClaim = await getDailyClaimState(sessionUser.id);
+
+  if (!dailyClaim.canClaimDailyCoins) {
+    return c.json(
+      {
+        canClaimDailyCoins: false,
+        error: "Daily coins already claimed",
+        nextDailyClaimAt: dailyClaim.nextDailyClaimAt?.toISOString(),
+      },
+      429
+    );
+  }
+
+  const [updatedUser] = await db.transaction(async (tx) => {
+    await tx.insert(transaction).values({
+      id: randomUUID(),
+      userId: sessionUser.id,
+      delta: DAILY_CLAIM_AMOUNT,
+      reason: DAILY_CLAIM_REASON,
+      refType: "wallet",
+      refId: sessionUser.id,
+    });
+
+    return tx
+      .update(user)
+      .set({ credits: sql`${user.credits} + ${DAILY_CLAIM_AMOUNT}` })
+      .where(eq(user.id, sessionUser.id))
+      .returning({
+        credits: user.credits,
+      });
+  });
+
+  if (!updatedUser) {
+    throw new Error("Daily claim failed");
+  }
+
+  return c.json({
+    canClaimDailyCoins: false,
+    credits: updatedUser.credits,
+    grantedCredits: DAILY_CLAIM_AMOUNT,
+    nextDailyClaimAt: new Date(
+      Date.now() + DAILY_CLAIM_COOLDOWN_MS
+    ).toISOString(),
   });
 });
 
@@ -306,6 +371,38 @@ async function getSessionUser(c: Context) {
     .where(eq(user.id, session.user.id));
 
   return row ?? null;
+}
+
+async function getDailyClaimState(userId: string) {
+  const [lastDailyClaim] = await db
+    .select({
+      createdAt: transaction.createdAt,
+    })
+    .from(transaction)
+    .where(
+      and(
+        eq(transaction.userId, userId),
+        eq(transaction.reason, DAILY_CLAIM_REASON)
+      )
+    )
+    .orderBy(desc(transaction.createdAt))
+    .limit(1);
+
+  if (!lastDailyClaim) {
+    return {
+      canClaimDailyCoins: true,
+      nextDailyClaimAt: undefined,
+    };
+  }
+
+  const nextDailyClaimAt = new Date(
+    lastDailyClaim.createdAt.getTime() + DAILY_CLAIM_COOLDOWN_MS
+  );
+
+  return {
+    canClaimDailyCoins: nextDailyClaimAt.getTime() <= Date.now(),
+    nextDailyClaimAt,
+  };
 }
 
 async function getMarkets(id?: string) {

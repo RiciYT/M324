@@ -19,13 +19,20 @@ const getErrorMessage = (error: unknown) =>
 
 function useAsyncData<T>(
   fetcher: () => Promise<T>,
-  dependencies: React.DependencyList
+  dependencies: React.DependencyList,
+  enabled = true
 ): AsyncState<T> {
   const [state, setState] = useState<AsyncState<T>>({
     isLoading: true,
   });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: caller explicitly provides the refetch dependencies
   useEffect(() => {
+    if (!enabled) {
+      setState({ data: undefined, error: undefined, isLoading: false });
+      return;
+    }
+
     let isActive = true;
     setState({ isLoading: true, data: undefined, error: undefined });
 
@@ -44,8 +51,7 @@ function useAsyncData<T>(
     return () => {
       isActive = false;
     };
-    // biome-ignore lint/correctness/useExhaustiveDependencies: caller explicitly provides the dependencies
-  }, dependencies);
+  }, [...dependencies, enabled]);
 
   return state;
 }
@@ -64,8 +70,8 @@ export function useMarket(id: string): AsyncState<Market> {
   }, [id]);
 }
 
-export function useWallet(): AsyncState<Wallet> {
-  return useAsyncData(() => apiClient.getWallet(), []);
+export function useWallet(enabled = true): AsyncState<Wallet> {
+  return useAsyncData(() => apiClient.getWallet(), [], enabled);
 }
 
 export function usePortfolio(): AsyncState<{

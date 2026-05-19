@@ -2,7 +2,11 @@ import { env } from "@/lib/env";
 
 export type MarketSide = "yes" | "no";
 export type MarketStatus = "open" | "resolved";
-export type TransactionReason = "bet" | "payout" | "signup_bonus";
+export type TransactionReason =
+  | "bet"
+  | "daily_claim"
+  | "payout"
+  | "signup_bonus";
 
 export interface Market {
   closesAt: string;
@@ -17,7 +21,13 @@ export interface Market {
 }
 
 export interface Wallet {
+  canClaimDailyCoins: boolean;
   credits: number;
+  nextDailyClaimAt?: string;
+}
+
+export interface DailyClaimResult extends Wallet {
+  grantedCredits: number;
 }
 
 export interface PortfolioPosition {
@@ -70,6 +80,11 @@ export const apiClient = {
   }): Promise<Market> {
     return request<Market>("/api/markets", {
       body: JSON.stringify(input),
+      method: "POST",
+    });
+  },
+  claimDailyCoins(): Promise<DailyClaimResult> {
+    return request<DailyClaimResult>("/api/wallet/claim", {
       method: "POST",
     });
   },

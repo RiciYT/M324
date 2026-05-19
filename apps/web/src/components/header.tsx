@@ -1,14 +1,23 @@
 import { Link } from "@tanstack/react-router";
 import { Coins, Flame, Gift } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import UserMenu from "@/components/user-menu";
+import { apiClient, type Wallet } from "@/lib/api-client";
+import { authClient } from "@/lib/auth-client";
 import { useWallet } from "@/lib/market-hooks";
 
 const coinFormatter = new Intl.NumberFormat("de-CH");
 
 export default function Header() {
-  const { data: wallet, error, isLoading } = useWallet();
+  const { data: session } = authClient.useSession();
+  const isSignedIn = Boolean(session?.user);
+  const { data: wallet, error, isLoading } = useWallet(isSignedIn);
+  const [claimError, setClaimError] = useState<string>();
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [walletOverride, setWalletOverride] = useState<Wallet>();
+  const currentWallet = walletOverride ?? wallet;
   const links = [
     { to: "/", label: "Startseite" },
     { to: "/markets", label: "Märkte" },
@@ -46,21 +55,56 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-3 sm:flex">
-            <Coins aria-hidden="true" className="size-5 text-zinc-500" />
-            <div className="leading-none">
-              <span className="block font-bold text-[11px] text-zinc-500 uppercase">
-                Wallet
-              </span>
-              <span className="font-black font-mono text-[#c8ff00]">
-                {getWalletLabel({ credits: wallet?.credits, error, isLoading })}
-              </span>
+          {isSignedIn ? (
+            <div className="hidden items-center gap-3 sm:flex">
+              <Coins aria-hidden="true" className="size-5 text-zinc-500" />
+              <div className="leading-none">
+                <span className="block font-bold text-[11px] text-zinc-500 uppercase">
+                  Wallet
+                </span>
+                <span className="font-black font-mono text-[#c8ff00]">
+                  {getWalletLabel({
+                    credits: currentWallet?.credits,
+                    error,
+                    isLoading,
+                  })}
+                </span>
+              </div>
             </div>
-          </div>
-          <Button className="hidden sm:inline-flex" disabled>
-            <Gift aria-hidden="true" data-icon="inline-start" />
-            Coins claimen
-          </Button>
+          ) : null}
+          {isSignedIn ? (
+            <Button
+              className="hidden sm:inline-flex"
+              disabled={
+                isClaiming || isLoading || !currentWallet?.canClaimDailyCoins
+              }
+              onClick={async () => {
+                setClaimError(undefined);
+                setIsClaiming(true);
+
+                try {
+                  const claimedWallet = await apiClient.claimDailyCoins();
+                  setWalletOverride(claimedWallet);
+                } catch (error) {
+                  setClaimError(
+                    error instanceof Error
+                      ? error.message
+                      : "Coins konnten nicht geclaimt werden"
+                  );
+                } finally {
+                  setIsClaiming(false);
+                }
+              }}
+              title={getClaimTitle({
+                error: claimError,
+                isClaiming,
+                wallet: currentWallet,
+              })}
+            >
+              <Gift aria-hidden="true" data-icon="inline-start" />
+              {getClaimLabel({ isClaiming, wallet: currentWallet })}
+            </Button>
+          ) : null}
           <ModeToggle />
           <UserMenu />
         </div>
@@ -87,4 +131,52 @@ function getWalletLabel({
   }
 
   return `${coinFormatter.format(credits ?? 0)} Coins`;
+}
+
+function getClaimLabel({
+  isClaiming,
+  wallet,
+}: {
+  isClaiming: boolean;
+  wallet?: Wallet;
+}) {
+  if (isClaiming) {
+    return "Claim läuft...";
+  }
+
+  if (wallet?.canClaimDailyCoins) {
+    return "1000 Coins claimen";
+  }
+
+  return "Morgen wieder";
+}
+
+function getClaimTitle({
+  error,
+  isClaiming,
+  wallet,
+}: {
+  error?: string;
+  isClaiming: boolean;
+  wallet?: Wallet;
+}) {
+  if (error) {
+    return error;
+  }
+
+  if (isClaiming) {
+    return "Coins werden gutgeschrieben";
+  }
+
+  if (wallet?.canClaimDailyCoins) {
+    return "1000 Coins deinem Wallet gutschreiben";
+  }
+
+  if (wallet?.nextDailyClaimAt) {
+    return `Wieder verfügbar ab ${new Date(
+      wallet.nextDailyClaimAt
+    ).toLocaleString("de-CH")}`;
+  }
+
+  return "Daily Coins sind aktuell nicht verfügbar";
 }
