@@ -9,22 +9,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/dropdown-menu";
-import { Skeleton } from "@/components/skeleton";
 
 import { authClient } from "@/lib/auth-client";
 
 export default function UserMenu() {
   const navigate = useNavigate();
-  const { data: session, isPending } = authClient.useSession();
-
-  if (isPending) {
-    return <Skeleton className="h-9 w-24" />;
-  }
+  const { data: session } = authClient.useSession();
 
   if (!session) {
     return (
       <Link to="/login">
-        <Button variant="outline">Sign In</Button>
+        <Button variant="outline">
+          <span className="sm:hidden">Login</span>
+          <span className="hidden sm:inline">Anmelden / Registrieren</span>
+        </Button>
       </Link>
     );
   }
@@ -36,7 +34,7 @@ export default function UserMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-card">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
           <DropdownMenuItem
@@ -53,7 +51,7 @@ export default function UserMenu() {
             }}
             variant="destructive"
           >
-            Sign Out
+            Abmelden
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
