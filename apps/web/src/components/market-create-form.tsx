@@ -10,9 +10,13 @@ import {
 } from "@/components/card";
 import { Input } from "@/components/input";
 import { Label } from "@/components/label";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, type Market } from "@/lib/api-client";
 
-export function MarketCreateForm() {
+interface MarketCreateFormProps {
+  onCreated?: (market: Market) => void;
+}
+
+export function MarketCreateForm({ onCreated }: MarketCreateFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [closesAt, setClosesAt] = useState("");
@@ -23,7 +27,7 @@ export function MarketCreateForm() {
     setIsSubmitting(true);
 
     try {
-      await apiClient.createMarket({
+      const market = await apiClient.createMarket({
         title,
         description,
         closesAt: new Date(closesAt).toISOString(),
@@ -32,6 +36,7 @@ export function MarketCreateForm() {
       setTitle("");
       setDescription("");
       setClosesAt("");
+      onCreated?.(market);
     } catch (error) {
       toast.error(
         error instanceof Error
