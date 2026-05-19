@@ -20,8 +20,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
       {
         name: "description",
-        content:
-          "ShitMarket ist die Prognosemarkt-Parodie fuer absurde Wetten.",
+        content: "ShitMarket ist die Prognosemarkt-Parodie für absurde Wetten.",
       },
     ],
     links: [

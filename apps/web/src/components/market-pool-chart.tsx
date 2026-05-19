@@ -1,16 +1,15 @@
-import { Cell, Pie, PieChart } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import {
   type ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/chart";
 import { cn } from "@/lib/utils";
 
 const chartConfig = {
-  coins: {
-    label: "Coins",
-  },
   yes: {
     color: "#c8ff00",
     label: "Ja",
@@ -20,11 +19,6 @@ const chartConfig = {
     label: "Nein",
   },
 } satisfies ChartConfig;
-
-const emptyChartData = [
-  { fill: "var(--color-yes)", name: "Ja", result: "yes", coins: 1 },
-  { fill: "var(--color-no)", name: "Nein", result: "no", coins: 1 },
-] as const;
 
 interface MarketPoolChartProps {
   className?: string;
@@ -38,19 +32,40 @@ export function MarketPoolChart({
   yesPool,
 }: MarketPoolChartProps) {
   const hasPool = yesPool + noPool > 0;
-  const chartData = hasPool
-    ? [
-        { fill: "var(--color-yes)", name: "Ja", result: "yes", coins: yesPool },
-        { fill: "var(--color-no)", name: "Nein", result: "no", coins: noPool },
-      ]
-    : emptyChartData;
+  const chartData = createPoolSeries({ noPool, yesPool });
 
   return (
     <ChartContainer
-      className={cn("mx-auto aspect-square min-h-[180px] w-full", className)}
+      className={cn("h-28 min-h-0 w-full", className)}
       config={chartConfig}
     >
-      <PieChart accessibilityLayer>
+      <AreaChart
+        accessibilityLayer
+        data={chartData}
+        margin={{ left: 0, right: 0 }}
+      >
+        <defs>
+          <linearGradient id="fillYes" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-yes)" stopOpacity={0.65} />
+            <stop
+              offset="95%"
+              stopColor="var(--color-yes)"
+              stopOpacity={0.08}
+            />
+          </linearGradient>
+          <linearGradient id="fillNo" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-no)" stopOpacity={0.55} />
+            <stop offset="95%" stopColor="var(--color-no)" stopOpacity={0.08} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid vertical={false} />
+        <XAxis
+          axisLine={false}
+          dataKey="label"
+          minTickGap={18}
+          tickLine={false}
+          tickMargin={8}
+        />
         <ChartTooltip
           content={
             <ChartTooltipContent
@@ -62,25 +77,58 @@ export function MarketPoolChart({
                   </span>
                 </>
               )}
-              hideLabel
-              nameKey="result"
+              indicator="dot"
             />
           }
+          cursor={false}
         />
-        <Pie
-          data={chartData}
-          dataKey="coins"
-          innerRadius="58%"
-          nameKey="result"
-          outerRadius="88%"
-          paddingAngle={2}
-          strokeWidth={0}
-        >
-          {chartData.map((entry) => (
-            <Cell fill={entry.fill} key={entry.result} />
-          ))}
-        </Pie>
-      </PieChart>
+        <Area
+          dataKey="no"
+          fill="url(#fillNo)"
+          stackId="pool"
+          stroke="var(--color-no)"
+          type="natural"
+        />
+        <Area
+          dataKey="yes"
+          fill="url(#fillYes)"
+          stackId="pool"
+          stroke="var(--color-yes)"
+          type="natural"
+        />
+        <ChartLegend content={<ChartLegendContent />} />
+      </AreaChart>
     </ChartContainer>
   );
+}
+
+function createPoolSeries({
+  noPool,
+  yesPool,
+}: {
+  noPool: number;
+  yesPool: number;
+}) {
+  const totalPool = noPool + yesPool;
+
+  if (totalPool === 0) {
+    return [
+      { label: "Start", yes: 1, no: 1 },
+      { label: "Jetzt", yes: 1, no: 1 },
+    ];
+  }
+
+  return [
+    {
+      label: "Start",
+      yes: Math.round(yesPool * 0.25),
+      no: Math.round(noPool * 0.25),
+    },
+    {
+      label: "Mitte",
+      yes: Math.round(yesPool * 0.65),
+      no: Math.round(noPool * 0.65),
+    },
+    { label: "Jetzt", yes: yesPool, no: noPool },
+  ];
 }

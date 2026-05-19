@@ -50,7 +50,7 @@ export function MarketCreateForm() {
           Markt erstellen
         </CardTitle>
         <CardDescription className="text-zinc-400">
-          Titel, Kontext und Ablaufdatum reichen fuer die erste Version.
+          Titel, Kontext und Ablaufdatum reichen für die erste Version.
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-6">
@@ -81,7 +81,7 @@ export function MarketCreateForm() {
           </div>
           <div className="flex flex-col gap-2">
             <Label className="text-zinc-400" htmlFor="market-closes-at">
-              Schliesst am
+              Schließt am
             </Label>
             <Input
               className="h-11 border-zinc-700 bg-black/30 text-zinc-100"

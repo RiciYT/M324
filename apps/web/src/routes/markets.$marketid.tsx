@@ -1,19 +1,10 @@
 // biome-ignore-all lint/style/useFilenamingConvention: TanStack Router uses $param filenames for dynamic routes.
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock, ShieldCheck, TrendingUp } from "lucide-react";
+import { Clock, TrendingUp } from "lucide-react";
 import { BetForm } from "@/components/bet-form";
-import { Button } from "@/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/card";
 import { MarketPoolChart } from "@/components/market-pool-chart";
 import { useMarket } from "@/lib/market-hooks";
 
-const canResolveMarkets = false;
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
   dateStyle: "full",
@@ -50,176 +41,107 @@ function MarketDetailRoute() {
   const totalPool = market.yesPool + market.noPool;
   const yesRatio = totalPool === 0 ? 0.5 : market.yesPool / totalPool;
   const noRatio = 1 - yesRatio;
-  const statusLabel = market.status === "open" ? "Offen" : "Aufgeloest";
+  const yesLabel = `Ja ${percentFormatter.format(yesRatio)}`;
+  const noLabel = `Nein ${percentFormatter.format(noRatio)}`;
+  const statusLabel = market.status === "open" ? "Offen" : "Aufgelöst";
 
   return (
     <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
-      <section className="mx-auto grid max-w-[1540px] gap-5 px-5 py-8 sm:px-8 lg:grid-cols-[1fr_360px] lg:px-14">
-        <div className="flex flex-col gap-5">
-          <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0">
-            <CardHeader className="py-6">
-              <CardTitle className="font-black text-3xl text-wrap-balance uppercase">
-                {market.title}
-              </CardTitle>
-              <CardDescription className="text-zinc-400 leading-6">
-                {market.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5 pb-6">
-              <div className="grid gap-px border border-zinc-800 bg-zinc-800 sm:grid-cols-4">
-                <Metric label="Status" value={statusLabel} />
-                <Metric
-                  label="Ja-Quote"
-                  tone="yes"
-                  value={percentFormatter.format(yesRatio)}
-                />
-                <Metric
-                  label="Nein-Quote"
-                  tone="no"
-                  value={percentFormatter.format(noRatio)}
-                />
-                <Metric
-                  label="Total Pool"
-                  value={`${creditFormatter.format(totalPool)} Coins`}
-                />
+      <section className="mx-auto grid max-w-[1320px] gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:px-10">
+        <article className="min-w-0">
+          <div className="mb-7 flex flex-col gap-4 border-[#20231b] border-b pb-6">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
+              <span>ShitMarket</span>
+              <span>/</span>
+              <span>{statusLabel}</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock aria-hidden="true" className="size-4" />
+                {dateFormatter.format(new Date(market.closesAt))}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl">
+                <h1 className="font-black text-3xl text-wrap-balance leading-tight tracking-normal sm:text-4xl">
+                  {market.title}
+                </h1>
+                <p className="mt-3 max-w-2xl text-zinc-400 leading-6">
+                  {market.description}
+                </p>
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="h-4 overflow-hidden border border-zinc-800 bg-black">
-                  <div
-                    className="h-full bg-[#c8ff00]"
-                    style={{ width: `${Math.round(yesRatio * 100)}%` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between font-mono text-xs text-zinc-500 tabular-nums">
-                  <span>Ja {percentFormatter.format(yesRatio)}</span>
-                  <span>Nein {percentFormatter.format(noRatio)}</span>
-                </div>
+              <div className="flex shrink-0 gap-2 font-mono text-sm tabular-nums">
+                <span className="text-[#c8ff00]">{yesLabel}</span>
+                <span className="text-zinc-600">/</span>
+                <span className="text-destructive">{noLabel}</span>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0">
-            <CardHeader className="py-5">
-              <CardTitle className="flex items-center gap-2 font-black text-xl uppercase">
-                <TrendingUp aria-hidden="true" className="text-[#c8ff00]" />
-                Aktivitaet
-              </CardTitle>
-              <CardDescription className="text-zinc-400">
-                Letzte Einsaetze auf diesem Markt.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3 pb-6">
+          <section aria-label="Marktverlauf" className="mb-8">
+            <div className="mb-3 flex items-end justify-between gap-4">
+              <div>
+                <p className="font-semibold text-zinc-100">Marktverlauf</p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  {creditFormatter.format(totalPool)} Coins Volumen
+                </p>
+              </div>
+              <div className="font-mono text-sm text-zinc-500 tabular-nums">
+                Jetzt
+              </div>
+            </div>
+            <MarketPoolChart
+              className="h-[320px]"
+              noPool={market.noPool}
+              yesPool={market.yesPool}
+            />
+          </section>
+
+          <section
+            aria-labelledby="activity-heading"
+            className="border-[#20231b] border-t pt-6"
+          >
+            <div className="mb-4 flex items-center gap-2">
+              <TrendingUp aria-hidden="true" className="text-[#c8ff00]" />
+              <h2 className="font-black text-xl" id="activity-heading">
+                Aktivität
+              </h2>
+            </div>
+            <div className="divide-y divide-zinc-800 border-zinc-800 border-y">
               <ActivityLine amount="+120 Ja" name="Shezi" />
               <ActivityLine amount="+80 Nein" name="Imad" />
               <ActivityLine amount="+200 Ja" name="Rici" />
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </section>
+        </article>
 
-        <aside className="flex flex-col gap-5 lg:sticky lg:top-[94px] lg:self-start">
-          <Card className="rounded-[8px] border border-[#c8ff00]/40 bg-[#11120f] py-0 text-zinc-100 ring-0">
-            <CardHeader className="py-5">
-              <CardTitle className="font-black text-xl uppercase">
-                Wette setzen
-              </CardTitle>
-              <CardDescription className="flex items-center gap-2 text-zinc-400">
-                <Clock aria-hidden="true" className="size-4" />
-                Schliesst {dateFormatter.format(new Date(market.closesAt))}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pb-6">
-              <BetForm marketId={market.id} />
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0">
-            <CardHeader className="py-5">
-              <CardTitle className="font-black text-xl uppercase">
-                Pool
-              </CardTitle>
-              <CardDescription className="text-zinc-400">
-                Verteilung der aktuellen Coins.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3 pb-6">
-              <MarketPoolChart
-                noPool={market.noPool}
-                yesPool={market.yesPool}
+        <aside className="lg:sticky lg:top-[94px] lg:self-start">
+          <div className="rounded-[8px] border border-zinc-800 bg-[#11120f]">
+            <div className="border-zinc-800 border-b p-4">
+              <p className="text-sm text-zinc-500">Kaufen</p>
+              <p className="mt-1 font-black text-lg text-wrap-balance">
+                {market.title}
+              </p>
+            </div>
+            <div className="p-4">
+              <BetForm
+                marketId={market.id}
+                noLabel={noLabel}
+                yesLabel={yesLabel}
               />
-              <Metric
-                label="Ja Pool"
-                tone="yes"
-                value={`${creditFormatter.format(market.yesPool)} Coins`}
-              />
-              <Metric
-                label="Nein Pool"
-                tone="no"
-                value={`${creditFormatter.format(market.noPool)} Coins`}
-              />
-            </CardContent>
-          </Card>
-
-          {canResolveMarkets ? (
-            <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0">
-              <CardHeader className="py-5">
-                <CardTitle>Admin</CardTitle>
-                <CardDescription>
-                  Resolve controls are shown only when admin access is
-                  available.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-2 pb-6">
-                <Button variant="outline">
-                  <ShieldCheck aria-hidden="true" data-icon="inline-start" />
-                  Ja
-                </Button>
-                <Button variant="outline">
-                  <ShieldCheck aria-hidden="true" data-icon="inline-start" />
-                  Nein
-                </Button>
-              </CardContent>
-            </Card>
-          ) : null}
+            </div>
+          </div>
+          <p className="mt-4 text-xs text-zinc-500 leading-5">
+            Der aktuelle Preis basiert auf der Verteilung im Pool. Diese
+            Schulversion simuliert den Markt ohne Orderbuch.
+          </p>
         </aside>
       </section>
     </main>
   );
 }
 
-function Metric({
-  label,
-  tone = "neutral",
-  value,
-}: {
-  label: string;
-  tone?: "neutral" | "yes" | "no";
-  value: string;
-}) {
-  let valueClassName = "text-zinc-100";
-
-  if (tone === "yes") {
-    valueClassName = "text-[#c8ff00]";
-  }
-
-  if (tone === "no") {
-    valueClassName = "text-destructive";
-  }
-
-  return (
-    <div className="bg-[#050604] p-4">
-      <p className="text-xs text-zinc-500 uppercase">{label}</p>
-      <p
-        className={`mt-2 font-black font-mono text-lg tabular-nums ${valueClassName}`}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
-
 function ActivityLine({ amount, name }: { amount: string; name: string }) {
   return (
-    <div className="flex items-center justify-between border border-zinc-800 bg-black/20 p-3 text-sm">
+    <div className="flex items-center justify-between bg-[#0b0c0a] px-4 py-3 text-sm">
       <span className="font-semibold text-zinc-200">{name}</span>
       <span className="font-mono text-zinc-400 tabular-nums">{amount}</span>
     </div>

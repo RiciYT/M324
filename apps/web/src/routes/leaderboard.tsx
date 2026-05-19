@@ -82,7 +82,7 @@ function LeaderboardRoute() {
             ))}
             {!(isLoading || error) && leaderboard?.length === 0 ? (
               <p className="border border-zinc-800 bg-black/20 p-3 text-sm text-zinc-400">
-                Noch keine Eintraege.
+                Noch keine Einträge.
               </p>
             ) : null}
           </CardContent>
