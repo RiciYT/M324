@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as LoginRouteImport } from './routes/login'
@@ -19,6 +20,11 @@ import { Route as MarketsIndexRouteImport } from './routes/markets.index'
 import { Route as MarketsNewRouteImport } from './routes/markets.new'
 import { Route as MarketsMarketidRouteImport } from './routes/markets.$marketid'
 
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/markets': typeof MarketsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
+  '/stats': typeof StatsRoute
   '/markets/$marketid': typeof MarketsMarketidRoute
   '/markets/new': typeof MarketsNewRoute
   '/markets/': typeof MarketsIndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/portfolio': typeof PortfolioRoute
+  '/stats': typeof StatsRoute
   '/markets/$marketid': typeof MarketsMarketidRoute
   '/markets/new': typeof MarketsNewRoute
   '/markets': typeof MarketsIndexRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/markets': typeof MarketsRouteWithChildren
   '/portfolio': typeof PortfolioRoute
+  '/stats': typeof StatsRoute
   '/markets/$marketid': typeof MarketsMarketidRoute
   '/markets/new': typeof MarketsNewRoute
   '/markets/': typeof MarketsIndexRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/markets'
     | '/portfolio'
+    | '/stats'
     | '/markets/$marketid'
     | '/markets/new'
     | '/markets/'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/portfolio'
+    | '/stats'
     | '/markets/$marketid'
     | '/markets/new'
     | '/markets'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/markets'
     | '/portfolio'
+    | '/stats'
     | '/markets/$marketid'
     | '/markets/new'
     | '/markets/'
@@ -140,10 +152,18 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MarketsRoute: typeof MarketsRouteWithChildren
   PortfolioRoute: typeof PortfolioRoute
+  StatsRoute: typeof StatsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portfolio': {
       id: '/portfolio'
       path: '/portfolio'
@@ -232,6 +252,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MarketsRoute: MarketsRouteWithChildren,
   PortfolioRoute: PortfolioRoute,
+  StatsRoute: StatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

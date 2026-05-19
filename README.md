@@ -60,8 +60,9 @@ Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
 - `LOKI_USERNAME`
 - `LOKI_PASSWORD`
 - `VITE_SERVER_URL`
+- `VITE_GRAFANA_URL`
 
-Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pushes auf `main` und bei Pull Requests. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach Unit Tests, Ultracite/Biome-Checks, TypeScript-Checks und den Workspace-Build aus.
+Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pull Requests sowie bei Pushes auf `main` und `preview`. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach in parallelen Jobs Lint, Type-Checks, Unit Tests und einen Drizzle-Migrationscheck aus. Ein nachgelagerter `build`-Job baut alle Workspaces, und auf `main`/`preview` markiert ein finaler `deploy`-Job, dass die Vercel-Integration den Push veröffentlicht. Stale CI-Runs auf demselben Ref werden über eine Concurrency-Gruppe automatisch gecanceld.
 
 Das Deployment läuft über die Vercel Git Integration. Commits auf `main` erzeugen Production Deployments, Pull Requests beziehungsweise Branches erzeugen Preview Deployments.
 
@@ -100,28 +101,14 @@ Für die Anwendung selbst werden keine separaten systemweiten SDKs benötigt. Di
 npm install
 ```
 
-2. Umgebungsvariablen konfigurieren:
+2. Umgebungsvariablen konfigurieren. Die Vorlagen liegen als `.env.example` neben jeder App und können direkt kopiert werden:
 
-`apps/server/.env`
-
-```env
-DATABASE_URL=postgres://postgres:password@localhost:5432/M324
-BETTER_AUTH_SECRET=ersetze-diesen-wert-durch-einen-langen-zufaelligen-string
-BETTER_AUTH_URL=http://localhost:3000
-CORS_ORIGIN=http://localhost:5173
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-LOKI_URL=http://localhost:3100/loki/api/v1/push
-NODE_ENV=development
+```bash
+cp apps/server/.env.example apps/server/.env
+cp apps/web/.env.example apps/web/.env
 ```
 
-`apps/web/.env`
-
-```env
-VITE_SERVER_URL=http://localhost:3000
-```
-
-`BETTER_AUTH_SECRET` muss mindestens 32 Zeichen lang sein.
+In `apps/server/.env` muss anschließend `BETTER_AUTH_SECRET` durch einen zufälligen String mit mindestens 32 Zeichen ersetzt werden. Google-Login (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`) ist optional — bleiben die Felder leer, wird der Button im UI ausgeblendet. Auch Loki ist optional: ohne `LOKI_URL` skippt der Server den Push transparent.
 
 3. PostgreSQL starten:
 
@@ -170,32 +157,36 @@ npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
 ## Datenbankbefehle
 
 ```bash
-npm run db:start     # PostgreSQL im Hintergrund starten
-npm run db:watch     # PostgreSQL im Vordergrund starten
+npm run db:start     # PostgreSQL, Loki und Grafana im Hintergrund starten
+npm run db:watch     # Selbiges, aber im Vordergrund mit Live-Logs
 npm run db:stop      # Container stoppen
-npm run db:down      # Container und Netzwerk entfernen
+npm run db:down      # Container und Netzwerk entfernen (Volumes bleiben)
+npm run db:reset     # Container und Volumes entfernen (DB komplett wipen)
 npm run db:push      # Schema direkt in die Datenbank pushen
 npm run db:generate  # Drizzle-Migrationen generieren
+npm run db:check     # Migrationen auf Konsistenz prüfen (auch in CI aktiv)
 npm run db:migrate   # Migrationen ausführen
+npm run db:seed      # Demo-Märkte und System-User in eine leere DB schreiben
 npm run db:studio    # Drizzle Studio öffnen
 ```
 
 ## Observability
 
-Das Repository bringt jetzt einen lokalen Observability-Stack mit:
+Das Repository bringt einen lokalen Observability-Stack mit:
 
-- **Loki** sammelt strukturierte Server-Logs
-- **Grafana** ist bereits mit Loki verbunden
-- Ein Dashboard `M324 Server Observability` wird automatisch provisioniert
+- **Loki** sammelt strukturierte Server-Logs (Port `3100`)
+- **Grafana** ist bereits mit Loki verbunden (Port `3001`, anonymous viewer)
+- Ein Dashboard `M324 Server Observability` wird via Provisioning-Files in `ops/observability/grafana/` automatisch geladen
+- Die App selbst zeigt das Dashboard unter [`/stats`](http://localhost:5173/stats) als eingebettetes iframe
 
-Lokaler Ablauf:
+Lokaler Ablauf (sofern `.env.example` kopiert wurde, ist `LOKI_URL` bereits gesetzt):
 
-1. `npm run db:start`
-2. `LOKI_URL=http://localhost:3100/loki/api/v1/push` in `apps/server/.env` setzen
-3. `npm run dev` starten
-4. Grafana unter [http://localhost:3001/d/m324-observability](http://localhost:3001/d/m324-observability) öffnen
+1. `npm run db:start` — startet Postgres, Loki und Grafana
+2. `npm run db:push && npm run db:seed` — Schema anwenden und Demo-Märkte laden
+3. `npm run dev` — App starten
+4. `/stats` im Browser öffnen oder direkt Grafana unter [http://localhost:3001/d/m324-observability](http://localhost:3001/d/m324-observability)
 
-Falls ihr später eine Preview- oder Cloud-URL habt, kann dieselbe Server-Logik auch dorthin pushen, solange `LOKI_URL` erreichbar ist. Optional könnt ihr zusätzlich `LOKI_USERNAME` und `LOKI_PASSWORD` für Basic Auth setzen.
+Für Preview/Production: dieselbe Server-Logik kann gegen Grafana Cloud (oder einen anderen Loki-Endpoint) pushen, solange `LOKI_URL` erreichbar ist. Optional sind `LOKI_USERNAME` und `LOKI_PASSWORD` für Basic Auth, sowie `VITE_GRAFANA_URL` im Web-App-Env für den iframe-Embed.
 
 ## UI-Anpassungen
 
@@ -238,14 +229,16 @@ npm run fix
 
 Umgesetzte Zusatzleistungen:
 
-- **CI/CD Deployment:** Vercel deployed Web-App und API automatisch über die GitHub-Integration. Zusätzlich prüft `.github/workflows/ci.yml` jeden Push auf `main` und Pull Requests.
-- **Container-Tool:** `docker-compose.yml` startet eine lokale PostgreSQL-Datenbank mit Healthcheck und persistierendem Volume.
+- **CI/CD Deployment:** Vercel deployed Web-App und API automatisch über die GitHub-Integration. `.github/workflows/ci.yml` läuft bei PRs sowie Pushes auf `main` und `preview` und teilt die Quality-Checks in parallele Jobs auf: Lint, Type-Check, Unit Tests, Drizzle-Migration-Check, Build und ein Deploy-Stage-Marker.
+- **Container-Tool:** `docker-compose.yml` startet PostgreSQL, Loki und Grafana mit Healthcheck und persistierenden Volumes.
 - **Pipeline Environments:** Development läuft lokal, Preview läuft über Vercel Branch-/PR-Deployments und Production über Vercel Deployments von `main`.
 - **Deploybare Datenbank:** Neon PostgreSQL wird als Cloud-Datenbank für die deployte Anwendung verwendet.
-- **Unit Tests:** Vitest deckt aktuell 10 sinnvolle Unit Tests für Logging und UI-Utility-Verhalten ab.
+- **Unit Tests:** Vitest deckt aktuell die Logging- und UI-Utility-Logik mit gezielten Tests ab.
 - **Applikationslogs:** Der Server erzeugt strukturierte JSON-Logs für Serverstart, Environment, Datenbank-Konfiguration, CORS, Request-Start, Request-Ende, Auth-Requests, Healthchecks, Favicon-Requests und Fehler.
+- **Observability:** Loki + Grafana laufen lokal über Docker Compose mit provisionierten Datasources und Dashboards. Das Frontend bettet das Dashboard unter `/stats` ein.
+- **Authentifikation:** Better Auth mit Email/Password und optionalem Google OAuth.
+- **Feature Branching:** Alle Änderungen laufen über Feature-Branches und Pull Requests, der `preview`-Branch dient als Integrations-Staging vor `main`.
 
 Noch sinnvoll als nächster Schritt:
 
 - Integrationstests gegen API und Testdatenbank ergänzen.
-- Observability mit Grafana/Loki oder einem vergleichbaren Stack auf die strukturierten Logs aufsetzen.
