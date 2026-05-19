@@ -15,6 +15,7 @@
     "db:push": "turbo -F @M324/db db:push",
     "db:studio": "turbo -F @M324/db db:studio",
     "db:generate": "turbo -F @M324/db db:generate",
+    "db:check": "turbo -F @M324/db db:check",
     "db:migrate": "turbo -F @M324/db db:migrate",
     "db:seed": "turbo -F @M324/db db:seed",
     "db:start": "docker compose up -d",
