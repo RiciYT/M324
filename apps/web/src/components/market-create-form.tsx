@@ -26,7 +26,7 @@ export function MarketCreateForm() {
       await apiClient.createMarket({
         title,
         description,
-        closesAt,
+        closesAt: new Date(closesAt).toISOString(),
       });
       toast.success("Markt erstellt");
       setTitle("");

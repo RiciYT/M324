@@ -6,10 +6,14 @@ import SignUpForm from "@/components/sign-up-form";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: search.mode === "signin" ? "signin" : "signup",
+  }),
 });
 
 function RouteComponent() {
-  const [showSignIn, setShowSignIn] = useState(false);
+  const { mode } = Route.useSearch();
+  const [showSignIn, setShowSignIn] = useState(mode === "signin");
 
   return showSignIn ? (
     <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />

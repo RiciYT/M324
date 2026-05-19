@@ -18,7 +18,7 @@ export default function UserMenu() {
 
   if (!session) {
     return (
-      <Link to="/login">
+      <Link search={{ mode: "signin" }} to="/login">
         <Button variant="outline">
           <span className="sm:hidden">Anmelden</span>
           <span className="hidden sm:inline">Anmelden / Registrieren</span>
