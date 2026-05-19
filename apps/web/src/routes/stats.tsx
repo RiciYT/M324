@@ -85,10 +85,9 @@ function StatsRoute() {
                 npm run db:start
               </pre>
               <p>
-                Danach läuft Grafana unter{" "}
-                <code>http://localhost:3001</code> und das Dashboard ist über{" "}
-                die <code>VITE_GRAFANA_URL</code>-Variable in{" "}
-                <code>apps/web/.env</code> erreichbar. Siehe{" "}
+                Danach läuft Grafana unter <code>http://localhost:3001</code>{" "}
+                und das Dashboard ist über die <code>VITE_GRAFANA_URL</code>
+                -Variable in <code>apps/web/.env</code> erreichbar. Siehe{" "}
                 <code>.env.example</code> für ein vorgefertigtes Snippet.
               </p>
             </CardContent>
