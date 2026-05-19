@@ -3,7 +3,11 @@ import { account, session, user, verification } from "@M324/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
+import { createSocialProviders } from "./auth-social-providers.js";
 import { env } from "./env.js";
+import { getConfiguredOrigins } from "./origins.js";
+
+const trustedOrigins = getConfiguredOrigins(env.CORS_ORIGIN);
 
 const schema = {
   account,
@@ -21,10 +25,11 @@ export function createAuth() {
 
       schema,
     }),
-    trustedOrigins: [env.CORS_ORIGIN],
+    trustedOrigins,
     emailAndPassword: {
       enabled: true,
     },
+    socialProviders: createSocialProviders(env),
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     advanced: {

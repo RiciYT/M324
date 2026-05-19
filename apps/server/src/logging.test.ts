@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createLogEntry, logEvents } from "./logging.js";
+import { createLogEntry, createLokiPayload, logEvents } from "./logging.js";
 
 describe("createLogEntry", () => {
   it("creates an info log entry with the selected event", () => {
@@ -66,5 +66,46 @@ describe("createLogEntry", () => {
 
     expect(entry.level).toBe("error");
     expect(entry.context?.errorMessage).toBe("Database unavailable");
+  });
+});
+
+describe("createLokiPayload", () => {
+  it("creates Grafana Loki labels from the log entry", () => {
+    const entry = createLogEntry(
+      "info",
+      logEvents.requestCompleted,
+      "Request completed",
+      {
+        method: "GET",
+      }
+    );
+
+    const payload = createLokiPayload(entry, {
+      environment: "development",
+      serviceName: "m324-server",
+    });
+
+    expect(payload.streams).toHaveLength(1);
+    expect(payload.streams[0]?.labels).toEqual({
+      app: "m324-server",
+      env: "development",
+      event: "server.request.completed",
+      level: "info",
+    });
+  });
+
+  it("serializes the original log entry as Loki line payload", () => {
+    const entry = createLogEntry(
+      "warn",
+      logEvents.corsConfigured,
+      "CORS origin configured"
+    );
+
+    const payload = createLokiPayload(entry, {
+      environment: "preview",
+      serviceName: "m324-server",
+    });
+
+    expect(payload.streams[0]?.values[0]?.[1]).toBe(JSON.stringify(entry));
   });
 });

@@ -3,6 +3,7 @@ import {
   HeadContent,
   Outlet,
 } from "@tanstack/react-router";
+import { Empty404Page } from "@/components/empty-404";
 import Header from "@/components/header";
 import { Toaster } from "@/components/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -16,11 +17,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "M324",
+        title: "ShitMarket",
       },
       {
         name: "description",
-        content: "M324 is a web application",
+        content: "ShitMarket ist die Prognosemarkt-Parodie für absurde Wetten.",
       },
     ],
     links: [
@@ -30,6 +31,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
     ],
   }),
+  notFoundComponent: Empty404Page,
 });
 
 function RootComponent() {

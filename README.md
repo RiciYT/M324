@@ -10,7 +10,7 @@ M324 ist eine TypeScript-Monorepo-Anwendung auf Basis von Better-T-Stack. Das Pr
 - **Cloud-Datenbank:** Neon PostgreSQL für die deployte Produktionsumgebung
 - **Monorepo:** npm Workspaces und Turborepo
 - **Qualität:** TypeScript, Ultracite, Biome
-- **Tests:** Vitest für Unit Tests
+- **Tests:** Vitest für Unit- und Integrationstests mit Testcontainers
 - **CI/CD:** GitHub Actions für Qualitätschecks und Vercel Git Integration für Deployments
 
 ## Projektstruktur
@@ -54,9 +54,15 @@ Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
 - `CORS_ORIGIN`
+- `GOOGLE_CLIENT_ID` (optional, für Google Login)
+- `GOOGLE_CLIENT_SECRET` (optional, für Google Login)
+- `LOKI_URL`
+- `LOKI_USERNAME`
+- `LOKI_PASSWORD`
 - `VITE_SERVER_URL`
+- `VITE_GRAFANA_URL`
 
-Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pushes auf `main` und bei Pull Requests. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach Unit Tests, Ultracite/Biome-Checks, TypeScript-Checks und den Workspace-Build aus.
+Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pull Requests sowie bei Pushes auf `main` und `preview`. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach in parallelen Jobs Lint, Type-Checks, Unit Tests und einen Drizzle-Migrationscheck aus. Ein nachgelagerter `build`-Job baut alle Workspaces, und auf `main`/`preview` markiert ein finaler `deploy`-Job, dass die Vercel-Integration den Push veröffentlicht. Stale CI-Runs auf demselben Ref werden über eine Concurrency-Gruppe automatisch gecanceld.
 
 Das Deployment läuft über die Vercel Git Integration. Commits auf `main` erzeugen Production Deployments, Pull Requests beziehungsweise Branches erzeugen Preview Deployments.
 
@@ -95,25 +101,14 @@ Für die Anwendung selbst werden keine separaten systemweiten SDKs benötigt. Di
 npm install
 ```
 
-2. Umgebungsvariablen konfigurieren:
+2. Umgebungsvariablen konfigurieren. Die Vorlagen liegen als `.env.example` neben jeder App und können direkt kopiert werden:
 
-`apps/server/.env`
-
-```env
-DATABASE_URL=postgres://postgres:password@localhost:5432/M324
-BETTER_AUTH_SECRET=ersetze-diesen-wert-durch-einen-langen-zufaelligen-string
-BETTER_AUTH_URL=http://localhost:3000
-CORS_ORIGIN=http://localhost:5173
-NODE_ENV=development
+```bash
+cp apps/server/.env.example apps/server/.env
+cp apps/web/.env.example apps/web/.env
 ```
 
-`apps/web/.env`
-
-```env
-VITE_SERVER_URL=http://localhost:3000
-```
-
-`BETTER_AUTH_SECRET` muss mindestens 32 Zeichen lang sein.
+In `apps/server/.env` muss anschließend `BETTER_AUTH_SECRET` durch einen zufälligen String mit mindestens 32 Zeichen ersetzt werden. Google-Login (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`) ist optional — bleiben die Felder leer, wird der Button im UI ausgeblendet. Auch Loki ist optional: ohne `LOKI_URL` skippt der Server den Push transparent.
 
 3. PostgreSQL starten:
 
@@ -143,6 +138,8 @@ Danach sind die Dienste erreichbar unter:
 
 - Web-App: [http://localhost:5173](http://localhost:5173)
 - API: [http://localhost:3000](http://localhost:3000)
+- Loki API: [http://localhost:3100/ready](http://localhost:3100/ready)
+- Grafana: [http://localhost:3001](http://localhost:3001)
 
 ## Wichtige Befehle
 
@@ -151,7 +148,7 @@ npm run dev          # Frontend, Backend und abhängige Workspace-Tasks starten
 npm run dev:web      # Nur das Frontend starten
 npm run dev:server   # Nur die API starten
 npm run build        # Alle Workspaces bauen
-npm run test         # Unit Tests mit Vitest ausführen
+npm run test         # Unit- und Integrationstests mit Vitest ausführen
 npm run check-types  # TypeScript-Prüfungen ausführen
 npm run check        # Ultracite/Biome-Prüfung
 npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
@@ -160,15 +157,36 @@ npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
 ## Datenbankbefehle
 
 ```bash
-npm run db:start     # PostgreSQL im Hintergrund starten
-npm run db:watch     # PostgreSQL im Vordergrund starten
+npm run db:start     # PostgreSQL, Loki und Grafana im Hintergrund starten
+npm run db:watch     # Selbiges, aber im Vordergrund mit Live-Logs
 npm run db:stop      # Container stoppen
-npm run db:down      # Container und Netzwerk entfernen
+npm run db:down      # Container und Netzwerk entfernen (Volumes bleiben)
+npm run db:reset     # Container und Volumes entfernen (DB komplett wipen)
 npm run db:push      # Schema direkt in die Datenbank pushen
 npm run db:generate  # Drizzle-Migrationen generieren
+npm run db:check     # Migrationen auf Konsistenz prüfen (auch in CI aktiv)
 npm run db:migrate   # Migrationen ausführen
+npm run db:seed      # Demo-Märkte und System-User in eine leere DB schreiben
 npm run db:studio    # Drizzle Studio öffnen
 ```
+
+## Observability
+
+Das Repository bringt einen lokalen Observability-Stack mit:
+
+- **Loki** sammelt strukturierte Server-Logs (Port `3100`)
+- **Grafana** ist bereits mit Loki verbunden (Port `3001`, anonymous viewer)
+- Ein Dashboard `M324 Server Observability` wird via Provisioning-Files in `ops/observability/grafana/` automatisch geladen
+- Die App selbst zeigt das Dashboard unter [`/stats`](http://localhost:5173/stats) als eingebettetes iframe
+
+Lokaler Ablauf (sofern `.env.example` kopiert wurde, ist `LOKI_URL` bereits gesetzt):
+
+1. `npm run db:start` — startet Postgres, Loki und Grafana
+2. `npm run db:push && npm run db:seed` — Schema anwenden und Demo-Märkte laden
+3. `npm run dev` — App starten
+4. `/stats` im Browser öffnen oder direkt Grafana unter [http://localhost:3001/d/m324-observability](http://localhost:3001/d/m324-observability)
+
+Für Preview/Production: dieselbe Server-Logik kann gegen Grafana Cloud (oder einen anderen Loki-Endpoint) pushen, solange `LOKI_URL` erreichbar ist. Optional sind `LOKI_USERNAME` und `LOKI_PASSWORD` für Basic Auth, sowie `VITE_GRAFANA_URL` im Web-App-Env für den iframe-Embed.
 
 ## UI-Anpassungen
 
@@ -211,14 +229,28 @@ npm run fix
 
 Umgesetzte Zusatzleistungen:
 
-- **CI/CD Deployment:** Vercel deployed Web-App und API automatisch über die GitHub-Integration. Zusätzlich prüft `.github/workflows/ci.yml` jeden Push auf `main` und Pull Requests.
-- **Container-Tool:** `docker-compose.yml` startet eine lokale PostgreSQL-Datenbank mit Healthcheck und persistierendem Volume.
+- **CI/CD Deployment:** Vercel deployed Web-App und API automatisch über die GitHub-Integration. `.github/workflows/ci.yml` läuft bei PRs sowie Pushes auf `main` und `preview` und teilt die Quality-Checks in parallele Jobs auf: Lint, Type-Check, Unit Tests, Drizzle-Migration-Check, Build und ein Deploy-Stage-Marker.
+- **Container-Tool:** `docker-compose.yml` startet PostgreSQL, Loki und Grafana mit Healthcheck und persistierenden Volumes.
 - **Pipeline Environments:** Development läuft lokal, Preview läuft über Vercel Branch-/PR-Deployments und Production über Vercel Deployments von `main`.
 - **Deploybare Datenbank:** Neon PostgreSQL wird als Cloud-Datenbank für die deployte Anwendung verwendet.
-- **Unit Tests:** Vitest deckt aktuell 10 sinnvolle Unit Tests für Logging und UI-Utility-Verhalten ab.
+- **Tests:** Vitest deckt Logging-, UI-Utility- und Auth-Redirect-Logik ab. Zusätzlich prüfen Testcontainers-Integrationstests mit PostgreSQL die zentralen Markt-Flows: Wette platzieren, fehlende Credits, pari-mutuel Resolve und Non-Admin-Resolve.
 - **Applikationslogs:** Der Server erzeugt strukturierte JSON-Logs für Serverstart, Environment, Datenbank-Konfiguration, CORS, Request-Start, Request-Ende, Auth-Requests, Healthchecks, Favicon-Requests und Fehler.
+- **Observability:** Loki + Grafana laufen lokal über Docker Compose mit provisionierten Datasources und Dashboards. Das Frontend bettet das Dashboard unter `/stats` ein.
+- **Authentifikation:** Better Auth mit Email/Password und optionalem Google OAuth.
+- **Feature Branching:** Alle Änderungen laufen über Feature-Branches und Pull Requests, der `preview`-Branch dient als Integrations-Staging vor `main`.
 
-Noch sinnvoll als nächster Schritt:
+## Anforderungsabdeckung
 
-- Integrationstests gegen API und Testdatenbank ergänzen.
-- Observability mit Grafana/Loki oder einem vergleichbaren Stack auf die strukturierten Logs aufsetzen.
+Diese Tabelle fasst die wichtigsten Bewertungs- und Demo-Punkte mit technischem Nachweis zusammen.
+
+| Bereich | Umsetzung | Nachweis |
+| --- | --- | --- |
+| Service-Layer und Business Logic | `placeBet` prüft Credits und Marktstatus in einer DB-Transaktion; `resolveMarket` verteilt den Pool pari-mutuel und atomar. | `apps/server/src/services/bets.ts`, `apps/server/src/services/markets.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
+| Auth- und Admin-Schutz | `requireSession` schützt angemeldete API-Flows; `requireAdmin` schützt Resolve serverseitig. | `apps/server/src/middleware/auth.ts`, `apps/server/src/index.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
+| Integrationstests | Testcontainers startet PostgreSQL und prüft Credit-Abzug, Insufficient Credits, pari-mutuel Resolve und Non-Admin Resolve. | `apps/server/src/services/integration.test.ts`, PR [#26](https://github.com/RiciYT/M324/pull/26) |
+| Observability | Docker Compose startet PostgreSQL, Loki und Grafana; Server pusht strukturierte Logs; `/stats` bettet das Dashboard ein. | `docker-compose.yml`, `ops/observability/`, `apps/server/src/logging.ts`, `apps/web/src/routes/stats.tsx`, PR [#16](https://github.com/RiciYT/M324/pull/16), PR [#25](https://github.com/RiciYT/M324/pull/25) |
+| Frontend Markets UI | Feed, Detailseite, Create-Form, Portfolio, Leaderboard, Wallet und Daily Claim sind im Frontend sichtbar. | `apps/web/src/routes/markets.index.tsx`, `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/routes/portfolio.tsx`, PR [#19](https://github.com/RiciYT/M324/pull/19) |
+| Admin Resolve UI | Resolve-Buttons erscheinen nur für Benutzer mit `role === "admin"` und rufen die geschützte API auf. | `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/lib/api-client.ts`, PR [#27](https://github.com/RiciYT/M324/pull/27) |
+| Daily Coins | Angemeldete Benutzer können alle 24 Stunden 1000 Coins claimen; erneutes Claimen vor Ablauf wird blockiert. | `apps/server/src/services/wallet.ts`, `apps/web/src/components/header.tsx`, Commit `01aa309` |
+| CI/CD und Environments | CI läuft bei PRs sowie `main`/`preview`, prüft Lint, Types, Tests, Migrationen und Build; Deployments laufen über Vercel Git Integration. | `.github/workflows/ci.yml`, PR [#23](https://github.com/RiciYT/M324/pull/23) |
+| Branching und Nachverfolgbarkeit | Features wurden über getrennte Branches und Pull Requests in `preview` integriert. | `feature/login` PR [#19](https://github.com/RiciYT/M324/pull/19), `feature/auth` PR [#24](https://github.com/RiciYT/M324/pull/24), `feature/test` PR [#26](https://github.com/RiciYT/M324/pull/26), `codex/admin-resolve-readme` PR [#27](https://github.com/RiciYT/M324/pull/27) |

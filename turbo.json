@@ -9,6 +9,9 @@
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
         "CORS_ORIGIN",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "VERCEL_RELATED_PROJECTS",
         "VITE_SERVER_URL"
       ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
@@ -30,9 +33,15 @@
     "db:generate": {
       "cache": false
     },
+    "db:check": {
+      "cache": false
+    },
     "db:migrate": {
       "cache": false,
       "persistent": true
+    },
+    "db:seed": {
+      "cache": false
     },
     "db:studio": {
       "cache": false,
@@ -50,6 +59,9 @@
       "persistent": true
     },
     "db:down": {
+      "cache": false
+    },
+    "db:reset": {
       "cache": false
     }
   }
