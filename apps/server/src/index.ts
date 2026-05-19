@@ -165,7 +165,7 @@ app.get("/api/wallet", requireSession, async (c) => {
 });
 
 app.post("/api/wallet/claim", requireSession, async (c) => {
-  const wallet = await claimDailyCoins(db, c.var.sessionUser.id);
+  const wallet = await claimDailyCoins(db, c.var.sessionUser);
 
   return c.json(wallet);
 });
