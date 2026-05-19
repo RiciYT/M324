@@ -4,10 +4,9 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 import { env } from "./env.js";
+import { getConfiguredOrigins } from "./origins.js";
 
-const trustedOrigins = env.CORS_ORIGIN.split(",").map((origin) =>
-  origin.trim()
-);
+const trustedOrigins = getConfiguredOrigins(env.CORS_ORIGIN);
 
 const schema = {
   account,

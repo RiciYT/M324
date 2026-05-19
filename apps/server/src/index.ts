@@ -11,10 +11,11 @@ import { z } from "zod";
 import { auth } from "./auth.js";
 import { env } from "./env.js";
 import { logEvents, writeLog } from "./logging.js";
+import { getAllowedOrigin, getConfiguredOrigins } from "./origins.js";
 
 const app = new Hono();
 const db = createDb();
-const corsOrigins = env.CORS_ORIGIN.split(",").map((origin) => origin.trim());
+const corsOrigins = getConfiguredOrigins(env.CORS_ORIGIN);
 
 const createMarketInput = z.object({
   closesAt: z.string().datetime(),
@@ -64,13 +65,7 @@ app.use("*", async (c, next) => {
 app.use(
   "/*",
   cors({
-    origin: (origin) => {
-      if (!origin) {
-        return corsOrigins[0] ?? "";
-      }
-
-      return corsOrigins.includes(origin) ? origin : (corsOrigins[0] ?? "");
-    },
+    origin: (origin) => getAllowedOrigin(origin, corsOrigins),
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
