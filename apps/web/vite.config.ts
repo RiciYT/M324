@@ -9,17 +9,11 @@ const SERVER_PROJECT_NAME = "m324-server";
 
 const getServerUrl = (mode: string): string => {
   const env = loadEnv(mode, process.cwd(), "");
-  const vercelEnvironment = env.VERCEL_ENV || process.env.VERCEL_ENV;
   const explicitServerUrl = env.VITE_SERVER_URL || process.env.VITE_SERVER_URL;
-  const isVercelPreview = vercelEnvironment === "preview";
   const relatedServerUrl = withRelatedProject({
     projectName: SERVER_PROJECT_NAME,
     defaultHost: "",
   });
-
-  if (isVercelPreview && relatedServerUrl) {
-    return relatedServerUrl;
-  }
 
   if (explicitServerUrl) {
     return explicitServerUrl;
@@ -34,6 +28,8 @@ const getServerUrl = (mode: string): string => {
 
 export default defineConfig(({ mode }): UserConfig => {
   const serverUrl = getServerUrl(mode);
+
+  console.info(`Using API server URL: ${serverUrl}`);
 
   return {
     server: {
