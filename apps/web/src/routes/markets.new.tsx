@@ -8,6 +8,7 @@ export const Route = createFileRoute("/markets/new")({
 });
 
 function NewMarketRoute() {
+  const navigate = Route.useNavigate();
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
@@ -62,7 +63,11 @@ function NewMarketRoute() {
             Ablaufdatum an.
           </p>
         </div>
-        <MarketCreateForm />
+        <MarketCreateForm
+          onCreated={() => {
+            navigate({ to: "/markets" });
+          }}
+        />
       </section>
     </main>
   );
