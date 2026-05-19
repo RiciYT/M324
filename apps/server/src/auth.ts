@@ -3,6 +3,7 @@ import { account, session, user, verification } from "@M324/db/schema/auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
+import { createSocialProviders } from "./auth-social-providers.js";
 import { env } from "./env.js";
 import { getConfiguredOrigins } from "./origins.js";
 
@@ -28,6 +29,7 @@ export function createAuth() {
     emailAndPassword: {
       enabled: true,
     },
+    socialProviders: createSocialProviders(env),
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     advanced: {

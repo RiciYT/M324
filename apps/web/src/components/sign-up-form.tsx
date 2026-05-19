@@ -8,6 +8,7 @@ import { Label } from "@/components/label";
 
 import { authClient } from "@/lib/auth-client";
 
+import { GoogleAuthButton } from "./google-auth-button";
 import Loader from "./loader";
 
 export default function SignUpForm({
@@ -64,6 +65,14 @@ export default function SignUpForm({
   return (
     <div className="mx-auto mt-10 w-full max-w-md p-6">
       <h1 className="mb-6 text-center font-bold text-3xl">Konto erstellen</h1>
+
+      <GoogleAuthButton />
+
+      <div className="my-6 flex items-center gap-3 text-muted-foreground text-sm">
+        <div className="h-px flex-1 bg-border" />
+        <span>oder mit E-Mail</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
 
       <form
         className="space-y-4"

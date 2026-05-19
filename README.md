@@ -54,6 +54,8 @@ Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
 - `CORS_ORIGIN`
+- `GOOGLE_CLIENT_ID` (optional, für Google Login)
+- `GOOGLE_CLIENT_SECRET` (optional, für Google Login)
 - `LOKI_URL`
 - `LOKI_USERNAME`
 - `LOKI_PASSWORD`
@@ -107,6 +109,8 @@ DATABASE_URL=postgres://postgres:password@localhost:5432/M324
 BETTER_AUTH_SECRET=ersetze-diesen-wert-durch-einen-langen-zufaelligen-string
 BETTER_AUTH_URL=http://localhost:3000
 CORS_ORIGIN=http://localhost:5173
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 LOKI_URL=http://localhost:3100/loki/api/v1/push
 NODE_ENV=development
 ```
