@@ -5,5 +5,7 @@ export default defineConfig({
   format: "esm",
   outDir: "./dist",
   clean: true,
-  noExternal: [/@M324\/.*/],
+  deps: {
+    alwaysBundle: [/@M324\/.*/],
+  },
 });
