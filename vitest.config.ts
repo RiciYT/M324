@@ -4,5 +4,6 @@ export default defineConfig({
   test: {
     include: ["**/src/**/*.{test,spec}.{ts,tsx}"],
     exclude: ["**/node_modules/**", "**/dist/**", "**/.turbo/**"],
+    setupFiles: ["./vitest.setup.ts"],
   },
 });
