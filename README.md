@@ -239,6 +239,18 @@ Umgesetzte Zusatzleistungen:
 - **Authentifikation:** Better Auth mit Email/Password und optionalem Google OAuth.
 - **Feature Branching:** Alle Änderungen laufen über Feature-Branches und Pull Requests, der `preview`-Branch dient als Integrations-Staging vor `main`.
 
-Noch sinnvoll als nächster Schritt:
+## Anforderungsabdeckung
 
-- GitHub-Issues/PRs in der Abschlussdokumentation eindeutig referenzieren, damit die Nachverfolgbarkeit der Feature-Branches sichtbar bleibt.
+Diese Tabelle fasst die wichtigsten Bewertungs- und Demo-Punkte mit technischem Nachweis zusammen.
+
+| Bereich | Umsetzung | Nachweis |
+| --- | --- | --- |
+| Service-Layer und Business Logic | `placeBet` prüft Credits und Marktstatus in einer DB-Transaktion; `resolveMarket` verteilt den Pool pari-mutuel und atomar. | `apps/server/src/services/bets.ts`, `apps/server/src/services/markets.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
+| Auth- und Admin-Schutz | `requireSession` schützt angemeldete API-Flows; `requireAdmin` schützt Resolve serverseitig. | `apps/server/src/middleware/auth.ts`, `apps/server/src/index.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
+| Integrationstests | Testcontainers startet PostgreSQL und prüft Credit-Abzug, Insufficient Credits, pari-mutuel Resolve und Non-Admin Resolve. | `apps/server/src/services/integration.test.ts`, PR [#26](https://github.com/RiciYT/M324/pull/26) |
+| Observability | Docker Compose startet PostgreSQL, Loki und Grafana; Server pusht strukturierte Logs; `/stats` bettet das Dashboard ein. | `docker-compose.yml`, `ops/observability/`, `apps/server/src/logging.ts`, `apps/web/src/routes/stats.tsx`, PR [#16](https://github.com/RiciYT/M324/pull/16), PR [#25](https://github.com/RiciYT/M324/pull/25) |
+| Frontend Markets UI | Feed, Detailseite, Create-Form, Portfolio, Leaderboard, Wallet und Daily Claim sind im Frontend sichtbar. | `apps/web/src/routes/markets.index.tsx`, `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/routes/portfolio.tsx`, PR [#19](https://github.com/RiciYT/M324/pull/19) |
+| Admin Resolve UI | Resolve-Buttons erscheinen nur für Benutzer mit `role === "admin"` und rufen die geschützte API auf. | `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/lib/api-client.ts`, PR [#27](https://github.com/RiciYT/M324/pull/27) |
+| Daily Coins | Angemeldete Benutzer können alle 24 Stunden 1000 Coins claimen; erneutes Claimen vor Ablauf wird blockiert. | `apps/server/src/services/wallet.ts`, `apps/web/src/components/header.tsx`, Commit `01aa309` |
+| CI/CD und Environments | CI läuft bei PRs sowie `main`/`preview`, prüft Lint, Types, Tests, Migrationen und Build; Deployments laufen über Vercel Git Integration. | `.github/workflows/ci.yml`, PR [#23](https://github.com/RiciYT/M324/pull/23) |
+| Branching und Nachverfolgbarkeit | Features wurden über getrennte Branches und Pull Requests in `preview` integriert. | `feature/login` PR [#19](https://github.com/RiciYT/M324/pull/19), `feature/auth` PR [#24](https://github.com/RiciYT/M324/pull/24), `feature/test` PR [#26](https://github.com/RiciYT/M324/pull/26), `codex/admin-resolve-readme` PR [#27](https://github.com/RiciYT/M324/pull/27) |
