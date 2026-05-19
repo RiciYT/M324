@@ -5,6 +5,10 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 import { env } from "./env.js";
 
+const trustedOrigins = env.CORS_ORIGIN.split(",").map((origin) =>
+  origin.trim()
+);
+
 const schema = {
   account,
   session,
@@ -21,7 +25,7 @@ export function createAuth() {
 
       schema,
     }),
-    trustedOrigins: [env.CORS_ORIGIN],
+    trustedOrigins,
     emailAndPassword: {
       enabled: true,
     },
