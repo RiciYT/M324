@@ -2,6 +2,7 @@ import { env } from "@/lib/env";
 
 export type MarketSide = "yes" | "no";
 export type MarketStatus = "open" | "resolved";
+export type UserRole = "admin" | "user" | string;
 export type TransactionReason =
   | "bet"
   | "daily_claim"
@@ -32,6 +33,7 @@ export interface Wallet {
   canClaimDailyCoins: boolean;
   credits: number;
   nextDailyClaimAt?: string;
+  role: UserRole;
 }
 
 export interface DailyClaimResult extends Wallet {

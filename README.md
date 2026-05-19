@@ -10,7 +10,7 @@ M324 ist eine TypeScript-Monorepo-Anwendung auf Basis von Better-T-Stack. Das Pr
 - **Cloud-Datenbank:** Neon PostgreSQL für die deployte Produktionsumgebung
 - **Monorepo:** npm Workspaces und Turborepo
 - **Qualität:** TypeScript, Ultracite, Biome
-- **Tests:** Vitest für Unit Tests
+- **Tests:** Vitest für Unit- und Integrationstests mit Testcontainers
 - **CI/CD:** GitHub Actions für Qualitätschecks und Vercel Git Integration für Deployments
 
 ## Projektstruktur
@@ -148,7 +148,7 @@ npm run dev          # Frontend, Backend und abhängige Workspace-Tasks starten
 npm run dev:web      # Nur das Frontend starten
 npm run dev:server   # Nur die API starten
 npm run build        # Alle Workspaces bauen
-npm run test         # Unit Tests mit Vitest ausführen
+npm run test         # Unit- und Integrationstests mit Vitest ausführen
 npm run check-types  # TypeScript-Prüfungen ausführen
 npm run check        # Ultracite/Biome-Prüfung
 npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
@@ -233,7 +233,7 @@ Umgesetzte Zusatzleistungen:
 - **Container-Tool:** `docker-compose.yml` startet PostgreSQL, Loki und Grafana mit Healthcheck und persistierenden Volumes.
 - **Pipeline Environments:** Development läuft lokal, Preview läuft über Vercel Branch-/PR-Deployments und Production über Vercel Deployments von `main`.
 - **Deploybare Datenbank:** Neon PostgreSQL wird als Cloud-Datenbank für die deployte Anwendung verwendet.
-- **Unit Tests:** Vitest deckt aktuell die Logging- und UI-Utility-Logik mit gezielten Tests ab.
+- **Tests:** Vitest deckt Logging-, UI-Utility- und Auth-Redirect-Logik ab. Zusätzlich prüfen Testcontainers-Integrationstests mit PostgreSQL die zentralen Markt-Flows: Wette platzieren, fehlende Credits, pari-mutuel Resolve und Non-Admin-Resolve.
 - **Applikationslogs:** Der Server erzeugt strukturierte JSON-Logs für Serverstart, Environment, Datenbank-Konfiguration, CORS, Request-Start, Request-Ende, Auth-Requests, Healthchecks, Favicon-Requests und Fehler.
 - **Observability:** Loki + Grafana laufen lokal über Docker Compose mit provisionierten Datasources und Dashboards. Das Frontend bettet das Dashboard unter `/stats` ein.
 - **Authentifikation:** Better Auth mit Email/Password und optionalem Google OAuth.
@@ -241,4 +241,4 @@ Umgesetzte Zusatzleistungen:
 
 Noch sinnvoll als nächster Schritt:
 
-- Integrationstests gegen API und Testdatenbank ergänzen.
+- GitHub-Issues/PRs in der Abschlussdokumentation eindeutig referenzieren, damit die Nachverfolgbarkeit der Feature-Branches sichtbar bleibt.

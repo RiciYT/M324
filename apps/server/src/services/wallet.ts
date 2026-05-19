@@ -14,7 +14,7 @@ const DAILY_CLAIM_REASON = "daily_claim";
 
 export async function getWallet(
   db: Database,
-  sessionUser: { credits: number; id: string }
+  sessionUser: { credits: number; id: string; role: string }
 ) {
   const dailyClaim = await getDailyClaimState(db, sessionUser.id);
 
@@ -22,12 +22,16 @@ export async function getWallet(
     canClaimDailyCoins: dailyClaim.canClaimDailyCoins,
     credits: sessionUser.credits,
     nextDailyClaimAt: dailyClaim.nextDailyClaimAt?.toISOString(),
+    role: sessionUser.role,
   };
 }
 
-export async function claimDailyCoins(db: Database, userId: string) {
+export async function claimDailyCoins(
+  db: Database,
+  sessionUser: { id: string; role: string }
+) {
   return await db.transaction(async (tx) => {
-    const dailyClaim = await getDailyClaimState(tx, userId);
+    const dailyClaim = await getDailyClaimState(tx, sessionUser.id);
 
     if (!dailyClaim.canClaimDailyCoins) {
       throw new ServiceError(429, "Daily coins already claimed");
@@ -35,17 +39,17 @@ export async function claimDailyCoins(db: Database, userId: string) {
 
     await tx.insert(transaction).values({
       id: randomUUID(),
-      userId,
+      userId: sessionUser.id,
       delta: DAILY_CLAIM_AMOUNT,
       reason: DAILY_CLAIM_REASON,
       refType: "wallet",
-      refId: userId,
+      refId: sessionUser.id,
     });
 
     const [updatedUser] = await tx
       .update(user)
       .set({ credits: sql`${user.credits} + ${DAILY_CLAIM_AMOUNT}` })
-      .where(eq(user.id, userId))
+      .where(eq(user.id, sessionUser.id))
       .returning({
         credits: user.credits,
       });
@@ -61,6 +65,7 @@ export async function claimDailyCoins(db: Database, userId: string) {
       nextDailyClaimAt: new Date(
         Date.now() + DAILY_CLAIM_COOLDOWN_MS
       ).toISOString(),
+      role: sessionUser.role,
     };
   });
 }

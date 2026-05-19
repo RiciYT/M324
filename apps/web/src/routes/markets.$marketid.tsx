@@ -1,10 +1,12 @@
 // biome-ignore-all lint/style/useFilenamingConvention: TanStack Router uses $param filenames for dynamic routes.
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock, TrendingUp } from "lucide-react";
+import { Clock, ShieldCheck, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { BetForm } from "@/components/bet-form";
+import { Button } from "@/components/button";
 import { MarketPoolChart } from "@/components/market-pool-chart";
-import { useMarket, useMarketActivity } from "@/lib/market-hooks";
+import { apiClient, type MarketSide } from "@/lib/api-client";
+import { useMarket, useMarketActivity, useWallet } from "@/lib/market-hooks";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -22,11 +24,14 @@ export const Route = createFileRoute("/markets/$marketid")({
 function MarketDetailRoute() {
   const { marketid } = Route.useParams();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [resolveError, setResolveError] = useState<string>();
+  const [isResolving, setIsResolving] = useState(false);
   const { data: market, error, isLoading } = useMarket(marketid, refreshKey);
   const { data: activity, isLoading: isActivityLoading } = useMarketActivity(
     marketid,
     refreshKey
   );
+  const { data: wallet } = useWallet();
 
   if (isLoading) {
     return (
@@ -50,6 +55,28 @@ function MarketDetailRoute() {
   const yesLabel = `Ja ${percentFormatter.format(yesRatio)}`;
   const noLabel = `Nein ${percentFormatter.format(noRatio)}`;
   const statusLabel = market.status === "open" ? "Offen" : "Aufgelöst";
+  const isAdmin = wallet?.role === "admin";
+
+  const handleResolve = async (outcome: MarketSide) => {
+    setIsResolving(true);
+    setResolveError(undefined);
+
+    try {
+      await apiClient.resolveMarket({
+        marketId: market.id,
+        outcome,
+      });
+      setRefreshKey((value) => value + 1);
+    } catch (error_) {
+      setResolveError(
+        error_ instanceof Error
+          ? error_.message
+          : "Markt konnte nicht aufgelöst werden"
+      );
+    } finally {
+      setIsResolving(false);
+    }
+  };
 
   return (
     <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
@@ -156,9 +183,88 @@ function MarketDetailRoute() {
             Der aktuelle Preis basiert auf der Verteilung im Pool. Diese
             Schulversion simuliert den Markt ohne Orderbuch.
           </p>
+          {isAdmin ? (
+            <AdminResolvePanel
+              isResolving={isResolving}
+              marketStatus={market.status}
+              onResolve={handleResolve}
+              outcome={market.outcome}
+              resolveError={resolveError}
+            />
+          ) : null}
         </aside>
       </section>
     </main>
+  );
+}
+
+function AdminResolvePanel({
+  isResolving,
+  marketStatus,
+  onResolve,
+  outcome,
+  resolveError,
+}: {
+  isResolving: boolean;
+  marketStatus: "open" | "resolved";
+  onResolve: (outcome: MarketSide) => void;
+  outcome?: MarketSide;
+  resolveError?: string;
+}) {
+  const isResolved = marketStatus === "resolved";
+
+  return (
+    <section
+      aria-labelledby="admin-resolve-heading"
+      className="mt-5 rounded-[8px] border border-[#c8ff00]/30 bg-[#11120f] p-4"
+    >
+      <div className="mb-4 flex items-center gap-2">
+        <ShieldCheck aria-hidden="true" className="size-5 text-[#c8ff00]" />
+        <div>
+          <h2 className="font-black text-sm" id="admin-resolve-heading">
+            Admin Resolve
+          </h2>
+          <p className="text-xs text-zinc-500">
+            Nur sichtbar für Benutzer mit Admin-Rolle.
+          </p>
+        </div>
+      </div>
+
+      {isResolved ? (
+        <p className="rounded-[6px] border border-zinc-800 bg-black/20 p-3 text-sm text-zinc-300">
+          Markt ist bereits auf{" "}
+          <span className="font-semibold text-zinc-100">
+            {outcome === "yes" ? "Ja" : "Nein"}
+          </span>{" "}
+          aufgelöst.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            className="h-10 rounded-[6px] bg-[#c8ff00] font-black text-black hover:bg-[#c8ff00]/90"
+            disabled={isResolving}
+            onClick={() => onResolve("yes")}
+            type="button"
+          >
+            Ja gewinnt
+          </Button>
+          <Button
+            className="h-10 rounded-[6px] bg-destructive font-black text-white hover:bg-destructive/90"
+            disabled={isResolving}
+            onClick={() => onResolve("no")}
+            type="button"
+          >
+            Nein gewinnt
+          </Button>
+        </div>
+      )}
+
+      {resolveError ? (
+        <p className="mt-3 rounded-[6px] border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">
+          {resolveError}
+        </p>
+      ) : null}
+    </section>
   );
 }
 
