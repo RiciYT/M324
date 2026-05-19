@@ -26,6 +26,9 @@ export function createAuth() {
       schema,
     }),
     trustedOrigins,
+    account: {
+      storeStateStrategy: "cookie",
+    },
     emailAndPassword: {
       enabled: true,
     },
