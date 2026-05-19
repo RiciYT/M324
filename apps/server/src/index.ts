@@ -1,8 +1,7 @@
 import { createDb } from "@M324/db";
 import { user } from "@M324/db/schema/auth";
 import { bet, market, transaction } from "@M324/db/schema/markets";
-import { randomUUID } from "node:crypto";
-import { and, desc, eq, ne, sql } from "drizzle-orm";
+import { desc, eq, ne, sql } from "drizzle-orm";
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -11,11 +10,26 @@ import { z } from "zod";
 import { auth } from "./auth.js";
 import { env } from "./env.js";
 import { logEvents, writeLog } from "./logging.js";
+import {
+  type AppEnv,
+  createRequireSession,
+  requireAdmin,
+} from "./middleware/auth.js";
 import { getAllowedOrigin, getConfiguredOrigins } from "./origins.js";
+import { placeBet } from "./services/bets.js";
+import { ServiceError } from "./services/errors.js";
+import {
+  createMarket,
+  getMarketById,
+  listMarkets,
+  resolveMarket,
+} from "./services/markets.js";
+import { claimDailyCoins, getWallet } from "./services/wallet.js";
 
-const app = new Hono();
+const app = new Hono<AppEnv>();
 const db = createDb();
 const corsOrigins = getConfiguredOrigins(env.CORS_ORIGIN);
+const requireSession = createRequireSession(db);
 
 const createMarketInput = z.object({
   closesAt: z.string().datetime(),
@@ -35,10 +49,6 @@ const resolveMarketInput = z.object({
 });
 
 type MarketSide = "yes" | "no";
-
-const DAILY_CLAIM_AMOUNT = 1000;
-const DAILY_CLAIM_COOLDOWN_MS = 24 * 60 * 60 * 1000;
-const DAILY_CLAIM_REASON = "daily_claim";
 
 writeLog("info", logEvents.environmentLoaded, "Server environment loaded", {
   nodeEnv: env.NODE_ENV,
@@ -100,122 +110,42 @@ app.get("/", (c) => {
 });
 
 app.get("/api/markets", async (c) => {
-  const rows = await getMarkets();
+  const rows = await listMarkets(db);
 
   return c.json(rows);
 });
 
 app.get("/api/markets/:id", async (c) => {
   const id = c.req.param("id");
-  const rows = await getMarkets(id);
+  const row = await getMarketById(db, id);
 
-  if (rows.length === 0) {
+  if (!row) {
     return c.json(null, 404);
   }
 
-  return c.json(rows[0]);
+  return c.json(row);
 });
 
-app.post("/api/markets", async (c) => {
+app.post("/api/markets", requireSession, async (c) => {
   const input = createMarketInput.parse(await c.req.json());
-  const sessionUser = await getSessionUser(c);
-  const createdBy = sessionUser?.id ?? "system";
+  const row = await createMarket(db, input, c.var.sessionUser.id);
 
-  const [row] = await db
-    .insert(market)
-    .values({
-      id: randomUUID(),
-      title: input.title,
-      description: input.description,
-      createdBy,
-      status: "open",
-      closesAt: new Date(input.closesAt),
-    })
-    .returning();
-
-  if (!row) {
-    throw new Error("Market creation failed");
-  }
-
-  return c.json(toApiMarket(row, 0, 0), 201);
+  return c.json(row, 201);
 });
 
-app.get("/api/wallet", async (c) => {
-  const sessionUser = await getSessionUser(c);
+app.get("/api/wallet", requireSession, async (c) => {
+  const wallet = await getWallet(db, c.var.sessionUser);
 
-  if (!sessionUser) {
-    return c.json({ error: "Authentication required" }, 401);
-  }
-
-  const dailyClaim = await getDailyClaimState(sessionUser.id);
-
-  return c.json({
-    canClaimDailyCoins: dailyClaim.canClaimDailyCoins,
-    credits: sessionUser.credits,
-    nextDailyClaimAt: dailyClaim.nextDailyClaimAt?.toISOString(),
-  });
+  return c.json(wallet);
 });
 
-app.post("/api/wallet/claim", async (c) => {
-  const sessionUser = await getSessionUser(c);
+app.post("/api/wallet/claim", requireSession, async (c) => {
+  const wallet = await claimDailyCoins(db, c.var.sessionUser.id);
 
-  if (!sessionUser) {
-    return c.json({ error: "Authentication required" }, 401);
-  }
-
-  const dailyClaim = await getDailyClaimState(sessionUser.id);
-
-  if (!dailyClaim.canClaimDailyCoins) {
-    return c.json(
-      {
-        canClaimDailyCoins: false,
-        error: "Daily coins already claimed",
-        nextDailyClaimAt: dailyClaim.nextDailyClaimAt?.toISOString(),
-      },
-      429
-    );
-  }
-
-  const [updatedUser] = await db.transaction(async (tx) => {
-    await tx.insert(transaction).values({
-      id: randomUUID(),
-      userId: sessionUser.id,
-      delta: DAILY_CLAIM_AMOUNT,
-      reason: DAILY_CLAIM_REASON,
-      refType: "wallet",
-      refId: sessionUser.id,
-    });
-
-    return tx
-      .update(user)
-      .set({ credits: sql`${user.credits} + ${DAILY_CLAIM_AMOUNT}` })
-      .where(eq(user.id, sessionUser.id))
-      .returning({
-        credits: user.credits,
-      });
-  });
-
-  if (!updatedUser) {
-    throw new Error("Daily claim failed");
-  }
-
-  return c.json({
-    canClaimDailyCoins: false,
-    credits: updatedUser.credits,
-    grantedCredits: DAILY_CLAIM_AMOUNT,
-    nextDailyClaimAt: new Date(
-      Date.now() + DAILY_CLAIM_COOLDOWN_MS
-    ).toISOString(),
-  });
+  return c.json(wallet);
 });
 
-app.get("/api/portfolio", async (c) => {
-  const sessionUser = await getSessionUser(c);
-
-  if (!sessionUser) {
-    return c.json({ positions: [], transactions: [] });
-  }
-
+app.get("/api/portfolio", requireSession, async (c) => {
   const positions = await db
     .select({
       amount: sql<number>`coalesce(sum(${bet.amount}), 0)::int`,
@@ -225,7 +155,7 @@ app.get("/api/portfolio", async (c) => {
     })
     .from(bet)
     .innerJoin(market, eq(bet.marketId, market.id))
-    .where(eq(bet.userId, sessionUser.id))
+    .where(eq(bet.userId, c.var.sessionUser.id))
     .groupBy(bet.marketId, market.title, bet.side);
 
   const transactions = await db
@@ -238,7 +168,7 @@ app.get("/api/portfolio", async (c) => {
     })
     .from(transaction)
     .leftJoin(market, eq(transaction.refId, market.id))
-    .where(eq(transaction.userId, sessionUser.id))
+    .where(eq(transaction.userId, c.var.sessionUser.id))
     .orderBy(desc(transaction.createdAt));
 
   return c.json({
@@ -270,57 +200,27 @@ app.get("/api/leaderboard", async (c) => {
   return c.json(rows);
 });
 
-app.post("/api/bets", async (c) => {
-  const sessionUser = await getSessionUser(c);
-  if (!sessionUser) {
-    return c.json({ error: "Authentication required" }, 401);
-  }
-
+app.post("/api/bets", requireSession, async (c) => {
   const input = placeBetInput.parse(await c.req.json());
-  const betId = randomUUID();
+  const result = await placeBet(db, input, c.var.sessionUser.id);
 
-  await db.transaction(async (tx) => {
-    await tx.insert(bet).values({
-      id: betId,
-      userId: sessionUser.id,
-      marketId: input.marketId,
-      side: input.side,
-      amount: input.amount,
-    });
-    await tx.insert(transaction).values({
-      id: randomUUID(),
-      userId: sessionUser.id,
-      delta: -input.amount,
-      reason: "bet",
-      refType: "market",
-      refId: input.marketId,
-    });
-    await tx
-      .update(user)
-      .set({ credits: sql`${user.credits} - ${input.amount}` })
-      .where(eq(user.id, sessionUser.id));
-  });
-
-  return c.json({ accepted: true });
+  return c.json(result);
 });
 
-app.post("/api/markets/:id/resolve", async (c) => {
-  const input = resolveMarketInput.parse({
-    ...(await c.req.json()),
-    marketId: c.req.param("id"),
-  });
+app.post(
+  "/api/markets/:id/resolve",
+  requireSession,
+  requireAdmin,
+  async (c) => {
+    const input = resolveMarketInput.parse({
+      ...(await c.req.json()),
+      marketId: c.req.param("id"),
+    });
+    const result = await resolveMarket(db, input);
 
-  await db
-    .update(market)
-    .set({
-      outcome: input.outcome,
-      status: "resolved",
-      resolvedAt: new Date(),
-    })
-    .where(eq(market.id, input.marketId));
-
-  return c.json({ resolved: true });
-});
+    return c.json(result);
+  }
+);
 
 app.onError((error, c) => {
   writeLog("error", logEvents.requestFailed, "Request failed", {
@@ -328,6 +228,14 @@ app.onError((error, c) => {
     method: c.req.method,
     path: c.req.path,
   });
+
+  if (error instanceof ServiceError) {
+    return c.json({ error: error.message }, error.status);
+  }
+
+  if (error instanceof z.ZodError) {
+    return c.json({ error: "Invalid request", issues: error.issues }, 400);
+  }
 
   return c.json({ error: "Internal Server Error" }, 500);
 });
@@ -349,108 +257,4 @@ if (!process.env.VERCEL) {
       });
     }
   );
-}
-
-async function getSessionUser(c: Context) {
-  const session = await auth.api.getSession({
-    headers: c.req.raw.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const [row] = await db
-    .select({
-      credits: user.credits,
-      id: user.id,
-      name: user.name,
-      role: user.role,
-    })
-    .from(user)
-    .where(eq(user.id, session.user.id));
-
-  return row ?? null;
-}
-
-async function getDailyClaimState(userId: string) {
-  const [lastDailyClaim] = await db
-    .select({
-      createdAt: transaction.createdAt,
-    })
-    .from(transaction)
-    .where(
-      and(
-        eq(transaction.userId, userId),
-        eq(transaction.reason, DAILY_CLAIM_REASON)
-      )
-    )
-    .orderBy(desc(transaction.createdAt))
-    .limit(1);
-
-  if (!lastDailyClaim) {
-    return {
-      canClaimDailyCoins: true,
-      nextDailyClaimAt: undefined,
-    };
-  }
-
-  const nextDailyClaimAt = new Date(
-    lastDailyClaim.createdAt.getTime() + DAILY_CLAIM_COOLDOWN_MS
-  );
-
-  return {
-    canClaimDailyCoins: nextDailyClaimAt.getTime() <= Date.now(),
-    nextDailyClaimAt,
-  };
-}
-
-async function getMarkets(id?: string) {
-  const rows = await db
-    .select({
-      closesAt: market.closesAt,
-      createdBy: market.createdBy,
-      description: market.description,
-      id: market.id,
-      noPool: sql<number>`(
-        select coalesce(sum(${bet.amount}), 0)::int
-        from ${bet}
-        where ${bet.marketId} = ${market.id} and ${bet.side} = 'no'
-      )`,
-      outcome: market.outcome,
-      status: market.status,
-      title: market.title,
-      yesPool: sql<number>`(
-        select coalesce(sum(${bet.amount}), 0)::int
-        from ${bet}
-        where ${bet.marketId} = ${market.id} and ${bet.side} = 'yes'
-      )`,
-    })
-    .from(market)
-    .where(id ? eq(market.id, id) : undefined)
-    .orderBy(desc(market.createdAt));
-
-  return rows.map((row) => ({
-    ...row,
-    closesAt: row.closesAt.toISOString(),
-    outcome: row.outcome as MarketSide | undefined,
-  }));
-}
-
-function toApiMarket(
-  row: typeof market.$inferSelect,
-  yesPool: number,
-  noPool: number
-) {
-  return {
-    closesAt: row.closesAt.toISOString(),
-    createdBy: row.createdBy,
-    description: row.description,
-    id: row.id,
-    noPool,
-    outcome: row.outcome as MarketSide | undefined,
-    status: row.status,
-    title: row.title,
-    yesPool,
-  };
 }
