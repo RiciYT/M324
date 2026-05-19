@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/card";
+import { MarketPoolChart } from "@/components/market-pool-chart";
 import type { Market } from "@/lib/api-client";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
@@ -46,6 +47,12 @@ export function MarketCard({ market }: MarketCardProps) {
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 pb-5">
+        <MarketPoolChart
+          className="min-h-[150px]"
+          noPool={market.noPool}
+          yesPool={market.yesPool}
+        />
+
         <div className="grid grid-cols-[1fr_1px_1fr] items-stretch gap-3">
           <PoolStat
             label="Ja"

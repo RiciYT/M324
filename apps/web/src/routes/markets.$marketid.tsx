@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/card";
+import { MarketPoolChart } from "@/components/market-pool-chart";
 import { useMarket } from "@/lib/market-hooks";
 
 const canResolveMarkets = false;
@@ -141,6 +142,10 @@ function MarketDetailRoute() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 pb-6">
+              <MarketPoolChart
+                noPool={market.noPool}
+                yesPool={market.yesPool}
+              />
               <Metric
                 label="Ja Pool"
                 tone="yes"
