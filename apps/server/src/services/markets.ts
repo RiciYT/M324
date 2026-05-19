@@ -141,22 +141,25 @@ async function getMarkets(db: Database, id?: string) {
       createdBy: market.createdBy,
       description: market.description,
       id: market.id,
-      noPool: sql<number>`(
-        select coalesce(sum(${bet.amount}), 0)::int
-        from ${bet}
-        where ${bet.marketId} = ${market.id} and ${bet.side} = 'no'
-      )`,
+      noPool: sql<number>`coalesce(sum(case when ${bet.side} = 'no' then ${bet.amount} else 0 end), 0)::int`,
       outcome: market.outcome,
       status: market.status,
       title: market.title,
-      yesPool: sql<number>`(
-        select coalesce(sum(${bet.amount}), 0)::int
-        from ${bet}
-        where ${bet.marketId} = ${market.id} and ${bet.side} = 'yes'
-      )`,
+      yesPool: sql<number>`coalesce(sum(case when ${bet.side} = 'yes' then ${bet.amount} else 0 end), 0)::int`,
     })
     .from(market)
+    .leftJoin(bet, eq(bet.marketId, market.id))
     .where(id ? eq(market.id, id) : undefined)
+    .groupBy(
+      market.closesAt,
+      market.createdAt,
+      market.createdBy,
+      market.description,
+      market.id,
+      market.outcome,
+      market.status,
+      market.title
+    )
     .orderBy(desc(market.createdAt));
 
   return rows.map((row) => ({

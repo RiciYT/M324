@@ -8,12 +8,14 @@ import { apiClient, type MarketSide } from "@/lib/api-client";
 interface BetFormProps {
   marketId: string;
   noLabel?: string;
+  onBetPlaced?: () => void;
   yesLabel?: string;
 }
 
 export function BetForm({
   marketId,
   noLabel = "Nein",
+  onBetPlaced,
   yesLabel = "Ja",
 }: BetFormProps) {
   const [amount, setAmount] = useState("50");
@@ -30,6 +32,7 @@ export function BetForm({
         marketId,
         side,
       });
+      onBetPlaced?.();
       toast.success("Wette platziert");
     } catch (error) {
       toast.error(

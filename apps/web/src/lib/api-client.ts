@@ -20,6 +20,14 @@ export interface Market {
   yesPool: number;
 }
 
+export interface MarketActivity {
+  amount: number;
+  createdAt: string;
+  id: string;
+  side: MarketSide;
+  userName: string;
+}
+
 export interface Wallet {
   canClaimDailyCoins: boolean;
   credits: number;
@@ -104,6 +112,9 @@ export const apiClient = {
   },
   getMarkets(): Promise<Market[]> {
     return request<Market[]>("/api/markets");
+  },
+  getMarketActivity(id: string): Promise<MarketActivity[]> {
+    return request<MarketActivity[]>(`/api/markets/${id}/activity`);
   },
   getPortfolio(): Promise<{
     positions: PortfolioPosition[];

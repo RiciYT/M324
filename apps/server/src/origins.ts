@@ -19,6 +19,26 @@ export const isAllowedWebOrigin = (origin: string): boolean => {
   }
 };
 
+const normalizeLocalOrigin = (origin: string): string => {
+  try {
+    const url = new URL(origin);
+
+    if (url.hostname === "127.0.0.1") {
+      url.hostname = "localhost";
+      return url.origin;
+    }
+
+    if (url.hostname === "localhost") {
+      url.hostname = "127.0.0.1";
+      return url.origin;
+    }
+
+    return origin;
+  } catch {
+    return origin;
+  }
+};
+
 export const getAllowedOrigin = (
   origin: string | undefined,
   configuredOrigins: string[]
@@ -27,7 +47,11 @@ export const getAllowedOrigin = (
     return configuredOrigins[0] ?? "";
   }
 
-  if (configuredOrigins.includes(origin) || isAllowedWebOrigin(origin)) {
+  if (
+    configuredOrigins.includes(origin) ||
+    configuredOrigins.includes(normalizeLocalOrigin(origin)) ||
+    isAllowedWebOrigin(origin)
+  ) {
     return origin;
   }
 

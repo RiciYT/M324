@@ -3,6 +3,7 @@ import {
   apiClient,
   type LeaderboardEntry,
   type Market,
+  type MarketActivity,
   type PortfolioPosition,
   type Transaction,
   type Wallet,
@@ -60,14 +61,21 @@ export function useMarkets(): AsyncState<Market[]> {
   return useAsyncData(() => apiClient.getMarkets(), []);
 }
 
-export function useMarket(id: string): AsyncState<Market> {
+export function useMarket(id: string, refreshKey = 0): AsyncState<Market> {
   return useAsyncData(async () => {
     const data = await apiClient.getMarket(id);
     if (!data) {
       throw new Error("Market not found");
     }
     return data;
-  }, [id]);
+  }, [id, refreshKey]);
+}
+
+export function useMarketActivity(
+  id: string,
+  refreshKey = 0
+): AsyncState<MarketActivity[]> {
+  return useAsyncData(() => apiClient.getMarketActivity(id), [id, refreshKey]);
 }
 
 export function useWallet(enabled = true): AsyncState<Wallet> {

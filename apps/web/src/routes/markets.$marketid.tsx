@@ -1,9 +1,10 @@
 // biome-ignore-all lint/style/useFilenamingConvention: TanStack Router uses $param filenames for dynamic routes.
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import { BetForm } from "@/components/bet-form";
 import { MarketPoolChart } from "@/components/market-pool-chart";
-import { useMarket } from "@/lib/market-hooks";
+import { useMarket, useMarketActivity } from "@/lib/market-hooks";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -20,7 +21,12 @@ export const Route = createFileRoute("/markets/$marketid")({
 
 function MarketDetailRoute() {
   const { marketid } = Route.useParams();
-  const { data: market, error, isLoading } = useMarket(marketid);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { data: market, error, isLoading } = useMarket(marketid, refreshKey);
+  const { data: activity, isLoading: isActivityLoading } = useMarketActivity(
+    marketid,
+    refreshKey
+  );
 
   if (isLoading) {
     return (
@@ -106,9 +112,25 @@ function MarketDetailRoute() {
               </h2>
             </div>
             <div className="divide-y divide-zinc-800 border-zinc-800 border-y">
-              <ActivityLine amount="+120 Ja" name="Shezi" />
-              <ActivityLine amount="+80 Nein" name="Imad" />
-              <ActivityLine amount="+200 Ja" name="Rici" />
+              {activity?.map((item) => (
+                <ActivityLine
+                  amount={`+${creditFormatter.format(item.amount)} ${
+                    item.side === "yes" ? "Ja" : "Nein"
+                  }`}
+                  key={item.id}
+                  name={item.userName}
+                />
+              ))}
+              {isActivityLoading ? (
+                <div className="bg-[#0b0c0a] px-4 py-3 text-sm text-zinc-500">
+                  Aktivität wird geladen...
+                </div>
+              ) : null}
+              {isActivityLoading || activity?.length ? null : (
+                <div className="bg-[#0b0c0a] px-4 py-3 text-sm text-zinc-500">
+                  Noch keine Wetten platziert.
+                </div>
+              )}
             </div>
           </section>
         </article>
@@ -125,6 +147,7 @@ function MarketDetailRoute() {
               <BetForm
                 marketId={market.id}
                 noLabel={noLabel}
+                onBetPlaced={() => setRefreshKey((value) => value + 1)}
                 yesLabel={yesLabel}
               />
             </div>

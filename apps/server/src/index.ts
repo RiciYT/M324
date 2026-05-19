@@ -126,6 +126,31 @@ app.get("/api/markets/:id", async (c) => {
   return c.json(row);
 });
 
+app.get("/api/markets/:id/activity", async (c) => {
+  const id = c.req.param("id");
+  const rows = await db
+    .select({
+      amount: bet.amount,
+      createdAt: bet.createdAt,
+      id: bet.id,
+      side: bet.side,
+      userName: user.name,
+    })
+    .from(bet)
+    .innerJoin(user, eq(bet.userId, user.id))
+    .where(eq(bet.marketId, id))
+    .orderBy(desc(bet.createdAt))
+    .limit(20);
+
+  return c.json(
+    rows.map((row) => ({
+      ...row,
+      createdAt: row.createdAt.toISOString(),
+      side: row.side as MarketSide,
+    }))
+  );
+});
+
 app.post("/api/markets", requireSession, async (c) => {
   const input = createMarketInput.parse(await c.req.json());
   const row = await createMarket(db, input, c.var.sessionUser.id);
