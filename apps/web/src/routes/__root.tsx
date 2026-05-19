@@ -16,11 +16,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "M324",
+        title: "ShitMarket",
       },
       {
         name: "description",
-        content: "M324 is a web application",
+        content:
+          "ShitMarket ist die Prognosemarkt-Parodie fuer absurde Wetten.",
       },
     ],
     links: [

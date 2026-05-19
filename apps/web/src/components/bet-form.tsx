@@ -24,10 +24,12 @@ export function BetForm({ marketId }: BetFormProps) {
         marketId,
         side,
       });
-      toast.success("Mock bet placed");
+      toast.success("Wette platziert");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Could not place bet"
+        error instanceof Error
+          ? error.message
+          : "Wette konnte nicht platziert werden"
       );
     } finally {
       setIsSubmitting(false);
@@ -39,25 +41,38 @@ export function BetForm({ marketId }: BetFormProps) {
       <div className="grid grid-cols-2 gap-2">
         <Button
           aria-pressed={side === "yes"}
+          className={
+            side === "yes"
+              ? "h-11 rounded-[6px] bg-[#c8ff00] font-black text-black uppercase hover:bg-[#c8ff00]/90"
+              : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-black text-zinc-200 uppercase hover:bg-zinc-900"
+          }
           onClick={() => setSide("yes")}
           type="button"
           variant={side === "yes" ? "default" : "outline"}
         >
-          YES
+          Ja
         </Button>
         <Button
           aria-pressed={side === "no"}
+          className={
+            side === "no"
+              ? "h-11 rounded-[6px] bg-destructive font-black text-white uppercase hover:bg-destructive/90"
+              : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-black text-zinc-200 uppercase hover:bg-zinc-900"
+          }
           onClick={() => setSide("no")}
           type="button"
           variant={side === "no" ? "default" : "outline"}
         >
-          NO
+          Nein
         </Button>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="bet-amount">Amount</Label>
+        <Label className="text-zinc-400" htmlFor="bet-amount">
+          Einsatz
+        </Label>
         <Input
+          className="h-11 rounded-[6px] border-zinc-700 bg-black/30 font-mono text-zinc-100"
           id="bet-amount"
           min="1"
           onChange={(event) => setAmount(event.target.value)}
@@ -66,8 +81,12 @@ export function BetForm({ marketId }: BetFormProps) {
         />
       </div>
 
-      <Button disabled={isSubmitting} type="submit">
-        {isSubmitting ? "Placing..." : "Place mock bet"}
+      <Button
+        className="h-11 rounded-[6px] bg-[#c8ff00] font-black text-black uppercase hover:bg-[#c8ff00]/90"
+        disabled={isSubmitting}
+        type="submit"
+      >
+        {isSubmitting ? "Wird gesetzt..." : "Wette setzen"}
       </Button>
     </form>
   );

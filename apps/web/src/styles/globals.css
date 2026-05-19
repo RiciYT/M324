@@ -124,9 +124,111 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply font-sans bg-background text-foreground;
+    @apply font-sans bg-background text-foreground antialiased;
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  html.light .bg-\[\#050604\] {
+    background-color: #f4f4ef !important;
+  }
+
+  html.light .bg-\[\#11120f\] {
+    background-color: #ffffff !important;
+  }
+
+  html.light .bg-black,
+  html.light .bg-black\/20,
+  html.light .bg-black\/25,
+  html.light .bg-black\/30 {
+    background-color: #f8f8f3 !important;
+  }
+
+  html.light .border-\[\#20231b\],
+  html.light .border-\[\#1d2117\],
+  html.light .border-zinc-800,
+  html.light .border-zinc-700 {
+    border-color: #d8d8ce !important;
+  }
+
+  html.light .bg-\[\#20231b\],
+  html.light .bg-zinc-800 {
+    background-color: #d8d8ce !important;
+  }
+
+  html.light .text-zinc-100,
+  html.light .text-zinc-200,
+  html.light .text-zinc-300 {
+    color: #151713 !important;
+  }
+
+  html.light .text-zinc-400 {
+    color: #555a50 !important;
+  }
+
+  html.light .text-zinc-500 {
+    color: #707568 !important;
+  }
+
+  html.light .hover\:bg-zinc-900:hover {
+    background-color: #ecece5 !important;
+  }
+
+  html.light .border-\[\#c8ff00\]\/40,
+  html.light .border-\[\#c8ff00\]\/30 {
+    border-color: rgb(132 176 0 / 55%) !important;
+  }
+
+  :root:not(.dark) [class~="bg-[#050604]"] {
+    background-color: #f4f4ef;
+  }
+
+  :root:not(.dark) [class~="bg-[#11120f]"] {
+    background-color: #ffffff;
+  }
+
+  :root:not(.dark) [class~="bg-black"],
+  :root:not(.dark) [class~="bg-black/20"],
+  :root:not(.dark) [class~="bg-black/25"],
+  :root:not(.dark) [class~="bg-black/30"] {
+    background-color: #f8f8f3;
+  }
+
+  :root:not(.dark) [class~="border-[#20231b]"],
+  :root:not(.dark) [class~="border-[#1d2117]"],
+  :root:not(.dark) [class~="border-zinc-800"],
+  :root:not(.dark) [class~="border-zinc-700"] {
+    border-color: #d8d8ce;
+  }
+
+  :root:not(.dark) [class~="bg-[#20231b]"],
+  :root:not(.dark) [class~="bg-zinc-800"] {
+    background-color: #d8d8ce;
+  }
+
+  :root:not(.dark) [class~="text-zinc-100"],
+  :root:not(.dark) [class~="text-zinc-200"],
+  :root:not(.dark) [class~="text-zinc-300"] {
+    color: #151713;
+  }
+
+  :root:not(.dark) [class~="text-zinc-400"] {
+    color: #555a50;
+  }
+
+  :root:not(.dark) [class~="text-zinc-500"] {
+    color: #707568;
+  }
+
+  :root:not(.dark) [class~="hover:bg-zinc-900"]:hover {
+    background-color: #ecece5;
+  }
+
+  :root:not(.dark) [class~="border-[#c8ff00]/40"],
+  :root:not(.dark) [class~="border-[#c8ff00]/30"] {
+    border-color: rgb(132 176 0 / 55%);
   }
 }

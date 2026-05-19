@@ -7,12 +7,15 @@ export const Route = createFileRoute("/markets/new")({
 
 function NewMarketRoute() {
   return (
-    <main className="min-h-0 overflow-y-auto">
-      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="border-border border-b pb-6">
-          <h1 className="font-semibold text-3xl">New Market</h1>
-          <p className="mt-2 text-muted-foreground text-sm leading-6">
-            Create flow prepared with mock submission until the API is merged.
+    <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
+      <section className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
+        <div className="border-[#20231b] border-b pb-6">
+          <h1 className="font-black text-4xl uppercase tracking-normal">
+            Neuer Markt
+          </h1>
+          <p className="mt-2 text-sm text-zinc-400 leading-6">
+            Lege eine neue absurde Prognosefrage mit Beschreibung und
+            Ablaufdatum an.
           </p>
         </div>
         <MarketCreateForm />
