@@ -20,7 +20,7 @@ export default function UserMenu() {
     return (
       <Link to="/login">
         <Button variant="outline">
-          <span className="sm:hidden">Login</span>
+          <span className="sm:hidden">Anmelden</span>
           <span className="hidden sm:inline">Anmelden / Registrieren</span>
         </Button>
       </Link>
