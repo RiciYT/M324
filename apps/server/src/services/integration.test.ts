@@ -64,11 +64,13 @@ vi.setConfig({
   testTimeout: 120_000,
 });
 
+const shouldRunIntegrationTests = process.env.RUN_INTEGRATION_TESTS === "true";
+
 let container: StartedTestContainer;
 let pool: Pool;
 let db: ReturnType<typeof drizzle<typeof schema>>;
 
-describe("market money flows", () => {
+describe.skipIf(!shouldRunIntegrationTests)("market money flows", () => {
   beforeAll(async () => {
     container = await new GenericContainer("postgres:16-alpine")
       .withEnvironment({

@@ -24,6 +24,7 @@
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v",
     "test": "vitest run",
+    "test:integration": "cross-env RUN_INTEGRATION_TESTS=true vitest run apps/server/src/services/integration.test.ts",
     "check": "ultracite check",
     "fix": "ultracite fix"
   },
@@ -37,6 +38,7 @@
     "@biomejs/biome": "2.4.13",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
+    "cross-env": "^10.1.0",
     "drizzle-kit": "^0.31.10",
     "esbuild": "^0.27.7",
     "testcontainers": "^12.0.0",

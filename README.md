@@ -6,8 +6,8 @@ M324 ist eine TypeScript-Monorepo-Anwendung auf Basis von Better-T-Stack. Das Pr
 
 - **Frontend:** React 19, Vite, TanStack Router, Tailwind CSS 4, lokale shadcn/ui-Primitives
 - **Backend:** Node.js, Hono, Better Auth, tsx für Entwicklung, tsdown für Builds
-- **Datenbank:** PostgreSQL, Drizzle ORM, Drizzle Kit, Docker Compose für lokale Datenbank
-- **Cloud-Datenbank:** Neon PostgreSQL für die deployte Produktionsumgebung
+- **Datenbank:** PostgreSQL, Drizzle ORM, Drizzle Kit, Docker Compose für die lokale Datenbank
+- **Cloud-Datenbank:** Neon PostgreSQL für Preview und Production
 - **Monorepo:** npm Workspaces und Turborepo
 - **Qualität:** TypeScript, Ultracite, Biome
 - **Tests:** Vitest für Unit- und Integrationstests mit Testcontainers
@@ -31,7 +31,7 @@ M324/
 │       └── src/migrations/  # SQL-Migrationen
 ├── .github/
 │   └── workflows/ci.yml     # Automatisierte CI-Pipeline
-├── docker-compose.yml       # Lokale PostgreSQL-Instanz
+├── docker-compose.yml       # Lokale PostgreSQL-, Loki- und Grafana-Container
 ├── turbo.json               # Task-Pipeline für das Monorepo
 ├── biome.jsonc              # Ultracite/Biome-Konfiguration
 └── package.json             # Workspace-Skripte und Root-Abhängigkeiten
@@ -62,7 +62,7 @@ Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
 - `VITE_SERVER_URL`
 - `VITE_GRAFANA_URL`
 
-Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pull Requests sowie bei Pushes auf `main` und `preview`. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach in parallelen Jobs Lint, Type-Checks, Unit Tests und einen Drizzle-Migrationscheck aus. Ein nachgelagerter `build`-Job baut alle Workspaces, und auf `main`/`preview` markiert ein finaler `deploy`-Job, dass die Vercel-Integration den Push veröffentlicht. Stale CI-Runs auf demselben Ref werden über eine Concurrency-Gruppe automatisch gecanceld.
+Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pull Requests sowie bei Pushes auf `main` und `preview`. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach in parallelen Jobs Lint, Type-Checks, Unit Tests, Integrationstests mit Testcontainers und einen Drizzle-Migrationscheck aus. Ein nachgelagerter `build`-Job baut alle Workspaces, und auf `main`/`preview` markiert ein finaler `deploy`-Job, dass die Vercel-Integration den Push veröffentlicht. Stale CI-Runs auf demselben Ref werden über eine Concurrency-Gruppe automatisch gecanceld.
 
 Das Deployment läuft über die Vercel Git Integration. Commits auf `main` erzeugen Production Deployments, Pull Requests beziehungsweise Branches erzeugen Preview Deployments.
 
@@ -77,10 +77,15 @@ Das Projekt besteht aus drei deploybaren Komponenten:
 Die Umgebungen sind so getrennt:
 
 - **Development:** lokale `.env` Dateien, Vite/Hono über `npm run dev`, PostgreSQL über Docker Compose
-- **Preview:** automatische Vercel Preview Deployments für Branches und Pull Requests
-- **Production:** automatische Vercel Production Deployments von `main` mit Neon PostgreSQL über `DATABASE_URL`
+- **Preview:** automatische Vercel Preview Deployments für Branches und Pull Requests, mit Neon PostgreSQL über `DATABASE_URL`
+- **Production:** automatische Vercel Production Deployments von `main`, mit Neon PostgreSQL über `DATABASE_URL`
 
 Lokal wird PostgreSQL über Docker Compose gestartet. In Preview und Production zeigt `DATABASE_URL` auf Neon.
+
+Aktuelle Deployment-URLs:
+
+- Production Frontend: [https://m324-web.vercel.app](https://m324-web.vercel.app)
+- Production Backend: [https://m324-server.vercel.app](https://m324-server.vercel.app)
 
 ## Voraussetzungen
 
@@ -148,7 +153,8 @@ npm run dev          # Frontend, Backend und abhängige Workspace-Tasks starten
 npm run dev:web      # Nur das Frontend starten
 npm run dev:server   # Nur die API starten
 npm run build        # Alle Workspaces bauen
-npm run test         # Unit- und Integrationstests mit Vitest ausführen
+npm run test         # Unit-Tests ausführen; Docker-Integrationstests werden lokal übersprungen
+npm run test:integration # Integrationstests mit Testcontainers/PostgreSQL ausführen
 npm run check-types  # TypeScript-Prüfungen ausführen
 npm run check        # Ultracite/Biome-Prüfung
 npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
@@ -214,6 +220,7 @@ Vor Abgabe oder Commit sollten mindestens diese Checks laufen:
 
 ```bash
 npm run test
+npm run test:integration
 npm run check-types
 npm run check
 npm run build
@@ -233,7 +240,7 @@ Umgesetzte Zusatzleistungen:
 - **Container-Tool:** `docker-compose.yml` startet PostgreSQL, Loki und Grafana mit Healthcheck und persistierenden Volumes.
 - **Pipeline Environments:** Development läuft lokal, Preview läuft über Vercel Branch-/PR-Deployments und Production über Vercel Deployments von `main`.
 - **Deploybare Datenbank:** Neon PostgreSQL wird als Cloud-Datenbank für die deployte Anwendung verwendet.
-- **Tests:** Vitest deckt Logging-, UI-Utility- und Auth-Redirect-Logik ab. Zusätzlich prüfen Testcontainers-Integrationstests mit PostgreSQL die zentralen Markt-Flows: Wette platzieren, fehlende Credits, pari-mutuel Resolve und Non-Admin-Resolve.
+- **Tests:** Vitest deckt Logging-, UI-Utility- und Auth-Redirect-Logik ab. `npm run test` läuft ohne Docker-Zwang; `npm run test:integration` startet Testcontainers mit PostgreSQL und prüft zentrale Markt-Flows: Wette platzieren, fehlende Credits, pari-mutuel Resolve und Non-Admin-Resolve.
 - **Applikationslogs:** Der Server erzeugt strukturierte JSON-Logs für Serverstart, Environment, Datenbank-Konfiguration, CORS, Request-Start, Request-Ende, Auth-Requests, Healthchecks, Favicon-Requests und Fehler.
 - **Observability:** Loki + Grafana laufen lokal über Docker Compose mit provisionierten Datasources und Dashboards. Das Frontend bettet das Dashboard unter `/stats` ein.
 - **Authentifikation:** Better Auth mit Email/Password und optionalem Google OAuth.
@@ -247,10 +254,10 @@ Diese Tabelle fasst die wichtigsten Bewertungs- und Demo-Punkte mit technischem 
 | --- | --- | --- |
 | Service-Layer und Business Logic | `placeBet` prüft Credits und Marktstatus in einer DB-Transaktion; `resolveMarket` verteilt den Pool pari-mutuel und atomar. | `apps/server/src/services/bets.ts`, `apps/server/src/services/markets.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
 | Auth- und Admin-Schutz | `requireSession` schützt angemeldete API-Flows; `requireAdmin` schützt Resolve serverseitig. | `apps/server/src/middleware/auth.ts`, `apps/server/src/index.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
-| Integrationstests | Testcontainers startet PostgreSQL und prüft Credit-Abzug, Insufficient Credits, pari-mutuel Resolve und Non-Admin Resolve. | `apps/server/src/services/integration.test.ts`, PR [#26](https://github.com/RiciYT/M324/pull/26) |
+| Integrationstests | `npm run test:integration` startet PostgreSQL über Testcontainers und prüft Credit-Abzug, Insufficient Credits, pari-mutuel Resolve und Non-Admin Resolve. | `apps/server/src/services/integration.test.ts`, `package.json`, `.github/workflows/ci.yml`, PR [#26](https://github.com/RiciYT/M324/pull/26) |
 | Observability | Docker Compose startet PostgreSQL, Loki und Grafana; Server pusht strukturierte Logs; `/stats` bettet das Dashboard ein. | `docker-compose.yml`, `ops/observability/`, `apps/server/src/logging.ts`, `apps/web/src/routes/stats.tsx`, PR [#16](https://github.com/RiciYT/M324/pull/16), PR [#25](https://github.com/RiciYT/M324/pull/25) |
 | Frontend Markets UI | Feed, Detailseite, Create-Form, Portfolio, Leaderboard, Wallet und Daily Claim sind im Frontend sichtbar. | `apps/web/src/routes/markets.index.tsx`, `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/routes/portfolio.tsx`, PR [#19](https://github.com/RiciYT/M324/pull/19) |
 | Admin Resolve UI | Resolve-Buttons erscheinen nur für Benutzer mit `role === "admin"` und rufen die geschützte API auf. | `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/lib/api-client.ts`, PR [#27](https://github.com/RiciYT/M324/pull/27) |
 | Daily Coins | Angemeldete Benutzer können alle 24 Stunden 1000 Coins claimen; erneutes Claimen vor Ablauf wird blockiert. | `apps/server/src/services/wallet.ts`, `apps/web/src/components/header.tsx`, Commit `01aa309` |
-| CI/CD und Environments | CI läuft bei PRs sowie `main`/`preview`, prüft Lint, Types, Tests, Migrationen und Build; Deployments laufen über Vercel Git Integration. | `.github/workflows/ci.yml`, PR [#23](https://github.com/RiciYT/M324/pull/23) |
+| CI/CD und Environments | CI läuft bei PRs sowie `main`/`preview`, prüft Lint, Types, Unit Tests, Integrationstests, Migrationen und Build; Deployments laufen über Vercel Git Integration. | `.github/workflows/ci.yml`, PR [#23](https://github.com/RiciYT/M324/pull/23) |
 | Branching und Nachverfolgbarkeit | Features wurden über getrennte Branches und Pull Requests in `preview` integriert. | `feature/login` PR [#19](https://github.com/RiciYT/M324/pull/19), `feature/auth` PR [#24](https://github.com/RiciYT/M324/pull/24), `feature/test` PR [#26](https://github.com/RiciYT/M324/pull/26), `codex/admin-resolve-readme` PR [#27](https://github.com/RiciYT/M324/pull/27) |
