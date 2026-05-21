@@ -41,6 +41,13 @@ Lokal benötigt:
 - Git
 - Optional: PostgreSQL Client/GUI, z. B. `psql`, TablePlus oder DBeaver
 
+Für GitHub Actions zusätzlich benötigt:
+
+- Neon-Testdatenbank für Integrationstests
+- `DATABASE_URL` als GitHub Actions Secret für diese Testdatenbank
+
+Ohne diese CI-Variable laufen die Integrationstests nur lokal über Docker/Testcontainers.
+
 ## Environment Variables
 
 Die Vorlagen liegen in:
@@ -151,6 +158,7 @@ GitHub Actions läuft bei Pull Requests und bei Pushes auf `main` und `preview`.
 - lint/format mit `npm run check`
 - type check mit `npm run check-types`
 - unit tests mit `npm test`
+- integration tests mit `npm run db:push` und `npm run test:integration`, wenn in GitHub Actions eine Neon-Testdatenbank über `DATABASE_URL` konfiguriert ist
 - migration check mit `npm run db:check`
 - build mit `npm run build`
 - deploy marker für Vercel Git Integration
@@ -174,7 +182,7 @@ Integrationstests laufen lokal mit Docker/Testcontainers und einer PostgreSQL-Te
 npm run test:integration
 ```
 
-In GitHub Actions sind Integrationstests als Stage vorgesehen. Damit sie dort stabil laufen, muss noch eine Neon-Testdatenbank beziehungsweise passende `DATABASE_URL` für die GitHub-Actions-Umgebung verbunden werden. Lokal sind die Integrationstests über Docker ausführbar.
+In GitHub Actions laufen Integrationstests gegen die über `DATABASE_URL` konfigurierte Neon-Testdatenbank. Vorher wird das Schema mit `npm run db:push` auf diese Testdatenbank angewendet. Ohne `DATABASE_URL` Secret wird der Integrationstest-Step übersprungen. Lokal sind die Integrationstests weiter über Docker/Testcontainers ausführbar.
 
 ## Zusatzleistungen
 
@@ -184,7 +192,7 @@ In GitHub Actions sind Integrationstests als Stage vorgesehen. Damit sie dort st
 | Einsatz von Container-Tool | Ein Container-Tool wie Docker soll eingesetzt werden. | `docker-compose.yml` startet lokal PostgreSQL, Loki und Grafana mit Volumes und Healthcheck. |
 | Pipeline Stages | Die Pipeline soll Stages wie lint, test, build und deploy enthalten. | GitHub Actions enthält install, lint/format, type check, unit tests, migration check, build und deploy marker. |
 | 10 sinnvolle Unit Tests | Es sollen mindestens 10 sinnvolle Unit Tests vorhanden sein. | Vitest testet Logging, Loki Payloads, Auth Provider, Auth Redirects und UI Utilities. Lokal laufen 16 Unit Tests erfolgreich. |
-| Integrationstests | Integrationstests sollen z. B. mit Testcontainers oder Docker umgesetzt sein. | `npm run test:integration` startet lokal PostgreSQL über Testcontainers und testet zentrale Markt-Flows. In GitHub Actions ist die Stage vorgesehen; für stabile CI-Ausführung muss noch eine Neon-Testdatenbank beziehungsweise `DATABASE_URL` für GitHub Actions verbunden werden. |
+| Integrationstests | Integrationstests sollen z. B. mit Testcontainers oder Docker umgesetzt sein. | `npm run test:integration` startet lokal PostgreSQL über Testcontainers und testet zentrale Markt-Flows. In GitHub Actions laufen die Tests gegen die Neon-Testdatenbank aus dem `DATABASE_URL` Secret; vorher wird das Schema mit `npm run db:push` angewendet. Ohne Secret wird der Step bewusst übersprungen. |
 | Pipeline Environments | Es soll getrennte Umgebungen wie dev, staging/preview und production geben. | Development läuft lokal mit Docker und `.env`. Vercel nutzt `main` als Production und `preview` als Preview. Die Environment Variables sind in Vercel pro Umgebung eingetragen. |
 | Task-Tracking Integration | Aufgaben sollen über ein Tool wie Jira oder GitHub Issues nachvollziehbar sein. | Task-Tracking wurde über GitHub Issues umgesetzt, z. B. Issues #10 bis #14 für Backend, API, Frontend, Tests und Observability. |
 | Kubernetes | Kubernetes-Manifeste, Helm Charts oder vergleichbare Konfiguration. | Nicht umgesetzt, weil der Aufwand für die wenigen Zusatzpunkte nicht sinnvoll war. |

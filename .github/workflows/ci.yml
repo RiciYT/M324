@@ -53,6 +53,8 @@ jobs:
   tests:
     name: Unit tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -69,8 +71,17 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Prepare integration test database
+        if: ${{ env.DATABASE_URL != '' }}
+        run: npm run db:push
+
       - name: Run integration tests
+        if: ${{ env.DATABASE_URL != '' }}
         run: npm run test:integration
+
+      - name: Skip integration tests without test database
+        if: ${{ env.DATABASE_URL == '' }}
+        run: echo "Integration tests require a Neon test database and DATABASE_URL secret in GitHub Actions."
 
   migrations:
     name: Migration check
