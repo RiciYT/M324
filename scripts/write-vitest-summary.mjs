@@ -13,11 +13,11 @@ const reports = [
 ];
 
 const statusIcon = {
-  failed: "FAIL",
-  passed: "PASS",
-  pending: "SKIP",
-  skipped: "SKIP",
-  todo: "TODO",
+  failed: "❌",
+  passed: "✅",
+  pending: "⏭️",
+  skipped: "⏭️",
+  todo: "📝",
 };
 
 const escapeCell = (value) =>
@@ -60,7 +60,7 @@ const summarizeReport = ({ label, path }) => {
   const lines = [
     `## ${label}`,
     "",
-    `**Result:** ${report.success ? "Passed" : "Failed"}`,
+    `**Result:** ${report.success ? "✅ Passed" : "❌ Failed"}`,
     "",
     "| Metric | Count |",
     "| --- | ---: |",
