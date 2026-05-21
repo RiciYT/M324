@@ -28,8 +28,7 @@ AUTH REQUIRED
 ├── /markets/$id           Markt-Detail: Pool, Bet-Form, Bet-History
 ├── /markets/new           Markt erstellen
 ├── /portfolio             Eigene Positionen + Transaction-Log
-├── /leaderboard           Top User nach PnL
-└── /stats                 Grafana-Embed (Loki-Dashboards)
+└── /leaderboard           Top User nach PnL
 
 ADMIN ONLY
 └── Resolve-Aktion auf /markets/$id (gleiche Route, conditional UI)
@@ -47,7 +46,7 @@ flowchart TB
 
     subgraph Web["apps/web — Vercel Static"]
         direction TB
-        Routes["routes/<br/>__root, index, login,<br/>markets, markets/$id,<br/>portfolio, leaderboard, stats"]
+        Routes["routes/<br/>__root, index, login,<br/>markets, markets/$id,<br/>portfolio, leaderboard"]
         Components["components/<br/>shadcn-Primitives + Forms"]
         Hooks["hooks/<br/>useMarkets, useWallet"]
         Lib["lib/<br/>auth-client, api-client, env"]

@@ -65,7 +65,6 @@ Benötigte Backend-Variablen:
 Benötigte Frontend-Variablen:
 
 - `VITE_SERVER_URL`
-- optional: `VITE_GRAFANA_URL`
 
 Echte Secrets werden nicht im Repository gespeichert. Lokal werden `.env` Dateien verwendet, in Vercel sind die Environment Variables pro Umgebung eingetragen.
 
@@ -194,7 +193,7 @@ In GitHub Actions laufen Integrationstests gegen die über `DATABASE_URL` konfig
 | Pipeline Environments | Es soll getrennte Umgebungen wie dev, staging/preview und production geben. | Development läuft lokal mit Docker und `.env`. Vercel nutzt `main` als Production und `preview` als Preview. Die Environment Variables sind in Vercel pro Umgebung eingetragen. |
 | Task-Tracking Integration | Aufgaben sollen über ein Tool wie Jira oder GitHub Issues nachvollziehbar sein. | Task-Tracking wurde über GitHub Issues umgesetzt, z. B. Issues #10 bis #14 für Backend, API, Frontend, Tests und Observability. |
 | Kubernetes | Kubernetes-Manifeste, Helm Charts oder vergleichbare Konfiguration. | Nicht umgesetzt, weil der Aufwand für die wenigen Zusatzpunkte nicht sinnvoll war. |
-| Observe Tools | Observability-Tools wie Grafana, Loki oder ähnliche sollen eingesetzt werden. | Docker Compose startet Loki und Grafana. Der Server schreibt strukturierte Logs, Grafana visualisiert sie lokal, und das Frontend enthält eine `/stats` Seite. |
+| Observe Tools | Observability-Tools wie Grafana, Loki oder ähnliche sollen eingesetzt werden. | Docker Compose startet Loki und Grafana. Der Server schreibt strukturierte Logs und Grafana visualisiert sie lokal. |
 | 10 sinnvolle Logs in der Applikation | Die Applikation soll mindestens 10 sinnvolle Logs an relevanten Stellen haben. | Der Server loggt unter anderem Environment, DB-Konfiguration, CORS, Request Start/Ende, Auth Requests, Healthchecks, Favicon-Requests, Fehler und Serverstart. |
 | Authentifikation | Die Applikation soll Authentifikation berücksichtigen. | Better Auth wird für Email/Password und optional Google OAuth verwendet. Backend-Middlewares schützen angemeldete API-Flows und Admin-Aktionen. |
 | Feature Branching | Es soll nicht direkt auf `main` gearbeitet werden, sondern mit Feature Branches und Pull Requests. | Features wurden über Branches, Pull Requests und den `preview` Branch integriert. `main` ist Production. |
@@ -228,7 +227,7 @@ Docker Compose startet lokal Loki und Grafana. Der Server schreibt strukturierte
 - Healthchecks
 - Fehler
 
-Grafana ist lokal unter [http://localhost:3001](http://localhost:3001) erreichbar. Das Frontend enthält zusätzlich eine `/stats` Seite für das Dashboard.
+Grafana ist lokal unter [http://localhost:3001](http://localhost:3001) erreichbar.
 
 ## KI-Einsatz
 
