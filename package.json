@@ -24,7 +24,10 @@
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v",
     "test": "vitest run",
+    "test:ci": "vitest run --reporter=default --reporter=json --outputFile=reports/vitest-unit.json",
     "test:integration": "cross-env RUN_INTEGRATION_TESTS=true vitest run apps/server/src/services/integration.test.ts",
+    "test:integration:ci": "cross-env RUN_INTEGRATION_TESTS=true vitest run apps/server/src/services/integration.test.ts --reporter=default --reporter=json --outputFile=reports/vitest-integration.json",
+    "test:summary": "node scripts/write-vitest-summary.mjs",
     "check": "ultracite check",
     "fix": "ultracite fix"
   },
