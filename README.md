@@ -133,6 +133,14 @@ Preview URL:
 
 Vercel enthält die Environment Variables für Production und Preview. `main` ist Production, `preview` ist Preview.
 
+## Basisleistungen
+
+| Basisleistung | Beschreibung aus der Bewertung | Unsere Lösung |
+| --- | --- | --- |
+| Drei Komponenten lokal ausführbar | Frontend, Backend und Datenbank müssen lokal startbar sein. | Frontend und Backend laufen über `npm run dev`. PostgreSQL läuft lokal über `docker-compose.yml` und wird mit `npm run db:start` gestartet. |
+| Drei Komponenten deploybar und online erreichbar | Frontend, Backend und Datenbank müssen deployed beziehungsweise online erreichbar sein. | Frontend ist auf Vercel unter [https://m324-web.vercel.app](https://m324-web.vercel.app), Backend unter [https://m324-server.vercel.app](https://m324-server.vercel.app), die Datenbank läuft über Neon PostgreSQL. |
+| README Dokumentation | Projektstruktur, Pipeline, Tools, nötige SDKs/Treiber, Ausführungsanleitung und kurze Erklärung der Zusatzleistungen müssen dokumentiert sein. | Diese README beschreibt Struktur, Tech Stack, Voraussetzungen, Environment Variables, lokale Ausführung, Pipeline, Deployment, Tests, Zusatzleistungen, Task-Tracking und KI-Einsatz. |
+
 ## CI/CD Pipeline
 
 Die Pipeline liegt in `.github/workflows/ci.yml`.
@@ -168,23 +176,22 @@ npm run test:integration
 
 In GitHub Actions sind Integrationstests als Stage vorgesehen. Damit sie dort stabil laufen, muss noch eine Neon-Testdatenbank beziehungsweise passende `DATABASE_URL` für die GitHub-Actions-Umgebung verbunden werden. Lokal sind die Integrationstests über Docker ausführbar.
 
-## Umgesetzte Zusatzleistungen
+## Zusatzleistungen
 
-- CI/CD mit GitHub Actions YAML und Vercel Git Integration
-- Docker Compose für PostgreSQL, Loki und Grafana
-- Pipeline Stages für Check, Types, Tests, Migrationen, Build und Deploy-Marker
-- Mehr als 10 sinnvolle Unit Tests
-- Integrationstests mit Testcontainers/PostgreSQL
-- Pipeline Environments über Vercel: `main` als Production, `preview` als Preview
-- Task-Tracking über GitHub Issues
-- Observability mit Loki und Grafana
-- Strukturierte Server-Logs
-- Authentifikation mit Better Auth
-- Feature Branching mit Pull Requests
-
-Nicht umgesetzt:
-
-- Kubernetes
+| Zusatzleistung | Beschreibung aus der Bewertung | Unsere Lösung / Umsetzung |
+| --- | --- | --- |
+| CI/CD Deployment mit Scripts/Workflow/YAML | Deployment soll nicht manuell sein, sondern über Scripts, Workflow oder YAML unterstützt werden. | `.github/workflows/ci.yml` führt die Quality Gates aus. Das eigentliche Deployment macht Vercel Git Integration automatisch: `main` deployed Production, `preview` deployed Preview. |
+| Einsatz von Container-Tool | Ein Container-Tool wie Docker soll eingesetzt werden. | `docker-compose.yml` startet lokal PostgreSQL, Loki und Grafana mit Volumes und Healthcheck. |
+| Pipeline Stages | Die Pipeline soll Stages wie lint, test, build und deploy enthalten. | GitHub Actions enthält install, lint/format, type check, unit tests, migration check, build und deploy marker. |
+| 10 sinnvolle Unit Tests | Es sollen mindestens 10 sinnvolle Unit Tests vorhanden sein. | Vitest testet Logging, Loki Payloads, Auth Provider, Auth Redirects und UI Utilities. Lokal laufen 16 Unit Tests erfolgreich. |
+| Integrationstests | Integrationstests sollen z. B. mit Testcontainers oder Docker umgesetzt sein. | `npm run test:integration` startet lokal PostgreSQL über Testcontainers und testet zentrale Markt-Flows. In GitHub Actions ist die Stage vorgesehen; für stabile CI-Ausführung muss noch eine Neon-Testdatenbank beziehungsweise `DATABASE_URL` für GitHub Actions verbunden werden. |
+| Pipeline Environments | Es soll getrennte Umgebungen wie dev, staging/preview und production geben. | Development läuft lokal mit Docker und `.env`. Vercel nutzt `main` als Production und `preview` als Preview. Die Environment Variables sind in Vercel pro Umgebung eingetragen. |
+| Task-Tracking Integration | Aufgaben sollen über ein Tool wie Jira oder GitHub Issues nachvollziehbar sein. | Task-Tracking wurde über GitHub Issues umgesetzt, z. B. Issues #10 bis #14 für Backend, API, Frontend, Tests und Observability. |
+| Kubernetes | Kubernetes-Manifeste, Helm Charts oder vergleichbare Konfiguration. | Nicht umgesetzt, weil der Aufwand für die wenigen Zusatzpunkte nicht sinnvoll war. |
+| Observe Tools | Observability-Tools wie Grafana, Loki oder ähnliche sollen eingesetzt werden. | Docker Compose startet Loki und Grafana. Der Server schreibt strukturierte Logs, Grafana visualisiert sie lokal, und das Frontend enthält eine `/stats` Seite. |
+| 10 sinnvolle Logs in der Applikation | Die Applikation soll mindestens 10 sinnvolle Logs an relevanten Stellen haben. | Der Server loggt unter anderem Environment, DB-Konfiguration, CORS, Request Start/Ende, Auth Requests, Healthchecks, Favicon-Requests, Fehler und Serverstart. |
+| Authentifikation | Die Applikation soll Authentifikation berücksichtigen. | Better Auth wird für Email/Password und optional Google OAuth verwendet. Backend-Middlewares schützen angemeldete API-Flows und Admin-Aktionen. |
+| Feature Branching | Es soll nicht direkt auf `main` gearbeitet werden, sondern mit Feature Branches und Pull Requests. | Features wurden über Branches, Pull Requests und den `preview` Branch integriert. `main` ist Production. |
 
 ## Task-Tracking
 
