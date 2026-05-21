@@ -11,10 +11,6 @@
         "CORS_ORIGIN",
         "GOOGLE_CLIENT_ID",
         "GOOGLE_CLIENT_SECRET",
-        "LOKI_PASSWORD",
-        "LOKI_SERVICE_NAME",
-        "LOKI_URL",
-        "LOKI_USERNAME",
         "VERCEL_RELATED_PROJECTS",
         "VITE_SERVER_URL"
       ],
