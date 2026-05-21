@@ -254,3 +254,20 @@ Negative Erfahrungen:
 - externe Systeme wie Vercel, Neon und GitHub Actions konnten nicht zuverlässig nur aus dem Code beurteilt werden; dafür waren echte Deployments, Secrets und CI-Runs nötig
 - generierte Code- oder README-Änderungen mussten immer mit `npm run check`, Tests und Builds validiert werden
 - generierte Dokumentation wurde schnell zu lang und musste gekürzt werden
+
+Konkrete Schwachpunkte bei agentischer Programmierung:
+
+- Modelle wie GPT-5.5 oder Claude Opus 4.7 sind stark bei Coding-Benchmarks, aber trotzdem nicht fehlerfrei. Sie können falsche Annahmen über Projektstruktur, aktuelle Library-Versionen oder externe Konfiguration treffen.
+- Agentische KI kann mehrere Dateien selbstständig ändern. Das spart Zeit, erhöht aber das Risiko für unerwartete Nebenwirkungen, wenn Änderungen nicht sorgfältig mit `git diff`, Tests und Reviews geprüft werden.
+- Benchmarks messen oft begrenzte Aufgaben wie Bugfixes oder einzelne Coding-Probleme. Komplette Feature-Entwicklung über mehrere Dateien, Pull Requests und Environments bleibt deutlich schwieriger.
+- KI kann bei unklaren Anforderungen zu selbstbewusst wirken und plausible, aber falsche Erklärungen liefern. Deshalb wurden Aussagen zu Vercel, Neon, GitHub Actions und Secrets nicht ungeprüft übernommen.
+- Bei längeren Aufgaben kann KI Kontext verlieren oder ältere Zwischenergebnisse weiterverwenden, obwohl sich der Repository-Stand bereits geändert hat.
+- Externe Zustände wie Vercel Environment Variables, GitHub Actions Secrets oder Neon-Datenbanken sind für KI nicht automatisch sichtbar. Diese Punkte mussten manuell oder über echte Tool-Ausgaben verifiziert werden.
+
+Relevante Erfahrung für dieses Projekt:
+
+- Bei der Bewertung hat die KI zuerst teilweise mit allgemeinen Annahmen gearbeitet. Zum Beispiel musste konkret nachgeprüft werden, ob Frontend, Backend, Preview-Deployment, Neon-Datenbank und GitHub Actions wirklich dem aktuellen Stand entsprechen.
+- Die KI konnte den Code gut lesen, aber externe Zustände wie Vercel Environment Variables, GitHub Actions Secrets oder Neon-Testdatenbank nicht einfach aus dem Repository ableiten. Diese Punkte mussten wir selbst über Vercel/GitHub prüfen.
+- Bei der README hat die KI zuerst zu viel und zu allgemein dokumentiert. Wir mussten den Text kürzen und stärker auf die Bewertungskriterien ausrichten.
+- Bei Tests und CI war wichtig, zwischen lokalen Docker-Integrationstests und GitHub-Actions-Integrationstests mit Neon-Testdatenbank zu unterscheiden. Die KI musste mehrmals korrigiert werden, als sich der aktuelle Stand geändert hat.
+- Die Erfahrungen passen zu Theo t3.gg's Kritik an agentischer Programmierung: Nicht nur das Modell zählt, sondern auch Tooling, Harness, Prompts, aktueller Projektstand und echte Verifikation. Für unser Projekt bedeutete das: KI-Ausgaben wurden erst übernommen, wenn `npm run check`, Tests, Build, Git-Diff und die CI-/Deployment-Situation geprüft waren.
