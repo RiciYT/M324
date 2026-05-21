@@ -29,7 +29,7 @@ M324/
 - Container: Docker Compose
 - Deployment: Vercel Git Integration
 - Cloud-Datenbank: Neon PostgreSQL
-- Observability: Loki und Grafana
+- Observability: Grafana Cloud mit Loki, lokal optional über Docker Compose
 
 ## Voraussetzungen
 
@@ -60,7 +60,7 @@ Benötigte Backend-Variablen:
 - `BETTER_AUTH_URL`
 - `CORS_ORIGIN`
 - optional: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-- optional für Logs: `LOKI_URL`, `LOKI_USERNAME`, `LOKI_PASSWORD`
+- optional für Logs: `LOKI_URL`, `LOKI_USERNAME`, `LOKI_PASSWORD`, `LOKI_SERVICE_NAME`
 
 Benötigte Frontend-Variablen:
 
@@ -193,7 +193,7 @@ In GitHub Actions laufen Integrationstests gegen die über `DATABASE_URL` konfig
 | Pipeline Environments | Es soll getrennte Umgebungen wie dev, staging/preview und production geben. | Development läuft lokal mit Docker und `.env`. Vercel nutzt `main` als Production und `preview` als Preview. Die Environment Variables sind in Vercel pro Umgebung eingetragen. |
 | Task-Tracking Integration | Aufgaben sollen über ein Tool wie Jira oder GitHub Issues nachvollziehbar sein. | Task-Tracking wurde über GitHub Issues umgesetzt, z. B. Issues #10 bis #14 für Backend, API, Frontend, Tests und Observability. |
 | Kubernetes | Kubernetes-Manifeste, Helm Charts oder vergleichbare Konfiguration. | Nicht umgesetzt, weil der Aufwand für die wenigen Zusatzpunkte nicht sinnvoll war. |
-| Observe Tools | Observability-Tools wie Grafana, Loki oder ähnliche sollen eingesetzt werden. | Docker Compose startet Loki und Grafana. Der Server schreibt strukturierte Logs und Grafana visualisiert sie lokal. |
+| Observe Tools | Observability-Tools wie Grafana, Loki oder ähnliche sollen eingesetzt werden. | Der Server schreibt strukturierte Logs und sendet sie an Loki. Lokal können Loki und Grafana über Docker Compose gestartet werden; für Preview/Production wird Grafana Cloud mit Loki als zentrale Observability-Plattform verwendet. |
 | 10 sinnvolle Logs in der Applikation | Die Applikation soll mindestens 10 sinnvolle Logs an relevanten Stellen haben. | Der Server loggt unter anderem Environment, DB-Konfiguration, CORS, Request Start/Ende, Auth Requests, Healthchecks, Favicon-Requests, Fehler und Serverstart. |
 | Authentifikation | Die Applikation soll Authentifikation berücksichtigen. | Better Auth wird für Email/Password und optional Google OAuth verwendet. Backend-Middlewares schützen angemeldete API-Flows und Admin-Aktionen. |
 | Feature Branching | Es soll nicht direkt auf `main` gearbeitet werden, sondern mit Feature Branches und Pull Requests. | Features wurden über Branches, Pull Requests und den `preview` Branch integriert. `main` ist Production. |
@@ -216,7 +216,9 @@ Die Authentifikation läuft über Better Auth. Unterstützt werden Email/Passwor
 
 ## Observability und Logs
 
-Docker Compose startet lokal Loki und Grafana. Der Server schreibt strukturierte JSON-Logs unter anderem für:
+Das Projekt nutzt Grafana Cloud mit Loki als zentrale Observability-Plattform. Lokal kann derselbe Stack zusätzlich über Docker Compose gestartet werden, damit Logs und Dashboards ohne Cloud-Zugang getestet werden können.
+
+Der Server schreibt strukturierte JSON-Logs unter anderem für:
 
 - Serverstart
 - Environment-Konfiguration
@@ -227,7 +229,16 @@ Docker Compose startet lokal Loki und Grafana. Der Server schreibt strukturierte
 - Healthchecks
 - Fehler
 
-Grafana ist lokal unter [http://localhost:3001](http://localhost:3001) erreichbar.
+Lokal ist Grafana unter [http://localhost:3001](http://localhost:3001) erreichbar. Für Preview und Production werden die Logs an Grafana Cloud Loki gesendet. Dafür werden im Backend-Deployment diese Environment Variables gesetzt:
+
+```bash
+LOKI_URL=https://<grafana-cloud-loki-endpoint>/loki/api/v1/push
+LOKI_USERNAME=<grafana-cloud-instance-id>
+LOKI_PASSWORD=<grafana-cloud-access-token>
+LOKI_SERVICE_NAME=m324-server
+```
+
+Damit ist Observability nicht nur lokal verfügbar: echte Logs aus der deployten API werden zentral in Loki gesammelt und in Grafana Cloud über Dashboards visualisiert.
 
 ## KI-Einsatz
 
