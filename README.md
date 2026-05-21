@@ -41,12 +41,10 @@ Lokal benötigt:
 - Git
 - Optional: PostgreSQL Client/GUI, z. B. `psql`, TablePlus oder DBeaver
 
-Für GitHub Actions zusätzlich benötigt:
+Für GitHub Actions zusätzlich eingerichtet:
 
 - Neon-Testdatenbank für Integrationstests
 - `DATABASE_URL` als GitHub Actions Secret für diese Testdatenbank
-
-Ohne diese CI-Variable laufen die Integrationstests nur lokal über Docker/Testcontainers.
 
 ## Environment Variables
 
@@ -158,7 +156,7 @@ GitHub Actions läuft bei Pull Requests und bei Pushes auf `main` und `preview`.
 - lint/format mit `npm run check`
 - type check mit `npm run check-types`
 - unit tests mit `npm test`
-- integration tests mit `npm run db:push` und `npm run test:integration`, wenn in GitHub Actions eine Neon-Testdatenbank über `DATABASE_URL` konfiguriert ist
+- integration tests mit `npm run db:push` und `npm run test:integration:ci` gegen die Neon-Testdatenbank aus dem GitHub Actions Secret `DATABASE_URL`
 - migration check mit `npm run db:check`
 - build mit `npm run build`
 - deploy marker für Vercel Git Integration
@@ -182,7 +180,7 @@ Integrationstests laufen lokal mit Docker/Testcontainers und einer PostgreSQL-Te
 npm run test:integration
 ```
 
-In GitHub Actions laufen Integrationstests gegen die über `DATABASE_URL` konfigurierte Neon-Testdatenbank. Vorher wird das Schema mit `npm run db:push` auf diese Testdatenbank angewendet. Ohne `DATABASE_URL` Secret wird der Integrationstest-Step übersprungen. Lokal sind die Integrationstests weiter über Docker/Testcontainers ausführbar.
+In GitHub Actions laufen Integrationstests gegen die über `DATABASE_URL` konfigurierte Neon-Testdatenbank. Vorher wird das Schema mit `npm run db:push` auf diese Testdatenbank angewendet. Lokal sind die Integrationstests weiter über Docker/Testcontainers ausführbar.
 
 ## Zusatzleistungen
 
@@ -192,7 +190,7 @@ In GitHub Actions laufen Integrationstests gegen die über `DATABASE_URL` konfig
 | Einsatz von Container-Tool | Ein Container-Tool wie Docker soll eingesetzt werden. | `docker-compose.yml` startet lokal PostgreSQL, Loki und Grafana mit Volumes und Healthcheck. |
 | Pipeline Stages | Die Pipeline soll Stages wie lint, test, build und deploy enthalten. | GitHub Actions enthält install, lint/format, type check, unit tests, migration check, build und deploy marker. |
 | 10 sinnvolle Unit Tests | Es sollen mindestens 10 sinnvolle Unit Tests vorhanden sein. | Vitest testet Logging, Loki Payloads, Auth Provider, Auth Redirects und UI Utilities. Lokal laufen 16 Unit Tests erfolgreich. |
-| Integrationstests | Integrationstests sollen z. B. mit Testcontainers oder Docker umgesetzt sein. | `npm run test:integration` startet lokal PostgreSQL über Testcontainers und testet zentrale Markt-Flows. In GitHub Actions laufen die Tests gegen die Neon-Testdatenbank aus dem `DATABASE_URL` Secret; vorher wird das Schema mit `npm run db:push` angewendet. Ohne Secret wird der Step bewusst übersprungen. |
+| Integrationstests | Integrationstests sollen z. B. mit Testcontainers oder Docker umgesetzt sein. | `npm run test:integration` startet lokal PostgreSQL über Testcontainers und testet zentrale Markt-Flows. In GitHub Actions laufen die Tests mit `npm run test:integration:ci` gegen die Neon-Testdatenbank aus dem `DATABASE_URL` Secret; vorher wird das Schema mit `npm run db:push` angewendet. |
 | Pipeline Environments | Es soll getrennte Umgebungen wie dev, staging/preview und production geben. | Development läuft lokal mit Docker und `.env`. Vercel nutzt `main` als Production und `preview` als Preview. Die Environment Variables sind in Vercel pro Umgebung eingetragen. |
 | Task-Tracking Integration | Aufgaben sollen über ein Tool wie Jira oder GitHub Issues nachvollziehbar sein. | Task-Tracking wurde über GitHub Issues umgesetzt, z. B. Issues #10 bis #14 für Backend, API, Frontend, Tests und Observability. |
 | Kubernetes | Kubernetes-Manifeste, Helm Charts oder vergleichbare Konfiguration. | Nicht umgesetzt, weil der Aufwand für die wenigen Zusatzpunkte nicht sinnvoll war. |
@@ -250,5 +248,9 @@ Positive Erfahrungen:
 Negative Erfahrungen:
 
 - KI-Vorschläge mussten fachlich geprüft werden
+- KI nutzte teilweise allgemeine oder ältere Informationen aus Trainingsdaten; bei Tools und Frameworks konnten sich Versionen, Befehle oder Best Practices bereits geändert haben
+- der tatsächliche Projektstand änderte sich während der Arbeit, weshalb Aussagen der KI schnell veraltet waren und erneut mit Repository, GitHub Actions und Vercel abgeglichen werden mussten
 - einzelne Aussagen waren zu optimistisch, wenn externe Systeme wie Vercel oder GitHub Actions nicht direkt verifiziert wurden
+- externe Systeme wie Vercel, Neon und GitHub Actions konnten nicht zuverlässig nur aus dem Code beurteilt werden; dafür waren echte Deployments, Secrets und CI-Runs nötig
+- generierte Code- oder README-Änderungen mussten immer mit `npm run check`, Tests und Builds validiert werden
 - generierte Dokumentation wurde schnell zu lang und musste gekürzt werden
