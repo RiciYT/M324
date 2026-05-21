@@ -1,263 +1,239 @@
 # M324
 
-M324 ist eine TypeScript-Monorepo-Anwendung auf Basis von Better-T-Stack. Das Projekt besteht aus einem React-Frontend, einer Hono-API und einem geteilten Datenbank-Package mit Drizzle ORM.
-
-## Technologieüberblick
-
-- **Frontend:** React 19, Vite, TanStack Router, Tailwind CSS 4, lokale shadcn/ui-Primitives
-- **Backend:** Node.js, Hono, Better Auth, tsx für Entwicklung, tsdown für Builds
-- **Datenbank:** PostgreSQL, Drizzle ORM, Drizzle Kit, Docker Compose für die lokale Datenbank
-- **Cloud-Datenbank:** Neon PostgreSQL für Preview und Production
-- **Monorepo:** npm Workspaces und Turborepo
-- **Qualität:** TypeScript, Ultracite, Biome
-- **Tests:** Vitest für Unit- und Integrationstests mit Testcontainers
-- **CI/CD:** GitHub Actions für Qualitätschecks und Vercel Git Integration für Deployments
+M324 ist eine TypeScript-Monorepo-Webapplikation für Modul 324. Die Anwendung besteht aus einem React/Vite-Frontend, einer Hono-API und einer PostgreSQL-Datenbank. Lokal läuft PostgreSQL über Docker, deployed läuft die Datenbank über Neon PostgreSQL.
 
 ## Projektstruktur
 
 ```text
 M324/
 ├── apps/
-│   ├── web/                 # React/Vite-Frontend
-│   │   ├── src/components/  # Wiederverwendbare UI-Komponenten
-│   │   ├── src/routes/      # TanStack Router Seiten und Layouts
-│   │   ├── src/lib/         # Client-Helfer, z. B. Auth und Env
-│   │   └── src/styles/      # Globale Styles und Design Tokens
-│   └── server/              # Hono-API
-│       └── src/             # Server-Entry, Auth-Konfiguration, Env-Validierung
+│   ├── web/                 # React/Vite Frontend mit TanStack Router
+│   └── server/              # Hono Backend mit Better Auth
 ├── packages/
-│   └── db/                  # Geteiltes Datenbank-Package
-│       ├── src/schema/      # Drizzle-Schema
-│       └── src/migrations/  # SQL-Migrationen
-├── .github/
-│   └── workflows/ci.yml     # Automatisierte CI-Pipeline
+│   └── db/                  # Drizzle Schema, Migrationen und DB-Helfer
+├── ops/observability/       # Loki/Grafana Konfiguration
+├── .github/workflows/ci.yml # GitHub Actions Pipeline
 ├── docker-compose.yml       # Lokale PostgreSQL-, Loki- und Grafana-Container
-├── turbo.json               # Task-Pipeline für das Monorepo
-├── biome.jsonc              # Ultracite/Biome-Konfiguration
-└── package.json             # Workspace-Skripte und Root-Abhängigkeiten
+├── package.json             # Root Scripts und npm Workspaces
+└── turbo.json               # Turborepo Task-Konfiguration
 ```
 
-Die generierten Ordner `dist/`, `node_modules/` und `.turbo/` sind Build- beziehungsweise Cache-Artefakte und müssen normalerweise nicht manuell bearbeitet werden.
+## Tech Stack
 
-## Pipeline
+- Frontend: React 19, Vite, TanStack Router, Tailwind CSS
+- Backend: Node.js, Hono, Better Auth
+- Datenbank: PostgreSQL, Drizzle ORM, Drizzle Kit
+- Monorepo: npm Workspaces, Turborepo
+- Qualität: TypeScript, Ultracite/Biome
+- Tests: Vitest, Testcontainers
+- Container: Docker Compose
+- Deployment: Vercel Git Integration
+- Cloud-Datenbank: Neon PostgreSQL
+- Observability: Loki und Grafana
 
-Die Pipeline wird durch Turborepo in `turbo.json` gesteuert:
+## Voraussetzungen
 
-- `dev` startet persistente Entwicklungsprozesse und wird nicht gecacht.
-- `build` baut zuerst abhängige Packages (`dependsOn: ["^build"]`) und schreibt Artefakte nach `dist/`.
-- `check-types` führt TypeScript-Prüfungen über die Workspaces aus.
-- `db:*` Tasks sind uncached, weil sie externe Datenbankzustände verändern oder beobachten.
+Lokal benötigt:
 
-Für Builds berücksichtigt Turbo diese Umgebungsvariablen:
+- Node.js
+- npm
+- Docker Desktop oder kompatible Docker Engine
+- Git
+- Optional: PostgreSQL Client/GUI, z. B. `psql`, TablePlus oder DBeaver
+
+## Environment Variables
+
+Die Vorlagen liegen in:
+
+- `apps/server/.env.example`
+- `apps/web/.env.example`
+
+Benötigte Backend-Variablen:
 
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
 - `CORS_ORIGIN`
-- `GOOGLE_CLIENT_ID` (optional, für Google Login)
-- `GOOGLE_CLIENT_SECRET` (optional, für Google Login)
-- `LOKI_URL`
-- `LOKI_USERNAME`
-- `LOKI_PASSWORD`
+- optional: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- optional für Logs: `LOKI_URL`, `LOKI_USERNAME`, `LOKI_PASSWORD`
+
+Benötigte Frontend-Variablen:
+
 - `VITE_SERVER_URL`
-- `VITE_GRAFANA_URL`
+- optional: `VITE_GRAFANA_URL`
 
-Die CI-Pipeline in `.github/workflows/ci.yml` läuft bei Pull Requests sowie bei Pushes auf `main` und `preview`. Sie installiert die Abhängigkeiten mit `npm ci` und führt danach in parallelen Jobs Lint, Type-Checks, Unit Tests, Integrationstests mit Testcontainers und einen Drizzle-Migrationscheck aus. Ein nachgelagerter `build`-Job baut alle Workspaces, und auf `main`/`preview` markiert ein finaler `deploy`-Job, dass die Vercel-Integration den Push veröffentlicht. Stale CI-Runs auf demselben Ref werden über eine Concurrency-Gruppe automatisch gecanceld.
+Echte Secrets werden nicht im Repository gespeichert. Lokal werden `.env` Dateien verwendet, in Vercel sind die Environment Variables pro Umgebung eingetragen.
 
-Das Deployment läuft über die Vercel Git Integration. Commits auf `main` erzeugen Production Deployments, Pull Requests beziehungsweise Branches erzeugen Preview Deployments.
-
-## Deployment und Environments
-
-Das Projekt besteht aus drei deploybaren Komponenten:
-
-- **Web-App:** `m324-web` auf Vercel, erreichbar über `https://m324-web.vercel.app`
-- **API:** `m324-server` auf Vercel, erreichbar über `https://m324-server.vercel.app`
-- **Datenbank:** Neon PostgreSQL als Cloud-Datenbank für die deployte Umgebung
-
-Die Umgebungen sind so getrennt:
-
-- **Development:** lokale `.env` Dateien, Vite/Hono über `npm run dev`, PostgreSQL über Docker Compose
-- **Preview:** automatische Vercel Preview Deployments für Branches und Pull Requests, mit Neon PostgreSQL über `DATABASE_URL`
-- **Production:** automatische Vercel Production Deployments von `main`, mit Neon PostgreSQL über `DATABASE_URL`
-
-Lokal wird PostgreSQL über Docker Compose gestartet. In Preview und Production zeigt `DATABASE_URL` auf Neon.
-
-Aktuelle Deployment-URLs:
-
-- Production Frontend: [https://m324-web.vercel.app](https://m324-web.vercel.app)
-- Production Backend: [https://m324-server.vercel.app](https://m324-server.vercel.app)
-
-## Voraussetzungen
-
-Installiere lokal:
-
-- **Node.js** in einer aktuellen LTS-Version
-- **npm**; das Projekt ist auf `npm@11.13.0` ausgelegt
-- **Docker Desktop** oder eine kompatible Docker-Engine für PostgreSQL
-- Optional: **PostgreSQL-Treiber/Clienttools** wie `psql` oder eine GUI, falls du direkt in die Datenbank schauen möchtest
-
-Für die Anwendung selbst werden keine separaten systemweiten SDKs benötigt. Die TypeScript-, Vite-, Drizzle-, Turbo- und Ultracite-Tools werden über npm installiert.
-
-## Lokale Einrichtung
-
-1. Abhängigkeiten installieren:
+## Lokale Ausführung
 
 ```bash
 npm install
-```
-
-2. Umgebungsvariablen konfigurieren. Die Vorlagen liegen als `.env.example` neben jeder App und können direkt kopiert werden:
-
-```bash
 cp apps/server/.env.example apps/server/.env
 cp apps/web/.env.example apps/web/.env
-```
-
-In `apps/server/.env` muss anschließend `BETTER_AUTH_SECRET` durch einen zufälligen String mit mindestens 32 Zeichen ersetzt werden. Google-Login (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`) ist optional — bleiben die Felder leer, wird der Button im UI ausgeblendet. Auch Loki ist optional: ohne `LOKI_URL` skippt der Server den Push transparent.
-
-3. PostgreSQL starten:
-
-```bash
 npm run db:start
-```
-
-Die lokale Datenbank läuft danach über Docker auf `localhost:5432` mit:
-
-- Datenbank: `M324`
-- Benutzer: `postgres`
-- Passwort: `password`
-
-4. Datenbankschema anwenden:
-
-```bash
 npm run db:push
-```
-
-5. Entwicklungsumgebung starten:
-
-```bash
+npm run db:seed
 npm run dev
 ```
 
-Danach sind die Dienste erreichbar unter:
+Danach sind die Komponenten lokal erreichbar:
 
-- Web-App: [http://localhost:5173](http://localhost:5173)
-- API: [http://localhost:3000](http://localhost:3000)
-- Loki API: [http://localhost:3100/ready](http://localhost:3100/ready)
+- Frontend: [http://localhost:5173](http://localhost:5173)
+- Backend: [http://localhost:3000](http://localhost:3000)
+- PostgreSQL: `localhost:5432`
 - Grafana: [http://localhost:3001](http://localhost:3001)
+- Loki: [http://localhost:3100/ready](http://localhost:3100/ready)
 
 ## Wichtige Befehle
 
 ```bash
-npm run dev          # Frontend, Backend und abhängige Workspace-Tasks starten
-npm run dev:web      # Nur das Frontend starten
-npm run dev:server   # Nur die API starten
-npm run build        # Alle Workspaces bauen
-npm run test         # Unit-Tests ausführen; Docker-Integrationstests werden lokal übersprungen
-npm run test:integration # Integrationstests mit Testcontainers/PostgreSQL ausführen
-npm run check-types  # TypeScript-Prüfungen ausführen
-npm run check        # Ultracite/Biome-Prüfung
-npm run fix          # Automatische Ultracite/Biome-Fixes anwenden
+npm run dev              # Frontend und Backend starten
+npm run dev:web          # Nur Frontend starten
+npm run dev:server       # Nur Backend starten
+npm run build            # Alle Workspaces bauen
+npm run check            # Ultracite/Biome Check
+npm run fix              # Ultracite/Biome Auto-Fix
+npm run check-types      # TypeScript Checks
+npm test                 # Unit Tests
+npm run test:integration # Integrationstests mit Testcontainers/PostgreSQL
 ```
 
-## Datenbankbefehle
+Datenbank:
 
 ```bash
-npm run db:start     # PostgreSQL, Loki und Grafana im Hintergrund starten
-npm run db:watch     # Selbiges, aber im Vordergrund mit Live-Logs
+npm run db:start     # PostgreSQL, Loki und Grafana starten
 npm run db:stop      # Container stoppen
-npm run db:down      # Container und Netzwerk entfernen (Volumes bleiben)
-npm run db:reset     # Container und Volumes entfernen (DB komplett wipen)
-npm run db:push      # Schema direkt in die Datenbank pushen
-npm run db:generate  # Drizzle-Migrationen generieren
-npm run db:check     # Migrationen auf Konsistenz prüfen (auch in CI aktiv)
+npm run db:down      # Container entfernen, Volumes behalten
+npm run db:reset     # Container und Volumes löschen
+npm run db:push      # Drizzle Schema auf DB anwenden
+npm run db:generate  # Migrationen generieren
+npm run db:check     # Migrationen prüfen
 npm run db:migrate   # Migrationen ausführen
-npm run db:seed      # Demo-Märkte und System-User in eine leere DB schreiben
+npm run db:seed      # Demo-Daten laden
 npm run db:studio    # Drizzle Studio öffnen
 ```
 
-## Observability
+## Deployment und Environments
 
-Das Repository bringt einen lokalen Observability-Stack mit:
+Die Anwendung hat drei Komponenten:
 
-- **Loki** sammelt strukturierte Server-Logs (Port `3100`)
-- **Grafana** ist bereits mit Loki verbunden (Port `3001`, anonymous viewer)
-- Ein Dashboard `M324 Server Observability` wird via Provisioning-Files in `ops/observability/grafana/` automatisch geladen
-- Die App selbst zeigt das Dashboard unter [`/stats`](http://localhost:5173/stats) als eingebettetes iframe
+- Frontend: [https://m324-web.vercel.app](https://m324-web.vercel.app)
+- Backend: [https://m324-server.vercel.app](https://m324-server.vercel.app)
+- Datenbank: Neon PostgreSQL
 
-Lokaler Ablauf (sofern `.env.example` kopiert wurde, ist `LOKI_URL` bereits gesetzt):
+Environment-Trennung:
 
-1. `npm run db:start` — startet Postgres, Loki und Grafana
-2. `npm run db:push && npm run db:seed` — Schema anwenden und Demo-Märkte laden
-3. `npm run dev` — App starten
-4. `/stats` im Browser öffnen oder direkt Grafana unter [http://localhost:3001/d/m324-observability](http://localhost:3001/d/m324-observability)
+- Development: lokale `.env` Dateien und PostgreSQL über Docker
+- Preview: Vercel Preview Deployment vom Branch `preview`
+- Production: Vercel Production Deployment vom Branch `main`
 
-Für Preview/Production: dieselbe Server-Logik kann gegen Grafana Cloud (oder einen anderen Loki-Endpoint) pushen, solange `LOKI_URL` erreichbar ist. Optional sind `LOKI_USERNAME` und `LOKI_PASSWORD` für Basic Auth, sowie `VITE_GRAFANA_URL` im Web-App-Env für den iframe-Embed.
+Preview URL:
 
-## UI-Anpassungen
+- [https://m324-web-git-preview-riciyts-projects.vercel.app](https://m324-web-git-preview-riciyts-projects.vercel.app)
 
-Das Frontend verwaltet seine shadcn/ui-Primitives direkt im App-Workspace:
+Vercel enthält die Environment Variables für Production und Preview. `main` ist Production, `preview` ist Preview.
 
-- Design Tokens und globale Styles: `apps/web/src/styles/globals.css`
-- Komponenten: `apps/web/src/components/*`
-- shadcn-Konfiguration: `apps/web/components.json`
+## CI/CD Pipeline
 
-Neue Komponenten können vom Projekt-Root aus hinzugefügt werden:
+Die Pipeline liegt in `.github/workflows/ci.yml`.
+
+GitHub Actions läuft bei Pull Requests und bei Pushes auf `main` und `preview`. Die Pipeline enthält diese Stages:
+
+- install mit `npm ci`
+- lint/format mit `npm run check`
+- type check mit `npm run check-types`
+- unit tests mit `npm test`
+- migration check mit `npm run db:check`
+- build mit `npm run build`
+- deploy marker für Vercel Git Integration
+
+Das eigentliche Deployment wird nicht manuell ausgeführt. Vercel Git Integration deployed automatisch:
+
+- Push auf `main` -> Production
+- Push auf `preview` -> Preview
+
+## Tests
+
+Unit Tests laufen mit:
 
 ```bash
-npx shadcn@latest add accordion dialog popover sheet table -c apps/web
+npm test
 ```
 
-Import-Beispiel:
-
-```tsx
-import { Button } from "@/components/button";
-```
-
-## Qualitätssicherung
-
-Vor Abgabe oder Commit sollten mindestens diese Checks laufen:
+Integrationstests laufen lokal mit Docker/Testcontainers und einer PostgreSQL-Testdatenbank:
 
 ```bash
-npm run test
 npm run test:integration
-npm run check-types
-npm run check
-npm run build
 ```
 
-Formatierung und viele Linting-Probleme lassen sich automatisch beheben:
+In GitHub Actions sind Integrationstests als Stage vorgesehen. Damit sie dort stabil laufen, muss noch eine Neon-Testdatenbank beziehungsweise passende `DATABASE_URL` für die GitHub-Actions-Umgebung verbunden werden. Lokal sind die Integrationstests über Docker ausführbar.
 
-```bash
-npm run fix
-```
+## Umgesetzte Zusatzleistungen
 
-## Zusatzleistungen
+- CI/CD mit GitHub Actions YAML und Vercel Git Integration
+- Docker Compose für PostgreSQL, Loki und Grafana
+- Pipeline Stages für Check, Types, Tests, Migrationen, Build und Deploy-Marker
+- Mehr als 10 sinnvolle Unit Tests
+- Integrationstests mit Testcontainers/PostgreSQL
+- Pipeline Environments über Vercel: `main` als Production, `preview` als Preview
+- Task-Tracking über GitHub Issues
+- Observability mit Loki und Grafana
+- Strukturierte Server-Logs
+- Authentifikation mit Better Auth
+- Feature Branching mit Pull Requests
 
-Umgesetzte Zusatzleistungen:
+Nicht umgesetzt:
 
-- **CI/CD Deployment:** Vercel deployed Web-App und API automatisch über die GitHub-Integration. `.github/workflows/ci.yml` läuft bei PRs sowie Pushes auf `main` und `preview` und teilt die Quality-Checks in parallele Jobs auf: Lint, Type-Check, Unit Tests, Drizzle-Migration-Check, Build und ein Deploy-Stage-Marker.
-- **Container-Tool:** `docker-compose.yml` startet PostgreSQL, Loki und Grafana mit Healthcheck und persistierenden Volumes.
-- **Pipeline Environments:** Development läuft lokal, Preview läuft über Vercel Branch-/PR-Deployments und Production über Vercel Deployments von `main`.
-- **Deploybare Datenbank:** Neon PostgreSQL wird als Cloud-Datenbank für die deployte Anwendung verwendet.
-- **Tests:** Vitest deckt Logging-, UI-Utility- und Auth-Redirect-Logik ab. `npm run test` läuft ohne Docker-Zwang; `npm run test:integration` startet Testcontainers mit PostgreSQL und prüft zentrale Markt-Flows: Wette platzieren, fehlende Credits, pari-mutuel Resolve und Non-Admin-Resolve.
-- **Applikationslogs:** Der Server erzeugt strukturierte JSON-Logs für Serverstart, Environment, Datenbank-Konfiguration, CORS, Request-Start, Request-Ende, Auth-Requests, Healthchecks, Favicon-Requests und Fehler.
-- **Observability:** Loki + Grafana laufen lokal über Docker Compose mit provisionierten Datasources und Dashboards. Das Frontend bettet das Dashboard unter `/stats` ein.
-- **Authentifikation:** Better Auth mit Email/Password und optionalem Google OAuth.
-- **Feature Branching:** Alle Änderungen laufen über Feature-Branches und Pull Requests, der `preview`-Branch dient als Integrations-Staging vor `main`.
+- Kubernetes
 
-## Anforderungsabdeckung
+## Task-Tracking
 
-Diese Tabelle fasst die wichtigsten Bewertungs- und Demo-Punkte mit technischem Nachweis zusammen.
+Task-Tracking wurde über GitHub Issues umgesetzt. Beispiele:
 
-| Bereich | Umsetzung | Nachweis |
-| --- | --- | --- |
-| Service-Layer und Business Logic | `placeBet` prüft Credits und Marktstatus in einer DB-Transaktion; `resolveMarket` verteilt den Pool pari-mutuel und atomar. | `apps/server/src/services/bets.ts`, `apps/server/src/services/markets.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
-| Auth- und Admin-Schutz | `requireSession` schützt angemeldete API-Flows; `requireAdmin` schützt Resolve serverseitig. | `apps/server/src/middleware/auth.ts`, `apps/server/src/index.ts`, PR [#24](https://github.com/RiciYT/M324/pull/24) |
-| Integrationstests | `npm run test:integration` startet PostgreSQL über Testcontainers und prüft Credit-Abzug, Insufficient Credits, pari-mutuel Resolve und Non-Admin Resolve. | `apps/server/src/services/integration.test.ts`, `package.json`, `.github/workflows/ci.yml`, PR [#26](https://github.com/RiciYT/M324/pull/26) |
-| Observability | Docker Compose startet PostgreSQL, Loki und Grafana; Server pusht strukturierte Logs; `/stats` bettet das Dashboard ein. | `docker-compose.yml`, `ops/observability/`, `apps/server/src/logging.ts`, `apps/web/src/routes/stats.tsx`, PR [#16](https://github.com/RiciYT/M324/pull/16), PR [#25](https://github.com/RiciYT/M324/pull/25) |
-| Frontend Markets UI | Feed, Detailseite, Create-Form, Portfolio, Leaderboard, Wallet und Daily Claim sind im Frontend sichtbar. | `apps/web/src/routes/markets.index.tsx`, `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/routes/portfolio.tsx`, PR [#19](https://github.com/RiciYT/M324/pull/19) |
-| Admin Resolve UI | Resolve-Buttons erscheinen nur für Benutzer mit `role === "admin"` und rufen die geschützte API auf. | `apps/web/src/routes/markets.$marketid.tsx`, `apps/web/src/lib/api-client.ts`, PR [#27](https://github.com/RiciYT/M324/pull/27) |
-| Daily Coins | Angemeldete Benutzer können alle 24 Stunden 1000 Coins claimen; erneutes Claimen vor Ablauf wird blockiert. | `apps/server/src/services/wallet.ts`, `apps/web/src/components/header.tsx`, Commit `01aa309` |
-| CI/CD und Environments | CI läuft bei PRs sowie `main`/`preview`, prüft Lint, Types, Unit Tests, Integrationstests, Migrationen und Build; Deployments laufen über Vercel Git Integration. | `.github/workflows/ci.yml`, PR [#23](https://github.com/RiciYT/M324/pull/23) |
-| Branching und Nachverfolgbarkeit | Features wurden über getrennte Branches und Pull Requests in `preview` integriert. | `feature/login` PR [#19](https://github.com/RiciYT/M324/pull/19), `feature/auth` PR [#24](https://github.com/RiciYT/M324/pull/24), `feature/test` PR [#26](https://github.com/RiciYT/M324/pull/26), `codex/admin-resolve-readme` PR [#27](https://github.com/RiciYT/M324/pull/27) |
+- Issue #10: Backend-Grundlage
+- Issue #11: API-Logik
+- Issue #12: Frontend Markets UI
+- Issue #13: Integrationstests
+- Issue #14: Observability
+
+Die Features wurden über Branches und Pull Requests umgesetzt und anschließend in `preview` integriert.
+
+## Authentifikation
+
+Die Authentifikation läuft über Better Auth. Unterstützt werden Email/Password und optional Google OAuth. Serverseitig schützen Middlewares angemeldete API-Flows und Admin-Aktionen.
+
+## Observability und Logs
+
+Docker Compose startet lokal Loki und Grafana. Der Server schreibt strukturierte JSON-Logs unter anderem für:
+
+- Serverstart
+- Environment-Konfiguration
+- Datenbank-Konfiguration
+- CORS-Konfiguration
+- Request Start/Ende
+- Auth Requests
+- Healthchecks
+- Fehler
+
+Grafana ist lokal unter [http://localhost:3001](http://localhost:3001) erreichbar. Das Frontend enthält zusätzlich eine `/stats` Seite für das Dashboard.
+
+## KI-Einsatz
+
+KI wurde unterstützend eingesetzt für:
+
+- technische Reviews gegen die Bewertungskriterien
+- README- und Dokumentationsstruktur
+- Debugging von CI-/Formatierungsproblemen
+- Verbesserungsvorschläge für Tests, Deployment und Sicherheit
+
+Positive Erfahrungen:
+
+- schnelleres Finden von Lücken in README, CI und Bewertungskriterien
+- bessere Strukturierung der Abgabe
+- schnelle Fehlersuche bei Linting, Tests und Git-Problemen
+
+Negative Erfahrungen:
+
+- KI-Vorschläge mussten fachlich geprüft werden
+- einzelne Aussagen waren zu optimistisch, wenn externe Systeme wie Vercel oder GitHub Actions nicht direkt verifiziert wurden
+- generierte Dokumentation wurde schnell zu lang und musste gekürzt werden
