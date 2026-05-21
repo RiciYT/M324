@@ -241,7 +241,7 @@ KI wurde im Projekt als Unterstützung verwendet, nicht als ungeprüfte Quelle. 
 
 Positive Erfahrungen waren, dass Lücken in README, Pipeline und Bewertungskriterien schneller sichtbar wurden. Auch Fehler wie fehlende Formatierung oder unklare Test-Setups konnten schneller eingegrenzt werden.
 
-Problematisch war, dass KI teilweise mit allgemeinen oder veralteten Informationen gearbeitet hat. Gerade bei modernen Tools wie Vercel, Neon, Better Auth, GitHub Actions oder neuen Modellen wie GPT-5.5 und Claude Opus 4.7 kann sich der aktuelle Stand schnell ändern. Deshalb mussten Aussagen der KI immer mit dem Repository, offiziellen Tool-Ausgaben oder echten Deployments abgeglichen werden.
+Problematisch war, dass KI teilweise mit allgemeinen oder veralteten Informationen gearbeitet hat. Gerade bei modernen Tools wie Vercel, Neon, Better Auth, GitHub Actions kann sich der aktuelle Stand schnell ändern. Deshalb mussten Aussagen der KI immer mit dem Repository, offiziellen Tool-Ausgaben oder echten Deployments abgeglichen werden.
 
 Für unser Projekt war besonders wichtig:
 
