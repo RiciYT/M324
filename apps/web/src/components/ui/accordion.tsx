@@ -21,7 +21,11 @@ export function Accordion({ children }: { children: React.ReactNode }) {
 }
 
 export function AccordionItem({ value, children }: AccordionItemProps) {
-  return <div className="overflow-hidden rounded-[8px]">{children}</div>;
+  return (
+    <div className="overflow-hidden rounded-[8px]" id={`acc-item-${value}`}>
+      {children}
+    </div>
+  );
 }
 
 export function AccordionTrigger({
