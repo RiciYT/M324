@@ -1,19 +1,10 @@
-import { useEffect, useState } from "react";
-
 export function useFormattedDate(
   value: string | undefined,
   formatter: Intl.DateTimeFormat
 ): string {
-  const [formattedDate, setFormattedDate] = useState("");
+  if (!value) {
+    return "";
+  }
 
-  useEffect(() => {
-    if (!value) {
-      setFormattedDate("");
-      return;
-    }
-
-    setFormattedDate(formatter.format(new Date(value)));
-  }, [formatter, value]);
-
-  return formattedDate;
+  return formatter.format(new Date(value));
 }

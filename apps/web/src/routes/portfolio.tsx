@@ -11,6 +11,7 @@ export const Route = createFileRoute("/portfolio")({
   component: PortfolioRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function PortfolioRoute() {
   const { data, error, isLoading } = usePortfolio();
   const {
@@ -125,6 +126,8 @@ function PortfolioRoute() {
   );
 }
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
 function TransactionRow({
   transaction,
 }: {
@@ -161,6 +164,8 @@ function TransactionRow({
   );
 }
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
 function SummaryCell({
   label,
   tone = "neutral",

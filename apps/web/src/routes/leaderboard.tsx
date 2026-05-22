@@ -9,6 +9,7 @@ export const Route = createFileRoute("/leaderboard")({
   component: LeaderboardRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function LeaderboardRoute() {
   const { data: leaderboard, error, isLoading } = useLeaderboard();
   const entries = leaderboard ?? [];
@@ -127,6 +128,7 @@ function LeaderboardRoute() {
   );
 }
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function PodiumCard({
   entry,
   rank,

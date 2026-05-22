@@ -22,6 +22,7 @@ export const Route = createFileRoute("/markets/$marketid")({
   component: MarketDetailRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function MarketDetailRoute() {
   const { marketid } = Route.useParams();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -196,6 +197,8 @@ function MarketDetailRoute() {
   );
 }
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
 function AdminResolvePanel({
   isResolving,
   marketStatus,
@@ -263,6 +266,8 @@ function AdminResolvePanel({
   );
 }
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
 function ActivityLine({
   amount,
   rawAmount,

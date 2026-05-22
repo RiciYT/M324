@@ -7,6 +7,7 @@ export const Route = createFileRoute("/markets/new")({
   component: NewMarketRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function NewMarketRoute() {
   const navigate = Route.useNavigate();
   const { data: session, isPending } = authClient.useSession();

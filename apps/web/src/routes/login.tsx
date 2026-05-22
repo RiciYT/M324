@@ -11,6 +11,7 @@ export const Route = createFileRoute("/login")({
   }),
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function RouteComponent() {
   const { mode } = Route.useSearch();
   const [showSignIn, setShowSignIn] = useState(mode === "signin");

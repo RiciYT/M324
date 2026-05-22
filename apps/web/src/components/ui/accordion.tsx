@@ -1,5 +1,5 @@
 import type React from "react";
-import { createContext, useContext, useState } from "react";
+import { createContext, use, useMemo, useState } from "react";
 
 interface AccordionItemProps {
   children: React.ReactNode;
@@ -13,8 +13,13 @@ const AccordionContext = createContext<{
 
 export function Accordion({ children }: { children: React.ReactNode }) {
   const [openValue, setOpenValue] = useState<string | number | null>(null);
+  const contextValue = useMemo(
+    () => ({ openValue, setOpenValue }),
+    [openValue]
+  );
+
   return (
-    <AccordionContext.Provider value={{ openValue, setOpenValue }}>
+    <AccordionContext.Provider value={contextValue}>
       <div className="space-y-3">{children}</div>
     </AccordionContext.Provider>
   );
@@ -35,7 +40,7 @@ export function AccordionTrigger({
   value: string | number;
   children: React.ReactNode;
 }) {
-  const ctx = useContext(AccordionContext);
+  const ctx = use(AccordionContext);
   if (!ctx) {
     return null;
   }
@@ -65,20 +70,19 @@ export function AccordionContent({
   value: string | number;
   children: React.ReactNode;
 }) {
-  const ctx = useContext(AccordionContext);
+  const ctx = use(AccordionContext);
   if (!ctx) {
     return null;
   }
   const isOpen = ctx.openValue === value;
   return (
-    <div
+    <section
       aria-hidden={!isOpen}
       className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-96 p-4" : "max-h-0 p-0"}`}
       id={`acc-${value}`}
-      role="region"
       style={{ background: "transparent" }}
     >
       <div className="text-sm text-zinc-400">{children}</div>
-    </div>
+    </section>
   );
 }
