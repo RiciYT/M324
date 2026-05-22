@@ -52,8 +52,8 @@ export function BetForm({
           aria-pressed={side === "yes"}
           className={
             side === "yes"
-              ? "h-11 rounded-[6px] bg-[#c8ff00] font-black text-black uppercase hover:bg-[#c8ff00]/90"
-              : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-black text-zinc-200 uppercase hover:bg-zinc-900"
+              ? "h-11 rounded-[6px] bg-[#c8ff00] font-medium text-black hover:bg-[#b7eb00]"
+              : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-medium text-zinc-200 hover:bg-zinc-900"
           }
           onClick={() => setSide("yes")}
           type="button"
@@ -65,8 +65,8 @@ export function BetForm({
           aria-pressed={side === "no"}
           className={
             side === "no"
-              ? "h-11 rounded-[6px] bg-destructive font-black text-white uppercase hover:bg-destructive/90"
-              : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-black text-zinc-200 uppercase hover:bg-zinc-900"
+              ? "h-11 rounded-[6px] bg-destructive font-medium text-white hover:bg-destructive/90"
+              : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-medium text-zinc-200 hover:bg-zinc-900"
           }
           onClick={() => setSide("no")}
           type="button"
@@ -110,7 +110,7 @@ export function BetForm({
       </div>
 
       <Button
-        className="h-12 rounded-[6px] bg-[#c8ff00] font-black text-black uppercase hover:bg-[#c8ff00]/90"
+        className="h-12 rounded-[6px] bg-[#c8ff00] font-medium text-black hover:bg-[#b7eb00]"
         disabled={isSubmitting}
         type="submit"
       >

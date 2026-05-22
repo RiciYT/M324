@@ -1,69 +1,31 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, HomeIcon } from "lucide-react";
 import { Button } from "@/components/button";
 
 export function Empty404Page() {
   return (
-    <main className="relative min-h-0 overflow-hidden bg-background">
-      <Grid />
-      <div className="relative mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
-        <div className="mb-6 font-mono text-[10px] text-muted-foreground uppercase tracking-[0.4em]">
-          Status - 404
-        </div>
-
-        <BigNumerals />
-
-        <h1 className="mt-10 max-w-md font-heading text-2xl leading-tight md:text-3xl">
+    <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
+      <div className="mx-auto flex min-h-full max-w-2xl flex-col justify-center px-5 py-16 sm:px-8">
+        <p className="font-mono text-sm text-zinc-500">404</p>
+        <h1 className="mt-4 font-semibold text-3xl leading-tight">
           Diese Seite gibt es nicht.
         </h1>
-        <p className="mt-2 max-w-sm text-balance text-muted-foreground text-sm">
+        <p className="mt-3 max-w-md text-sm text-zinc-400 leading-6">
           Der Link ist vielleicht veraltet oder die Seite wurde verschoben.
-          Pruefe die URL oder geh zurueck zu einem bekannten Ort.
+          Prüfe die URL oder geh zurück zur Startseite.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+        <div className="mt-7 flex flex-wrap items-center gap-2">
           <Button onClick={() => window.history.back()} variant="outline">
-            <ArrowLeftIcon aria-hidden="true" data-icon="inline-start" />
-            Zurueck
+            Zurück
           </Button>
-          <Button render={<Link to="/" />}>
-            <HomeIcon aria-hidden="true" data-icon="inline-start" />
+          <Button
+            className="bg-[#c8ff00] text-black hover:bg-[#b7eb00]"
+            render={<Link to="/" />}
+          >
             Startseite
           </Button>
         </div>
       </div>
     </main>
-  );
-}
-
-function BigNumerals() {
-  return (
-    <div className="relative font-bold font-heading text-[clamp(8rem,22vw,16rem)] leading-none tracking-normal">
-      <span className="text-foreground">404</span>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
-        style={{
-          background:
-            "radial-gradient(60% 100% at 50% 100%, color-mix(in srgb, var(--background) 80%, transparent) 50%, transparent 100%)",
-        }}
-      />
-    </div>
-  );
-}
-
-function Grid() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 opacity-[0.35]"
-      style={{
-        backgroundImage:
-          "linear-gradient(to right, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px)",
-        backgroundSize: "48px 48px",
-        maskImage:
-          "radial-gradient(ellipse at center, black 35%, transparent 75%)",
-      }}
-    />
   );
 }

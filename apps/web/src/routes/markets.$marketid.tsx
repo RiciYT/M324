@@ -1,6 +1,5 @@
 // biome-ignore-all lint/style/useFilenamingConvention: TanStack Router uses $param filenames for dynamic routes.
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock, ShieldCheck, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { BetForm } from "@/components/bet-form";
 import { Button } from "@/components/button";
@@ -86,13 +85,8 @@ function MarketDetailRoute() {
         <article className="min-w-0">
           <div className="mb-7 flex flex-col gap-4 border-[#20231b] border-b pb-6">
             <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
-              <span>ShitMarket</span>
-              <span>/</span>
               <span>{statusLabel}</span>
-              <span className="inline-flex items-center gap-1">
-                <Clock aria-hidden="true" className="size-4" />
-                {closesAt}
-              </span>
+              <span>{closesAt}</span>
             </div>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-3xl">
@@ -134,8 +128,7 @@ function MarketDetailRoute() {
             aria-labelledby="activity-heading"
             className="border-[#20231b] border-t pt-6"
           >
-            <div className="mb-4 flex items-center gap-2">
-              <TrendingUp aria-hidden="true" className="text-[#c8ff00]" />
+            <div className="mb-4">
               <h2 className="font-semibold text-xl" id="activity-heading">
                 Aktivität
               </h2>
@@ -220,16 +213,13 @@ function AdminResolvePanel({
       aria-labelledby="admin-resolve-heading"
       className="mt-5 rounded-[8px] border border-[#c8ff00]/30 bg-[#11120f] p-4"
     >
-      <div className="mb-4 flex items-center gap-2">
-        <ShieldCheck aria-hidden="true" className="size-5 text-[#c8ff00]" />
-        <div>
-          <h2 className="font-semibold text-sm" id="admin-resolve-heading">
-            Admin Resolve
-          </h2>
-          <p className="text-xs text-zinc-500">
-            Nur sichtbar für Benutzer mit Admin-Rolle.
-          </p>
-        </div>
+      <div className="mb-4">
+        <h2 className="font-semibold text-sm" id="admin-resolve-heading">
+          Admin Resolve
+        </h2>
+        <p className="text-xs text-zinc-500">
+          Nur sichtbar für Benutzer mit Admin-Rolle.
+        </p>
       </div>
 
       {isResolved ? (
