@@ -244,6 +244,25 @@ function HomeComponent() {
                 </span>
               ))}
             </p>
+
+            {/* Coins statt Geld card under the text on large screens */}
+            <div className="mt-6 hidden lg:block">
+              <article className="overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]">
+                <div
+                  aria-hidden="true"
+                  className="h-28 overflow-hidden rounded-[8px] bg-center bg-cover"
+                  style={{ backgroundImage: `url(${parodyItems[2].image})` }}
+                />
+                <div className="mt-3">
+                  <h3 className="font-semibold text-lg">
+                    {parodyItems[2].title}
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-400">
+                    {parodyItems[2].body}
+                  </p>
+                </div>
+              </article>
+            </div>
           </div>
 
           <ParodyAccordions />
@@ -453,39 +472,39 @@ function RulePanel() {
   );
 }
 
-function ParodyAccordions() {
-  const items = [
-    {
-      body: "GTA 6, CEO-Gerüchte, Schulpausen-Ökonomie. Alles wird handelbar, nichts wird seriös.",
-      image: imageAssets.ballots,
-      title: "Absurde Fragen",
-    },
-    {
-      body: "Ja und Nein bleiben sichtbar. Die Mechanik ist klar, damit der Witz nicht die Bedienung erklären muss.",
-      image: imageAssets.terminal,
-      title: "Echte Quoten",
-    },
-    {
-      body: "Wallet, Positionen und Rangliste machen aus Meinung ein kleines Risiko.",
-      image: imageAssets.rumorWall,
-      title: "Coins statt Geld",
-    },
-  ] as const;
+const parodyItems = [
+  {
+    body: "GTA 6, CEO-Gerüchte, Schulpausen-Ökonomie. Alles wird handelbar, nichts wird seriös.",
+    image: imageAssets.ballots,
+    title: "Absurde Fragen",
+  },
+  {
+    body: "Ja und Nein bleiben sichtbar. Die Mechanik ist klar, damit der Witz nicht die Bedienung erklären muss.",
+    image: imageAssets.terminal,
+    title: "Echte Quoten",
+  },
+  {
+    body: "Wallet, Positionen und Rangliste machen aus Meinung ein kleines Risiko.",
+    image: imageAssets.rumorWall,
+    title: "Coins statt Geld",
+  },
+] as const;
 
+function ParodyAccordions() {
   return (
     <div className="grid gap-6">
-      {items.map((item) => (
+      {parodyItems.map((item, idx) => (
         <article
-          className="overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-4 shadow-[0_1px_0_rgba(255,255,255,0.04)]"
+          className={`overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)] ${idx === 2 ? "lg:hidden" : ""}`}
           key={item.title}
         >
           <div
             aria-hidden="true"
-            className="h-40 overflow-hidden rounded-[8px] bg-center bg-cover"
+            className="h-28 overflow-hidden rounded-[8px] bg-center bg-cover"
             style={{ backgroundImage: `url(${item.image})` }}
           />
-          <div className="mt-4">
-            <h3 className="font-semibold text-2xl">{item.title}</h3>
+          <div className="mt-3">
+            <h3 className="font-semibold text-lg">{item.title}</h3>
             <p className="mt-2 text-sm text-zinc-400">{item.body}</p>
           </div>
         </article>
