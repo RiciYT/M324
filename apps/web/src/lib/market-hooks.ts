@@ -114,3 +114,12 @@ export function usePortfolio(): AsyncState<{
 export function useLeaderboard(): AsyncState<LeaderboardEntry[]> {
   return useAsyncData(() => apiClient.getLeaderboard(), []);
 }
+
+export function useUserCount(): AsyncState<number> {
+  const state = useAsyncData(() => apiClient.getUserCount(), []);
+  return {
+    data: state.data ? state.data.count : undefined,
+    error: state.error,
+    isLoading: state.isLoading,
+  } as AsyncState<number>;
+}

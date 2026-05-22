@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/button";
 import { Skeleton } from "@/components/skeleton";
 import type { LeaderboardEntry, Market } from "@/lib/api-client";
-import { useLeaderboard, useMarkets } from "@/lib/market-hooks";
+import { useLeaderboard, useMarkets, useUserCount } from "@/lib/market-hooks";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -57,6 +57,8 @@ function HomeComponent() {
   const totalPool =
     markets?.reduce((sum, market) => sum + getTotalPool(market), 0) ?? 0;
   const topUsers = leaderboard?.slice(0, 4) ?? [];
+
+  const { data: userCount, isLoading: userCountLoading } = useUserCount();
 
   useGSAP(
     () => {
@@ -189,7 +191,7 @@ function HomeComponent() {
             </span>
             <span className="hidden text-zinc-500 sm:inline">·</span>
             <span className="font-mono text-[#c8ff00] tabular-nums">
-              {topUsers.length} Trader online
+              {userCount ?? topUsers.length} Registrierte Nutzer
             </span>
           </div>
         </div>
