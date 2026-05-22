@@ -246,7 +246,7 @@ function HomeComponent() {
             </p>
 
             {/* Coins statt Geld card under the text on large screens */}
-            <div className="mt-6 hidden lg:block lg:max-w-xl">
+            <div className="mt-6 hidden lg:block lg:max-w-[31rem]">
               <article className="w-full overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]">
                 <div
                   aria-hidden="true"
@@ -495,7 +495,7 @@ function ParodyAccordions() {
     <div className="grid gap-6">
       {parodyItems.map((item, idx) => (
         <article
-          className={`overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)] ${idx === 2 ? "lg:hidden" : ""}`}
+          className={`w-full overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)] lg:max-w-[31rem] ${idx === 2 ? "lg:hidden" : ""}`}
           key={item.title}
         >
           <div
