@@ -46,6 +46,7 @@ export function AccordionTrigger({
       aria-expanded={isOpen}
       className="flex w-full items-center justify-between gap-4 rounded-[8px] border border-zinc-800 bg-[#11120f] p-4 text-left transition-all duration-150 hover:border-[#c8ff00]/40"
       onClick={() => ctx.setOpenValue(isOpen ? null : value)}
+      type="button"
     >
       <span className="font-semibold">{children}</span>
       <span
