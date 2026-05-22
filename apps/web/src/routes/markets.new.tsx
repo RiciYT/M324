@@ -7,6 +7,7 @@ export const Route = createFileRoute("/markets/new")({
   component: NewMarketRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function NewMarketRoute() {
   const navigate = Route.useNavigate();
   const { data: session, isPending } = authClient.useSession();
@@ -16,11 +17,11 @@ function NewMarketRoute() {
       <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
         <section className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
           <div className="border-[#20231b] border-b pb-6">
-            <h1 className="font-black text-4xl uppercase tracking-normal">
+            <h1 className="font-semibold text-4xl tracking-normal">
               Neuer Markt
             </h1>
             <p className="mt-2 text-sm text-zinc-400 leading-6">
-              Session wird geprüft...
+              Session wird geprüft…
             </p>
           </div>
         </section>
@@ -33,7 +34,7 @@ function NewMarketRoute() {
       <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
         <section className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
           <div className="border-[#20231b] border-b pb-6">
-            <h1 className="font-black text-4xl uppercase tracking-normal">
+            <h1 className="font-semibold text-4xl tracking-normal">
               Login erforderlich
             </h1>
             <p className="mt-2 text-sm text-zinc-400 leading-6">
@@ -41,7 +42,7 @@ function NewMarketRoute() {
             </p>
           </div>
           <Button
-            className="h-11 w-fit bg-[#c8ff00] font-black text-black uppercase hover:bg-[#c8ff00]/90"
+            className="h-11 w-fit bg-[#c8ff00] px-5 text-black hover:bg-[#b7eb00]"
             render={<Link search={{ mode: "signin" }} to="/login" />}
           >
             Zum Login
@@ -55,12 +56,11 @@ function NewMarketRoute() {
     <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
       <section className="mx-auto flex max-w-3xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
         <div className="border-[#20231b] border-b pb-6">
-          <h1 className="font-black text-4xl uppercase tracking-normal">
+          <h1 className="font-semibold text-4xl tracking-normal">
             Neuer Markt
           </h1>
           <p className="mt-2 text-sm text-zinc-400 leading-6">
-            Lege eine neue absurde Prognosefrage mit Beschreibung und
-            Ablaufdatum an.
+            Frage, Kontext und Ablaufdatum reichen.
           </p>
         </div>
         <MarketCreateForm

@@ -20,8 +20,8 @@ export default function UserMenu() {
     return (
       <Link search={{ mode: "signin" }} to="/login">
         <Button variant="outline">
-          <span className="sm:hidden">Anmelden</span>
-          <span className="hidden sm:inline">Anmelden / Registrieren</span>
+          <span className="lg:hidden">Anmelden</span>
+          <span className="hidden lg:inline">Anmelden / Registrieren</span>
         </Button>
       </Link>
     );

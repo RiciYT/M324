@@ -8,7 +8,7 @@ export function BalanceBadge() {
 
   const getLabel = () => {
     if (isLoading) {
-      return "...";
+      return "…";
     }
     if (error) {
       return "–";

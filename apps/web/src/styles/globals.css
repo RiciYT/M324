@@ -127,7 +127,25 @@
     @apply font-sans bg-background text-foreground antialiased;
   }
   html {
+    scrollbar-color: gray transparent;
+    scrollbar-width: thin;
     @apply font-sans;
+  }
+
+  html::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  html::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html::-webkit-scrollbar-thumb {
+    background-color: gray;
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 9999px;
   }
 }
 
@@ -143,7 +161,9 @@
   html.light .bg-black,
   html.light .bg-black\/20,
   html.light .bg-black\/25,
-  html.light .bg-black\/30 {
+  html.light .bg-black\/30,
+  html.light .bg-black\/35,
+  html.light .bg-black\/55 {
     background-color: #f8f8f3 !important;
   }
 
@@ -173,7 +193,26 @@
     color: #707568 !important;
   }
 
-  html.light .hover\:bg-zinc-900:hover {
+  html.light .bg-\[\#0b0c0a\],
+  html.light .bg-zinc-900 {
+    background-color: #f0f0e8 !important;
+  }
+
+  html.light .text-\[\#c8ff00\] {
+    color: #526800 !important;
+  }
+
+  html.light .hover\:text-\[\#c8ff00\]:hover {
+    color: #526800 !important;
+  }
+
+  html.light .border-\[\#c8ff00\],
+  html.light .hover\:border-\[\#c8ff00\]\/60:hover {
+    border-color: rgb(82 104 0 / 72%) !important;
+  }
+
+  html.light .hover\:bg-zinc-900:hover,
+  html.light .hover\:bg-zinc-900\/70:hover {
     background-color: #ecece5 !important;
   }
 
@@ -193,7 +232,9 @@
   :root:not(.dark) [class~="bg-black"],
   :root:not(.dark) [class~="bg-black/20"],
   :root:not(.dark) [class~="bg-black/25"],
-  :root:not(.dark) [class~="bg-black/30"] {
+  :root:not(.dark) [class~="bg-black/30"],
+  :root:not(.dark) [class~="bg-black/35"],
+  :root:not(.dark) [class~="bg-black/55"] {
     background-color: #f8f8f3;
   }
 
@@ -223,7 +264,26 @@
     color: #707568;
   }
 
-  :root:not(.dark) [class~="hover:bg-zinc-900"]:hover {
+  :root:not(.dark) [class~="bg-[#0b0c0a]"],
+  :root:not(.dark) [class~="bg-zinc-900"] {
+    background-color: #f0f0e8;
+  }
+
+  :root:not(.dark) [class~="text-[#c8ff00]"] {
+    color: #526800;
+  }
+
+  :root:not(.dark) [class~="hover:text-[#c8ff00]"]:hover {
+    color: #526800;
+  }
+
+  :root:not(.dark) [class~="border-[#c8ff00]"],
+  :root:not(.dark) [class~="hover:border-[#c8ff00]/60"]:hover {
+    border-color: rgb(82 104 0 / 72%);
+  }
+
+  :root:not(.dark) [class~="hover:bg-zinc-900"]:hover,
+  :root:not(.dark) [class~="hover:bg-zinc-900/70"]:hover {
     background-color: #ecece5;
   }
 

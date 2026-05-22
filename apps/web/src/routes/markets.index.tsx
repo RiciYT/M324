@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import { MarketCard } from "@/components/market-card";
 import { useMarkets } from "@/lib/market-hooks";
@@ -16,6 +15,7 @@ const filters = [
 
 type MarketFilter = (typeof filters)[number]["value"];
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function MarketsIndexRoute() {
   const { data: markets, error, isLoading } = useMarkets();
   const [activeFilter, setActiveFilter] = useState<MarketFilter>("all");
@@ -27,29 +27,26 @@ function MarketsIndexRoute() {
     markets?.filter((market) => market.status === "open").length ?? 0;
   const resolvedCount =
     markets?.filter((market) => market.status === "resolved").length ?? 0;
+  const marketCount = markets?.length ?? 0;
 
   return (
     <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
-      <section className="mx-auto flex max-w-[1540px] flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
-        <div className="flex flex-col gap-4 border-[#20231b] border-b pb-6 md:flex-row md:items-end md:justify-between">
+      <section className="mx-auto flex max-w-[1320px] flex-col gap-5 px-5 py-6 sm:px-8 lg:px-10">
+        <div className="flex flex-col gap-4 border-[#20231b] border-b pb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="font-black text-4xl uppercase tracking-normal">
-              Märkte
-            </h1>
+            <h1 className="font-semibold text-4xl tracking-normal">Märkte</h1>
             <p className="mt-2 max-w-2xl text-sm text-zinc-400 leading-6">
-              Alle offenen und aufgelösten ShitMarket-Fragen mit Pool, Quote und
-              Ablaufdatum.
+              Offene und aufgelöste Fragen mit Quote, Pool und Ablaufdatum.
             </p>
             <p className="mt-3 font-mono text-xs text-zinc-500 tabular-nums">
-              {markets?.length ?? 0} Märkte / {openCount} offen /{" "}
-              {resolvedCount} aufgelöst
+              {marketCount} Märkte / {openCount} offen / {resolvedCount}{" "}
+              aufgelöst
             </p>
           </div>
           <Link
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[6px] bg-[#c8ff00] px-4 font-black text-black text-xs uppercase hover:bg-[#c8ff00]/90"
+            className="inline-flex h-10 w-fit items-center justify-center rounded-[6px] bg-[#c8ff00] px-4 font-medium text-black text-sm transition-[background-color,transform] duration-150 ease-out hover:bg-[#b7eb00] active:scale-[0.96]"
             to="/markets/new"
           >
-            <Plus aria-hidden="true" data-icon="inline-start" />
             Neuer Markt
           </Link>
         </div>
@@ -59,31 +56,43 @@ function MarketsIndexRoute() {
             <button
               className={
                 activeFilter === filter.value
-                  ? "h-10 rounded-[6px] border border-[#c8ff00] bg-[#c8ff00] px-4 font-black text-black text-xs uppercase"
-                  : "h-10 rounded-[6px] border border-zinc-800 bg-[#11120f] px-4 font-black text-xs text-zinc-300 uppercase hover:bg-zinc-900"
+                  ? "h-9 rounded-[6px] border border-[#c8ff00] bg-[#c8ff00] px-3 font-medium text-black text-sm transition-transform duration-150 ease-out active:scale-[0.96]"
+                  : "h-9 rounded-[6px] border border-zinc-800 bg-[#11120f] px-3 text-sm text-zinc-200 transition-[background-color,border-color,color,transform] duration-150 ease-out hover:border-zinc-700 hover:bg-zinc-900 active:scale-[0.96]"
               }
               key={filter.value}
               onClick={() => setActiveFilter(filter.value)}
               type="button"
             >
-              {filter.label}
+              {filter.label}{" "}
+              <span className="font-mono tabular-nums">
+                {getFilterCount({
+                  filter: filter.value,
+                  marketCount,
+                  openCount,
+                  resolvedCount,
+                })}
+              </span>
             </button>
           ))}
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Märkte werden geladen...</p>
+          <p className="text-sm text-zinc-400">Märkte werden geladen…</p>
         ) : null}
 
-        {error ? <p className="text-destructive text-sm">{error}</p> : null}
+        {error ? (
+          <p className="rounded-[8px] border border-destructive/30 bg-destructive/10 p-4 text-destructive text-sm">
+            Märkte konnten nicht geladen werden. Prüfe, ob der API-Server läuft.
+          </p>
+        ) : null}
 
         {!(isLoading || error) && filteredMarkets.length === 0 ? (
-          <div className="border border-zinc-800 bg-[#11120f] p-5 text-sm text-zinc-400">
+          <div className="rounded-[8px] border border-zinc-800 bg-[#11120f] p-5 text-sm text-zinc-400">
             In diesem Filter gibt es aktuell keine Märkte.
           </div>
         ) : null}
 
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="border-zinc-800 border-b">
           {filteredMarkets.map((market) => (
             <MarketCard key={market.id} market={market} />
           ))}
@@ -91,4 +100,26 @@ function MarketsIndexRoute() {
       </section>
     </main>
   );
+}
+
+function getFilterCount({
+  filter,
+  marketCount,
+  openCount,
+  resolvedCount,
+}: {
+  filter: MarketFilter;
+  marketCount: number;
+  openCount: number;
+  resolvedCount: number;
+}) {
+  if (filter === "open") {
+    return openCount;
+  }
+
+  if (filter === "resolved") {
+    return resolvedCount;
+  }
+
+  return marketCount;
 }

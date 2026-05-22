@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import {
   apiClient,
   type LeaderboardEntry,
@@ -15,80 +15,123 @@ interface AsyncState<TData> {
   isLoading: boolean;
 }
 
+type AsyncAction<TData> =
+  | { type: "idle" }
+  | { type: "loading" }
+  | { type: "success"; data: TData }
+  | { type: "error"; error: string };
+
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Unexpected request error";
 
 function useAsyncData<T>(
   fetcher: () => Promise<T>,
-  dependencies: React.DependencyList,
-  enabled = true
+  enabled = true,
+  refreshKey = 0
 ): AsyncState<T> {
-  const [state, setState] = useState<AsyncState<T>>({
-    isLoading: true,
-  });
+  const [state, dispatch] = useReducer(
+    (_currentState: AsyncState<T>, action: AsyncAction<T>): AsyncState<T> => {
+      switch (action.type) {
+        case "idle":
+          return { data: undefined, error: undefined, isLoading: false };
+        case "loading":
+          return { data: undefined, error: undefined, isLoading: true };
+        case "success":
+          return { data: action.data, isLoading: false };
+        case "error":
+          return { error: action.error, isLoading: false };
+        default:
+          return _currentState;
+      }
+    },
+    {
+      isLoading: true,
+    }
+  );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: caller explicitly provides the refetch dependencies
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refreshKey intentionally triggers refetches without being read.
   useEffect(() => {
     if (!enabled) {
-      setState({ data: undefined, error: undefined, isLoading: false });
+      dispatch({ type: "idle" });
       return;
     }
 
     let isActive = true;
-    setState({ isLoading: true, data: undefined, error: undefined });
+    dispatch({ type: "loading" });
 
     fetcher()
       .then((data) => {
         if (isActive) {
-          setState({ data, isLoading: false });
+          dispatch({ type: "success", data });
         }
       })
       .catch((error: unknown) => {
         if (isActive) {
-          setState({ error: getErrorMessage(error), isLoading: false });
+          dispatch({ type: "error", error: getErrorMessage(error) });
         }
       });
 
     return () => {
       isActive = false;
     };
-  }, [...dependencies, enabled]);
+  }, [enabled, fetcher, refreshKey]);
 
   return state;
 }
 
 export function useMarkets(): AsyncState<Market[]> {
-  return useAsyncData(() => apiClient.getMarkets(), []);
+  const fetchMarkets = useCallback(() => apiClient.getMarkets(), []);
+  return useAsyncData(fetchMarkets);
 }
 
 export function useMarket(id: string, refreshKey = 0): AsyncState<Market> {
-  return useAsyncData(async () => {
+  const fetchMarket = useCallback(async () => {
     const data = await apiClient.getMarket(id);
     if (!data) {
       throw new Error("Market not found");
     }
     return data;
-  }, [id, refreshKey]);
+  }, [id]);
+
+  return useAsyncData(fetchMarket, true, refreshKey);
 }
 
 export function useMarketActivity(
   id: string,
   refreshKey = 0
 ): AsyncState<MarketActivity[]> {
-  return useAsyncData(() => apiClient.getMarketActivity(id), [id, refreshKey]);
+  const fetchActivity = useCallback(
+    () => apiClient.getMarketActivity(id),
+    [id]
+  );
+
+  return useAsyncData(fetchActivity, true, refreshKey);
 }
 
 export function useWallet(enabled = true): AsyncState<Wallet> {
-  return useAsyncData(() => apiClient.getWallet(), [], enabled);
+  const fetchWallet = useCallback(() => apiClient.getWallet(), []);
+  return useAsyncData(fetchWallet, enabled);
 }
 
 export function usePortfolio(): AsyncState<{
   positions: PortfolioPosition[];
   transactions: Transaction[];
 }> {
-  return useAsyncData(() => apiClient.getPortfolio(), []);
+  const fetchPortfolio = useCallback(() => apiClient.getPortfolio(), []);
+  return useAsyncData(fetchPortfolio);
 }
 
 export function useLeaderboard(): AsyncState<LeaderboardEntry[]> {
-  return useAsyncData(() => apiClient.getLeaderboard(), []);
+  const fetchLeaderboard = useCallback(() => apiClient.getLeaderboard(), []);
+  return useAsyncData(fetchLeaderboard);
+}
+
+export function useUserCount(): AsyncState<number> {
+  const fetchUserCount = useCallback(() => apiClient.getUserCount(), []);
+  const state = useAsyncData(fetchUserCount);
+  return {
+    data: state.data?.count,
+    error: state.error,
+    isLoading: state.isLoading,
+  };
 }

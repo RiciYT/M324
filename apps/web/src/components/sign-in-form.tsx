@@ -61,7 +61,9 @@ export default function SignInForm({
 
   return (
     <div className="mx-auto mt-10 w-full max-w-md p-6">
-      <h1 className="mb-6 text-center font-bold text-3xl">Willkommen zurück</h1>
+      <h1 className="mb-6 text-center font-semibold text-3xl">
+        Willkommen zurück
+      </h1>
 
       <GoogleAuthButton />
 
@@ -137,7 +139,7 @@ export default function SignInForm({
               disabled={!canSubmit || isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Wird angemeldet..." : "Anmelden"}
+              {isSubmitting ? "Wird angemeldet…" : "Anmelden"}
             </Button>
           )}
         </form.Subscribe>
@@ -145,7 +147,7 @@ export default function SignInForm({
 
       <div className="mt-4 text-center">
         <Button
-          className="text-indigo-600 hover:text-indigo-800"
+          className="text-[#c8ff00] hover:text-[#b7eb00]"
           onClick={onSwitchToSignUp}
           variant="link"
         >

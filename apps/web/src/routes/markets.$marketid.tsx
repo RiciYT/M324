@@ -1,12 +1,13 @@
 // biome-ignore-all lint/style/useFilenamingConvention: TanStack Router uses $param filenames for dynamic routes.
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock, ShieldCheck, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { BetForm } from "@/components/bet-form";
 import { Button } from "@/components/button";
 import { MarketPoolChart } from "@/components/market-pool-chart";
 import { apiClient, type MarketSide } from "@/lib/api-client";
 import { useMarket, useMarketActivity, useWallet } from "@/lib/market-hooks";
+import { useFormattedDate } from "@/lib/use-formatted-date";
+import { cn } from "@/lib/utils";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/markets/$marketid")({
   component: MarketDetailRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function MarketDetailRoute() {
   const { marketid } = Route.useParams();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -32,11 +34,12 @@ function MarketDetailRoute() {
     refreshKey
   );
   const { data: wallet } = useWallet();
+  const closesAt = useFormattedDate(market?.closesAt, dateFormatter);
 
   if (isLoading) {
     return (
       <main className="bg-[#050604] p-8 text-sm text-zinc-400">
-        Markt wird geladen...
+        Markt wird geladen…
       </main>
     );
   }
@@ -84,17 +87,12 @@ function MarketDetailRoute() {
         <article className="min-w-0">
           <div className="mb-7 flex flex-col gap-4 border-[#20231b] border-b pb-6">
             <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
-              <span>ShitMarket</span>
-              <span>/</span>
               <span>{statusLabel}</span>
-              <span className="inline-flex items-center gap-1">
-                <Clock aria-hidden="true" className="size-4" />
-                {dateFormatter.format(new Date(market.closesAt))}
-              </span>
+              <span>{closesAt}</span>
             </div>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-3xl">
-                <h1 className="font-black text-3xl text-wrap-balance leading-tight tracking-normal sm:text-4xl">
+                <h1 className="font-semibold text-3xl text-wrap-balance leading-tight tracking-normal sm:text-4xl">
                   {market.title}
                 </h1>
                 <p className="mt-3 max-w-2xl text-zinc-400 leading-6">
@@ -132,9 +130,8 @@ function MarketDetailRoute() {
             aria-labelledby="activity-heading"
             className="border-[#20231b] border-t pt-6"
           >
-            <div className="mb-4 flex items-center gap-2">
-              <TrendingUp aria-hidden="true" className="text-[#c8ff00]" />
-              <h2 className="font-black text-xl" id="activity-heading">
+            <div className="mb-4">
+              <h2 className="font-semibold text-xl" id="activity-heading">
                 Aktivität
               </h2>
             </div>
@@ -146,11 +143,13 @@ function MarketDetailRoute() {
                   }`}
                   key={item.id}
                   name={item.userName}
+                  rawAmount={item.amount}
+                  side={item.side}
                 />
               ))}
               {isActivityLoading ? (
                 <div className="bg-[#0b0c0a] px-4 py-3 text-sm text-zinc-500">
-                  Aktivität wird geladen...
+                  Aktivität wird geladen…
                 </div>
               ) : null}
               {isActivityLoading || activity?.length ? null : (
@@ -166,7 +165,7 @@ function MarketDetailRoute() {
           <div className="rounded-[8px] border border-zinc-800 bg-[#11120f]">
             <div className="border-zinc-800 border-b p-4">
               <p className="text-sm text-zinc-500">Kaufen</p>
-              <p className="mt-1 font-black text-lg text-wrap-balance">
+              <p className="mt-1 font-semibold text-lg text-wrap-balance">
                 {market.title}
               </p>
             </div>
@@ -198,6 +197,8 @@ function MarketDetailRoute() {
   );
 }
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
 function AdminResolvePanel({
   isResolving,
   marketStatus,
@@ -216,18 +217,15 @@ function AdminResolvePanel({
   return (
     <section
       aria-labelledby="admin-resolve-heading"
-      className="mt-5 rounded-[8px] border border-[#c8ff00]/30 bg-[#11120f] p-4"
+      className="mt-5 rounded-[8px] border border-[#c8ff00]/40 bg-[#11120f] p-4 shadow-[0_0_15px_rgba(200,255,0,0.05)] transition-all duration-300 hover:border-[#c8ff00]/60"
     >
-      <div className="mb-4 flex items-center gap-2">
-        <ShieldCheck aria-hidden="true" className="size-5 text-[#c8ff00]" />
-        <div>
-          <h2 className="font-black text-sm" id="admin-resolve-heading">
-            Admin Resolve
-          </h2>
-          <p className="text-xs text-zinc-500">
-            Nur sichtbar für Benutzer mit Admin-Rolle.
-          </p>
-        </div>
+      <div className="mb-4">
+        <h2 className="font-semibold text-sm" id="admin-resolve-heading">
+          Admin Resolve
+        </h2>
+        <p className="text-xs text-zinc-500">
+          Nur sichtbar für Benutzer mit Admin-Rolle.
+        </p>
       </div>
 
       {isResolved ? (
@@ -241,7 +239,7 @@ function AdminResolvePanel({
       ) : (
         <div className="grid grid-cols-2 gap-2">
           <Button
-            className="h-10 rounded-[6px] bg-[#c8ff00] font-black text-black hover:bg-[#c8ff00]/90"
+            className="h-10 rounded-[6px] bg-[#c8ff00] font-black text-black shadow-[0_2px_10px_rgba(200,255,0,0.15)] transition-all duration-150 hover:bg-[#b7eb00] active:scale-[0.96]"
             disabled={isResolving}
             onClick={() => onResolve("yes")}
             type="button"
@@ -249,7 +247,7 @@ function AdminResolvePanel({
             Ja gewinnt
           </Button>
           <Button
-            className="h-10 rounded-[6px] bg-destructive font-black text-white hover:bg-destructive/90"
+            className="h-10 rounded-[6px] bg-destructive font-black text-white shadow-[0_2px_10px_rgba(239,68,68,0.15)] transition-all duration-150 hover:bg-destructive/90 active:scale-[0.96]"
             disabled={isResolving}
             onClick={() => onResolve("no")}
             type="button"
@@ -268,11 +266,43 @@ function AdminResolvePanel({
   );
 }
 
-function ActivityLine({ amount, name }: { amount: string; name: string }) {
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
+function ActivityLine({
+  amount,
+  rawAmount,
+  side,
+  name,
+}: {
+  amount: string;
+  rawAmount: number;
+  side: MarketSide;
+  name: string;
+}) {
+  const isWhale = rawAmount >= 5000;
+
   return (
-    <div className="flex items-center justify-between bg-[#0b0c0a] px-4 py-3 text-sm">
-      <span className="font-semibold text-zinc-200">{name}</span>
-      <span className="font-mono text-zinc-400 tabular-nums">{amount}</span>
+    <div className="flex items-center justify-between bg-[#0b0c0a] px-4 py-3 text-sm transition-all hover:bg-zinc-900/30">
+      <div className="flex items-center gap-3">
+        <span className="font-semibold text-zinc-200">{name}</span>
+        {isWhale ? (
+          <span className="inline-flex animate-pulse select-none items-center rounded-full border border-[#c8ff00]/20 bg-[#c8ff00]/10 px-2 py-0.5 font-bold font-mono text-[#c8ff00] text-[10px] uppercase tracking-wider">
+            🐳 Whale
+          </span>
+        ) : (
+          <span className="inline-flex select-none items-center rounded-full bg-zinc-800 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
+            🐟 Standard
+          </span>
+        )}
+      </div>
+      <span
+        className={cn(
+          "font-mono font-semibold tabular-nums",
+          side === "yes" ? "text-[#c8ff00]" : "text-destructive"
+        )}
+      >
+        {amount}
+      </span>
     </div>
   );
 }

@@ -101,6 +101,10 @@ export const apiClient = {
   getLeaderboard(): Promise<LeaderboardEntry[]> {
     return request<LeaderboardEntry[]>("/api/leaderboard");
   },
+
+  getUserCount(): Promise<{ count: number }> {
+    return request<{ count: number }>("/api/users/count");
+  },
   async getMarket(id: string): Promise<Market | undefined> {
     try {
       return await request<Market>(`/api/markets/${id}`);
