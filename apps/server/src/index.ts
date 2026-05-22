@@ -225,6 +225,17 @@ app.get("/api/leaderboard", async (c) => {
   return c.json(rows);
 });
 
+app.get("/api/users/count", async (c) => {
+  const [row] = await db
+    .select({
+      count: sql<number>`count(*)::int`,
+    })
+    .from(user)
+    .where(ne(user.role, "system"));
+
+  return c.json({ count: row?.count ?? 0 });
+});
+
 app.post("/api/bets", requireSession, async (c) => {
   const input = placeBetInput.parse(await c.req.json());
   const result = await placeBet(db, input, c.var.sessionUser.id);

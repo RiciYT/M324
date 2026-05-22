@@ -79,7 +79,9 @@ export function AccordionContent({
     <section
       aria-hidden={!isOpen}
       className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-96 p-4" : "max-h-0 p-0"}`}
+      hidden={!isOpen}
       id={`acc-${value}`}
+      inert={!isOpen}
       style={{ background: "transparent" }}
     >
       <div className="text-sm text-zinc-400">{children}</div>
