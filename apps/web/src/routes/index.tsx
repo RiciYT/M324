@@ -317,15 +317,15 @@ function HomeComponent() {
             <span className="font-bold text-[#c8ff00]">Shit</span>Market
           </div>
           <div className="flex gap-4">
-            <a className="hover:text-[#c8ff00]" href="/about">
-              About
-            </a>
-            <a className="hover:text-[#c8ff00]" href="/privacy">
-              Privacy
-            </a>
-            <a className="hover:text-[#c8ff00]" href="/terms">
-              Terms
-            </a>
+            <Link className="hover:text-[#c8ff00]" to="/">
+              Home
+            </Link>
+            <Link className="hover:text-[#c8ff00]" to="/markets">
+              Märkte
+            </Link>
+            <Link className="hover:text-[#c8ff00]" to="/leaderboard">
+              Rangliste
+            </Link>
           </div>
           <div className="text-sm">© {new Date().getFullYear()} ShitMarket</div>
         </div>
