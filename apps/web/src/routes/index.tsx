@@ -246,8 +246,8 @@ function HomeComponent() {
             </p>
 
             {/* Coins statt Geld card under the text on large screens */}
-            <div className="mt-6 hidden lg:block">
-              <article className="overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]">
+            <div className="mt-6 hidden lg:block lg:max-w-xl">
+              <article className="w-full overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]">
                 <div
                   aria-hidden="true"
                   className="h-28 overflow-hidden rounded-[8px] bg-center bg-cover"
