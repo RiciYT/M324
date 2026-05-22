@@ -153,12 +153,14 @@ function HomeComponent() {
       ref={pageRef}
     >
       <section className="relative isolate overflow-hidden border-[#20231b] border-b">
-        <div
+        <img
+          alt=""
           aria-hidden="true"
-          className="absolute inset-0 bg-center bg-cover opacity-60 contrast-125"
-          style={{
-            backgroundImage: `url(${imageAssets.hero})`,
-          }}
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-60 contrast-125"
+          fetchPriority="high"
+          height={900}
+          src={imageAssets.hero}
+          width={1600}
         />
         <div
           aria-hidden="true"
@@ -388,7 +390,7 @@ function ProductPreview({
 function PreviewMetric({ label, value }: { label: string; value: number }) {
   return (
     <div className="p-4">
-      <p className="text-xs text-zinc-500">{label}</p>
+      <p className="text-xs text-zinc-400">{label}</p>
       <p className="mt-1 font-mono font-semibold text-zinc-100 tabular-nums">
         <span
           className="count-up"
@@ -448,7 +450,7 @@ function LeaderboardPanel({
       <div className="flex items-end justify-between gap-4">
         <div>
           <h2 className="font-semibold text-2xl">Rangliste</h2>
-          <p className="mt-1 text-sm text-zinc-500">Wer den Quatsch gewinnt.</p>
+          <p className="mt-1 text-sm text-zinc-400">Wer den Quatsch gewinnt.</p>
         </div>
         <Link
           className="inline-flex h-9 items-center rounded-[6px] border border-zinc-700 px-3 text-sm text-zinc-200 transition-[background-color,border-color,color] duration-150 ease-out hover:border-[#c8ff00]/60 hover:bg-zinc-900 hover:text-[#c8ff00]"
@@ -635,7 +637,7 @@ function LeaderboardPreview({
           className="grid grid-cols-[34px_1fr_auto] items-center gap-3 py-3 text-sm"
           key={user.name}
         >
-          <span className="font-mono text-zinc-500">{user.rank}</span>
+          <span className="font-mono text-zinc-400">{user.rank}</span>
           <span className="font-medium text-zinc-300">{user.name}</span>
           <span className="font-mono font-semibold text-[#c8ff00] tabular-nums">
             {formatLeaderboardProfit(user)}
