@@ -64,7 +64,9 @@ export default function SignUpForm({
 
   return (
     <div className="mx-auto mt-10 w-full max-w-md p-6">
-      <h1 className="mb-6 text-center font-bold text-3xl">Konto erstellen</h1>
+      <h1 className="mb-6 text-center font-semibold text-3xl">
+        Konto erstellen
+      </h1>
 
       <GoogleAuthButton />
 
@@ -162,7 +164,7 @@ export default function SignUpForm({
               disabled={!canSubmit || isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Wird registriert..." : "Registrieren"}
+              {isSubmitting ? "Wird registriert…" : "Registrieren"}
             </Button>
           )}
         </form.Subscribe>

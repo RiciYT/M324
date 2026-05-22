@@ -33,7 +33,7 @@ function MarketsIndexRoute() {
       <section className="mx-auto flex max-w-[1540px] flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
         <div className="flex flex-col gap-4 border-[#20231b] border-b pb-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="font-black text-4xl uppercase tracking-normal">
+            <h1 className="font-semibold text-4xl uppercase tracking-normal">
               Märkte
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-zinc-400 leading-6">
@@ -72,7 +72,7 @@ function MarketsIndexRoute() {
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Märkte werden geladen...</p>
+          <p className="text-sm text-zinc-400">Märkte werden geladen…</p>
         ) : null}
 
         {error ? <p className="text-destructive text-sm">{error}</p> : null}

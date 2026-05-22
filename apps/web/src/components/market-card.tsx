@@ -11,6 +11,7 @@ import {
 } from "@/components/card";
 import { MarketPoolChart } from "@/components/market-pool-chart";
 import type { Market } from "@/lib/api-client";
+import { useFormattedDate } from "@/lib/use-formatted-date";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -30,11 +31,12 @@ export function MarketCard({ market }: MarketCardProps) {
   const yesRatio = totalPool === 0 ? 0.5 : market.yesPool / totalPool;
   const statusLabel = market.status === "open" ? "Offen" : "Aufgelöst";
   const noRatio = 1 - yesRatio;
+  const closesAt = useFormattedDate(market.closesAt, dateFormatter);
 
   return (
     <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0 transition-colors hover:border-zinc-700">
       <CardHeader className="py-5">
-        <CardTitle className="font-black text-lg text-wrap-balance leading-tight">
+        <CardTitle className="font-semibold text-lg text-wrap-balance leading-tight">
           {market.title}
         </CardTitle>
         <CardDescription className="text-zinc-400 leading-6">
@@ -70,7 +72,7 @@ export function MarketCard({ market }: MarketCardProps) {
         <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
           <span className="inline-flex items-center gap-1">
             <Clock aria-hidden="true" />
-            {dateFormatter.format(new Date(market.closesAt))}
+            {closesAt}
           </span>
           <span className="inline-flex items-center gap-1">
             <Scale aria-hidden="true" />

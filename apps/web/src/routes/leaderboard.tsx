@@ -25,7 +25,7 @@ function LeaderboardRoute() {
     <main className="min-h-0 overflow-y-auto bg-[#050604] text-zinc-100">
       <section className="mx-auto flex max-w-[1180px] flex-col gap-6 px-5 py-8 sm:px-8 lg:px-14">
         <div className="border-[#20231b] border-b pb-6">
-          <h1 className="font-black text-4xl uppercase tracking-normal">
+          <h1 className="font-semibold text-4xl uppercase tracking-normal">
             Bestenliste
           </h1>
           <p className="mt-2 text-sm text-zinc-400 leading-6">
@@ -51,9 +51,7 @@ function LeaderboardRoute() {
           </CardHeader>
           <CardContent className="flex flex-col gap-2 pb-6">
             {isLoading ? (
-              <p className="text-sm text-zinc-400">
-                Bestenliste wird geladen...
-              </p>
+              <p className="text-sm text-zinc-400">Bestenliste wird geladen…</p>
             ) : null}
             {error ? <p className="text-destructive text-sm">{error}</p> : null}
             {rest.map((entry) => (

@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/card";
 import { usePortfolio, useWallet } from "@/lib/market-hooks";
+import { useFormattedDate } from "@/lib/use-formatted-date";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -38,7 +39,7 @@ function PortfolioRoute() {
       <section className="mx-auto grid max-w-[1540px] gap-5 px-5 py-8 sm:px-8 lg:grid-cols-[1fr_0.8fr] lg:px-14">
         <div className="lg:col-span-2">
           <div className="border-[#20231b] border-b pb-6">
-            <h1 className="font-black text-4xl uppercase tracking-normal">
+            <h1 className="font-semibold text-4xl uppercase tracking-normal">
               Portfolio
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-zinc-400 leading-6">
@@ -71,7 +72,7 @@ function PortfolioRoute() {
 
         <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0">
           <CardHeader className="py-5">
-            <CardTitle className="flex items-center gap-2 font-black text-xl uppercase">
+            <CardTitle className="flex items-center gap-2 font-semibold text-xl uppercase">
               <WalletCards aria-hidden="true" className="text-[#c8ff00]" />
               Positionen
             </CardTitle>
@@ -81,7 +82,7 @@ function PortfolioRoute() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3 pb-6">
             {isLoading ? (
-              <p className="text-sm text-zinc-400">Portfolio wird geladen...</p>
+              <p className="text-sm text-zinc-400">Portfolio wird geladen…</p>
             ) : null}
             {error ? <p className="text-destructive text-sm">{error}</p> : null}
             {data?.positions.map((position) => (
@@ -110,7 +111,7 @@ function PortfolioRoute() {
 
         <Card className="rounded-[8px] border border-zinc-800 bg-[#11120f] py-0 text-zinc-100 ring-0">
           <CardHeader className="py-5">
-            <CardTitle className="flex items-center gap-2 font-black text-xl uppercase">
+            <CardTitle className="flex items-center gap-2 font-semibold text-xl uppercase">
               <ReceiptText aria-hidden="true" className="text-[#c8ff00]" />
               Transaktionen
             </CardTitle>
@@ -120,30 +121,7 @@ function PortfolioRoute() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3 pb-6">
             {data?.transactions.map((transaction) => (
-              <div
-                className="grid gap-2 border border-zinc-800 bg-black/20 p-3 text-sm sm:grid-cols-[1fr_auto]"
-                key={transaction.id}
-              >
-                <div className="flex min-w-0 flex-col gap-1">
-                  <span className="font-semibold text-zinc-200">
-                    {transaction.marketTitle ??
-                      getTransactionReasonLabel(transaction.reason)}
-                  </span>
-                  <span className="text-xs text-zinc-500">
-                    {dateFormatter.format(new Date(transaction.createdAt))}
-                  </span>
-                </div>
-                <span
-                  className={
-                    transaction.amount >= 0
-                      ? "font-black font-mono text-[#c8ff00] tabular-nums"
-                      : "font-black font-mono text-destructive tabular-nums"
-                  }
-                >
-                  {transaction.amount > 0 ? "+" : ""}
-                  {creditFormatter.format(transaction.amount)}
-                </span>
-              </div>
+              <TransactionRow key={transaction.id} transaction={transaction} />
             ))}
             {!(isLoading || error) && data?.transactions.length === 0 ? (
               <p className="border border-zinc-800 bg-black/20 p-3 text-sm text-zinc-400">
@@ -154,6 +132,42 @@ function PortfolioRoute() {
         </Card>
       </section>
     </main>
+  );
+}
+
+function TransactionRow({
+  transaction,
+}: {
+  transaction: {
+    amount: number;
+    createdAt: string;
+    id: string;
+    marketTitle?: string | null;
+    reason: string;
+  };
+}) {
+  const createdAt = useFormattedDate(transaction.createdAt, dateFormatter);
+
+  return (
+    <div className="grid gap-2 border border-zinc-800 bg-black/20 p-3 text-sm sm:grid-cols-[1fr_auto]">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="font-semibold text-zinc-200">
+          {transaction.marketTitle ??
+            getTransactionReasonLabel(transaction.reason)}
+        </span>
+        <span className="text-xs text-zinc-500">{createdAt}</span>
+      </div>
+      <span
+        className={
+          transaction.amount >= 0
+            ? "font-black font-mono text-[#c8ff00] tabular-nums"
+            : "font-black font-mono text-destructive tabular-nums"
+        }
+      >
+        {transaction.amount > 0 ? "+" : ""}
+        {creditFormatter.format(transaction.amount)}
+      </span>
+    </div>
   );
 }
 
@@ -201,7 +215,7 @@ function getWalletValue({
   isLoading: boolean;
 }) {
   if (isLoading) {
-    return "... Coins";
+    return "… Coins";
   }
 
   if (error) {

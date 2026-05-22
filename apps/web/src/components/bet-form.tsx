@@ -114,7 +114,7 @@ export function BetForm({
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Wird gesetzt..." : "Wette setzen"}
+        {isSubmitting ? "Wird gesetzt…" : "Wette setzen"}
       </Button>
     </form>
   );

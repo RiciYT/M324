@@ -7,6 +7,7 @@ import { Button } from "@/components/button";
 import { MarketPoolChart } from "@/components/market-pool-chart";
 import { apiClient, type MarketSide } from "@/lib/api-client";
 import { useMarket, useMarketActivity, useWallet } from "@/lib/market-hooks";
+import { useFormattedDate } from "@/lib/use-formatted-date";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -32,11 +33,12 @@ function MarketDetailRoute() {
     refreshKey
   );
   const { data: wallet } = useWallet();
+  const closesAt = useFormattedDate(market?.closesAt, dateFormatter);
 
   if (isLoading) {
     return (
       <main className="bg-[#050604] p-8 text-sm text-zinc-400">
-        Markt wird geladen...
+        Markt wird geladen…
       </main>
     );
   }
@@ -89,12 +91,12 @@ function MarketDetailRoute() {
               <span>{statusLabel}</span>
               <span className="inline-flex items-center gap-1">
                 <Clock aria-hidden="true" className="size-4" />
-                {dateFormatter.format(new Date(market.closesAt))}
+                {closesAt}
               </span>
             </div>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-3xl">
-                <h1 className="font-black text-3xl text-wrap-balance leading-tight tracking-normal sm:text-4xl">
+                <h1 className="font-semibold text-3xl text-wrap-balance leading-tight tracking-normal sm:text-4xl">
                   {market.title}
                 </h1>
                 <p className="mt-3 max-w-2xl text-zinc-400 leading-6">
@@ -134,7 +136,7 @@ function MarketDetailRoute() {
           >
             <div className="mb-4 flex items-center gap-2">
               <TrendingUp aria-hidden="true" className="text-[#c8ff00]" />
-              <h2 className="font-black text-xl" id="activity-heading">
+              <h2 className="font-semibold text-xl" id="activity-heading">
                 Aktivität
               </h2>
             </div>
@@ -150,7 +152,7 @@ function MarketDetailRoute() {
               ))}
               {isActivityLoading ? (
                 <div className="bg-[#0b0c0a] px-4 py-3 text-sm text-zinc-500">
-                  Aktivität wird geladen...
+                  Aktivität wird geladen…
                 </div>
               ) : null}
               {isActivityLoading || activity?.length ? null : (
@@ -166,7 +168,7 @@ function MarketDetailRoute() {
           <div className="rounded-[8px] border border-zinc-800 bg-[#11120f]">
             <div className="border-zinc-800 border-b p-4">
               <p className="text-sm text-zinc-500">Kaufen</p>
-              <p className="mt-1 font-black text-lg text-wrap-balance">
+              <p className="mt-1 font-semibold text-lg text-wrap-balance">
                 {market.title}
               </p>
             </div>
@@ -221,7 +223,7 @@ function AdminResolvePanel({
       <div className="mb-4 flex items-center gap-2">
         <ShieldCheck aria-hidden="true" className="size-5 text-[#c8ff00]" />
         <div>
-          <h2 className="font-black text-sm" id="admin-resolve-heading">
+          <h2 className="font-semibold text-sm" id="admin-resolve-heading">
             Admin Resolve
           </h2>
           <p className="text-xs text-zinc-500">

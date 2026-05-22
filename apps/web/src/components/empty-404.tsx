@@ -39,9 +39,7 @@ export function Empty404Page() {
 function BigNumerals() {
   return (
     <div className="relative font-bold font-heading text-[clamp(8rem,22vw,16rem)] leading-none tracking-normal">
-      <span className="bg-gradient-to-b from-foreground to-foreground/30 bg-clip-text text-transparent">
-        404
-      </span>
+      <span className="text-foreground">404</span>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"

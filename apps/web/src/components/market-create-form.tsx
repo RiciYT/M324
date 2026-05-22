@@ -102,7 +102,7 @@ export function MarketCreateForm({ onCreated }: MarketCreateFormProps) {
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? "Wird erstellt..." : "Markt erstellen"}
+            {isSubmitting ? "Wird erstellt…" : "Markt erstellen"}
           </Button>
         </form>
       </CardContent>

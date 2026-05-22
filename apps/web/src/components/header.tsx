@@ -123,7 +123,7 @@ function getWalletLabel({
   isLoading: boolean;
 }) {
   if (isLoading) {
-    return "... Coins";
+    return "… Coins";
   }
 
   if (error) {
@@ -141,7 +141,7 @@ function getClaimLabel({
   wallet?: Wallet;
 }) {
   if (isClaiming) {
-    return "Claim läuft...";
+    return "Claim läuft…";
   }
 
   if (wallet?.canClaimDailyCoins) {

@@ -56,7 +56,7 @@ function HomeComponent() {
           <div className="absolute right-[11%] bottom-0 h-[360px] w-[285px] rounded-t-[46%] bg-[linear-gradient(115deg,#2b261f,#695a48_44%,#141412)] shadow-[inset_28px_0_0_rgba(255,255,255,0.07)]" />
           <div className="absolute right-[19%] bottom-[232px] h-28 w-48 rounded-[48%] bg-[linear-gradient(145deg,#6f6250,#1d1c18)] shadow-[inset_18px_5px_0_rgba(255,255,255,0.1)]" />
           <div className="absolute right-[23%] bottom-[278px] h-11 w-40 -rotate-2 rounded-full border border-black/80 bg-black/85" />
-          <div className="absolute right-[27%] bottom-[260px] h-4 w-12 rounded-full bg-black" />
+          <div className="absolute right-[27%] bottom-[260px] h-4 w-12 rounded-full bg-[#050604]" />
           <div className="absolute right-[8%] bottom-[86px] rotate-[-7deg] border border-black/25 bg-[#a06f43] px-10 py-8 text-center font-black text-4xl text-[#17110c] leading-none shadow-2xl">
             TO THE
             <br />
@@ -64,7 +64,7 @@ function HomeComponent() {
             <br />
             <span className="text-2xl">LOL</span>
           </div>
-          <div className="absolute right-[3%] bottom-[32px] grid h-32 w-32 rotate-12 place-items-center bg-[#c8ff00] text-center font-black text-black text-xl leading-none [clip-path:polygon(50%_0%,61%_22%,85%_15%,78%_39%,100%_50%,78%_61%,85%_85%,61%_78%,50%_100%,39%_78%,15%_85%,22%_61%,0%_50%,22%_39%,15%_15%,39%_22%)]">
+          <div className="absolute right-[3%] bottom-[32px] grid size-32 rotate-12 place-items-center bg-[#c8ff00] text-center font-black text-black text-xl leading-none [clip-path:polygon(50%_0%,61%_22%,85%_15%,78%_39%,100%_50%,78%_61%,85%_85%,61%_78%,50%_100%,39%_78%,15%_85%,22%_61%,0%_50%,22%_39%,15%_15%,39%_22%)]">
             100%
             <br />
             NUTZLOS
@@ -73,7 +73,7 @@ function HomeComponent() {
 
         <div className="relative mx-auto grid max-w-[1540px] gap-8 px-5 py-12 sm:px-8 lg:min-h-[560px] lg:items-center lg:px-14">
           <div className="max-w-[720px]">
-            <h1 className="font-black text-5xl uppercase leading-[0.9] tracking-normal sm:text-7xl lg:text-8xl">
+            <h1 className="font-semibold text-5xl uppercase leading-[0.9] tracking-normal sm:text-7xl lg:text-8xl">
               Die dümmsten Fragen.
               <span className="block text-[#c8ff00]">Echte Wetten.</span>
             </h1>
@@ -116,7 +116,7 @@ function HomeComponent() {
 
       <section className="mx-auto max-w-[1540px] px-5 py-6 sm:px-8 lg:px-14">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="font-black text-2xl uppercase tracking-normal">
+          <h2 className="font-semibold text-2xl uppercase tracking-normal">
             Beliebte Märkte
           </h2>
           <Button render={<Link to="/markets" />} variant="outline">
