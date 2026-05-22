@@ -127,7 +127,25 @@
     @apply font-sans bg-background text-foreground antialiased;
   }
   html {
+    scrollbar-color: gray transparent;
+    scrollbar-width: thin;
     @apply font-sans;
+  }
+
+  html::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  html::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html::-webkit-scrollbar-thumb {
+    background-color: gray;
+    background-clip: content-box;
+    border: 2px solid transparent;
+    border-radius: 9999px;
   }
 }
 

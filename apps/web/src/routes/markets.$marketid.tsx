@@ -7,6 +7,7 @@ import { MarketPoolChart } from "@/components/market-pool-chart";
 import { apiClient, type MarketSide } from "@/lib/api-client";
 import { useMarket, useMarketActivity, useWallet } from "@/lib/market-hooks";
 import { useFormattedDate } from "@/lib/use-formatted-date";
+import { cn } from "@/lib/utils";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
 const dateFormatter = new Intl.DateTimeFormat("de-CH", {
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/markets/$marketid")({
   component: MarketDetailRoute,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function MarketDetailRoute() {
   const { marketid } = Route.useParams();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -141,6 +143,8 @@ function MarketDetailRoute() {
                   }`}
                   key={item.id}
                   name={item.userName}
+                  rawAmount={item.amount}
+                  side={item.side}
                 />
               ))}
               {isActivityLoading ? (
@@ -193,6 +197,8 @@ function MarketDetailRoute() {
   );
 }
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
 function AdminResolvePanel({
   isResolving,
   marketStatus,
@@ -211,7 +217,7 @@ function AdminResolvePanel({
   return (
     <section
       aria-labelledby="admin-resolve-heading"
-      className="mt-5 rounded-[8px] border border-[#c8ff00]/30 bg-[#11120f] p-4"
+      className="mt-5 rounded-[8px] border border-[#c8ff00]/40 bg-[#11120f] p-4 shadow-[0_0_15px_rgba(200,255,0,0.05)] transition-all duration-300 hover:border-[#c8ff00]/60"
     >
       <div className="mb-4">
         <h2 className="font-semibold text-sm" id="admin-resolve-heading">
@@ -233,7 +239,7 @@ function AdminResolvePanel({
       ) : (
         <div className="grid grid-cols-2 gap-2">
           <Button
-            className="h-10 rounded-[6px] bg-[#c8ff00] font-black text-black hover:bg-[#c8ff00]/90"
+            className="h-10 rounded-[6px] bg-[#c8ff00] font-black text-black shadow-[0_2px_10px_rgba(200,255,0,0.15)] transition-all duration-150 hover:bg-[#b7eb00] active:scale-[0.96]"
             disabled={isResolving}
             onClick={() => onResolve("yes")}
             type="button"
@@ -241,7 +247,7 @@ function AdminResolvePanel({
             Ja gewinnt
           </Button>
           <Button
-            className="h-10 rounded-[6px] bg-destructive font-black text-white hover:bg-destructive/90"
+            className="h-10 rounded-[6px] bg-destructive font-black text-white shadow-[0_2px_10px_rgba(239,68,68,0.15)] transition-all duration-150 hover:bg-destructive/90 active:scale-[0.96]"
             disabled={isResolving}
             onClick={() => onResolve("no")}
             type="button"
@@ -260,11 +266,43 @@ function AdminResolvePanel({
   );
 }
 
-function ActivityLine({ amount, name }: { amount: string; name: string }) {
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+// react-doctor-disable-next-line react-doctor/only-export-components
+function ActivityLine({
+  amount,
+  rawAmount,
+  side,
+  name,
+}: {
+  amount: string;
+  rawAmount: number;
+  side: MarketSide;
+  name: string;
+}) {
+  const isWhale = rawAmount >= 5000;
+
   return (
-    <div className="flex items-center justify-between bg-[#0b0c0a] px-4 py-3 text-sm">
-      <span className="font-semibold text-zinc-200">{name}</span>
-      <span className="font-mono text-zinc-400 tabular-nums">{amount}</span>
+    <div className="flex items-center justify-between bg-[#0b0c0a] px-4 py-3 text-sm transition-all hover:bg-zinc-900/30">
+      <div className="flex items-center gap-3">
+        <span className="font-semibold text-zinc-200">{name}</span>
+        {isWhale ? (
+          <span className="inline-flex animate-pulse select-none items-center rounded-full border border-[#c8ff00]/20 bg-[#c8ff00]/10 px-2 py-0.5 font-bold font-mono text-[#c8ff00] text-[10px] uppercase tracking-wider">
+            🐳 Whale
+          </span>
+        ) : (
+          <span className="inline-flex select-none items-center rounded-full bg-zinc-800 px-2 py-0.5 font-mono text-[10px] text-zinc-400">
+            🐟 Standard
+          </span>
+        )}
+      </div>
+      <span
+        className={cn(
+          "font-mono font-semibold tabular-nums",
+          side === "yes" ? "text-[#c8ff00]" : "text-destructive"
+        )}
+      >
+        {amount}
+      </span>
     </div>
   );
 }

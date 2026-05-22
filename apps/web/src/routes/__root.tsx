@@ -34,6 +34,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   notFoundComponent: Empty404Page,
 });
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function RootComponent() {
   return (
     <>

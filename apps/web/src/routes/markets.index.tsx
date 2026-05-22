@@ -15,6 +15,7 @@ const filters = [
 
 type MarketFilter = (typeof filters)[number]["value"];
 
+// react-doctor-disable-next-line react-doctor/only-export-components
 function MarketsIndexRoute() {
   const { data: markets, error, isLoading } = useMarkets();
   const [activeFilter, setActiveFilter] = useState<MarketFilter>("all");
