@@ -246,7 +246,7 @@ function HomeComponent() {
             </p>
 
             {/* Coins statt Geld card under the text on large screens */}
-            <div className="mt-6 hidden lg:block lg:max-w-[31rem]">
+            <div className="mt-6 hidden lg:mt-20 lg:block lg:max-w-[31rem]">
               <article className="w-full overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]">
                 <div
                   aria-hidden="true"
