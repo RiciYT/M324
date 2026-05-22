@@ -193,7 +193,7 @@ function HomeComponent() {
             </span>
             <span className="hidden text-zinc-500 sm:inline">·</span>
             <span className="font-mono text-[#c8ff00] tabular-nums">
-              {userCount ?? topUsers.length} Registrierte Nutzer
+              {userCount ?? "–"} Registrierte Nutzer
             </span>
           </div>
         </div>
