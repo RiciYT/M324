@@ -28,20 +28,24 @@
       "persistent": true
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:generate": {
       "cache": false
     },
     "db:check": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:migrate": {
       "cache": false,
+      "env": ["DATABASE_URL"],
       "persistent": true
     },
     "db:seed": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "db:studio": {
       "cache": false,

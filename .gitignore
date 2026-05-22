@@ -43,6 +43,7 @@ lerna-debug.log*
 # Testing
 coverage
 .nyc_output
+reports
 
 # Misc
 *.tgz

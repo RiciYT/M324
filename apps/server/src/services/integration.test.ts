@@ -64,30 +64,24 @@ vi.setConfig({
   testTimeout: 120_000,
 });
 
-let container: StartedTestContainer;
+const shouldRunIntegrationTests = process.env.RUN_INTEGRATION_TESTS === "true";
+const externalDatabaseUrl =
+  process.env.CI === "true" ? process.env.DATABASE_URL : undefined;
+
+let container: StartedTestContainer | undefined;
 let pool: Pool;
 let db: ReturnType<typeof drizzle<typeof schema>>;
 
-describe("market money flows", () => {
+describe.skipIf(!shouldRunIntegrationTests)("market money flows", () => {
   beforeAll(async () => {
-    container = await new GenericContainer("postgres:16-alpine")
-      .withEnvironment({
-        POSTGRES_DB: POSTGRES_DATABASE,
-        POSTGRES_PASSWORD,
-        POSTGRES_USER,
-      })
-      .withExposedPorts(5432)
-      .withWaitStrategy(
-        Wait.forLogMessage("database system is ready to accept connections", 2)
-      )
-      .start();
-
     pool = new Pool({
-      connectionString: getConnectionString(container),
+      connectionString: externalDatabaseUrl ?? (await startTestDatabase()),
     });
     db = drizzle(pool, { schema });
 
-    await applyMigrations(pool);
+    if (!externalDatabaseUrl) {
+      await applyMigrations(pool);
+    }
   });
 
   beforeEach(async () => {
@@ -290,6 +284,22 @@ async function seedMarket({ id }: { id: string }) {
     status: "open",
     title: "Will this test pass?",
   });
+}
+
+async function startTestDatabase() {
+  container = await new GenericContainer("postgres:16-alpine")
+    .withEnvironment({
+      POSTGRES_DB: POSTGRES_DATABASE,
+      POSTGRES_PASSWORD,
+      POSTGRES_USER,
+    })
+    .withExposedPorts(5432)
+    .withWaitStrategy(
+      Wait.forLogMessage("database system is ready to accept connections", 2)
+    )
+    .start();
+
+  return getConnectionString(container);
 }
 
 function getConnectionString(startedContainer: StartedTestContainer) {

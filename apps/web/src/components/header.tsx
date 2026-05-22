@@ -23,7 +23,6 @@ export default function Header() {
     { to: "/markets", label: "Märkte" },
     { to: "/portfolio", label: "Portfolio" },
     { to: "/leaderboard", label: "Bestenliste" },
-    { to: "/stats", label: "Statistik" },
   ] as const;
 
   return (
