@@ -232,7 +232,7 @@ function HomeComponent() {
       </section>
 
       <section className="border-[#20231b] border-y">
-        <div className="mx-auto grid max-w-[1320px] gap-8 px-5 py-12 sm:px-8 md:py-16 lg:grid-cols-[0.6fr_0.4fr] lg:px-10">
+        <div className="mx-auto grid max-w-[1320px] gap-6 px-5 py-12 sm:px-8 md:py-16 lg:grid-cols-[0.5fr_0.5fr] lg:px-10">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <h2 className="font-semibold text-3xl leading-tight md:text-4xl">
               Die Quote ist ernst. Die Frage nicht.
@@ -246,7 +246,7 @@ function HomeComponent() {
             </p>
 
             {/* Coins statt Geld card under the text on large screens */}
-            <div className="mt-6 hidden lg:mt-32 lg:block lg:max-w-[31rem]">
+            <div className="mt-6 hidden lg:mt-32 lg:ml-auto lg:block lg:max-w-[31rem]">
               <article className="w-full overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-3 shadow-[0_1px_0_rgba(255,255,255,0.04)]">
                 <div
                   aria-hidden="true"
