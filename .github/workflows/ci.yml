@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  actions: write
   contents: read
 
 env:
@@ -95,10 +96,23 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment: testing
     needs: [tests, migrations]
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/m324_test
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: m324_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d m324_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -113,16 +127,10 @@ jobs:
         run: npm ci
 
       - name: Prepare integration test database
-        if: ${{ env.DATABASE_URL != '' }}
         run: npm run db:push
 
       - name: Run integration tests
-        if: ${{ env.DATABASE_URL != '' }}
         run: npm run test:integration:ci
-
-      - name: Skip integration tests without test database
-        if: ${{ env.DATABASE_URL == '' }}
-        run: echo "Integration tests require a Neon test database and DATABASE_URL secret in GitHub Actions."
 
       - name: Write Vitest summary
         if: ${{ always() }}
