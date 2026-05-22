@@ -58,7 +58,7 @@ function HomeComponent() {
     markets?.reduce((sum, market) => sum + getTotalPool(market), 0) ?? 0;
   const topUsers = leaderboard?.slice(0, 4) ?? [];
 
-  const { data: userCount, isLoading: userCountLoading } = useUserCount();
+  const { data: userCount } = useUserCount();
 
   useGSAP(
     () => {
