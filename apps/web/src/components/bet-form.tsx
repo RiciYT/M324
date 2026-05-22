@@ -1,9 +1,11 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import { Label } from "@/components/label";
 import { apiClient, type MarketSide } from "@/lib/api-client";
+import { marketQueryKeys } from "@/lib/query-client";
 
 interface BetFormProps {
   marketId: string;
@@ -18,6 +20,7 @@ export function BetForm({
   onBetPlaced,
   yesLabel = "Ja",
 }: BetFormProps) {
+  const queryClient = useQueryClient();
   const [amount, setAmount] = useState("50");
   const [side, setSide] = useState<MarketSide>("yes");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +35,16 @@ export function BetForm({
         marketId,
         side,
       });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.market(marketId),
+        }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.wallet }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.portfolio }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.leaderboard,
+        }),
+      ]);
       onBetPlaced?.();
       toast.success("Wette platziert");
     } catch (error) {

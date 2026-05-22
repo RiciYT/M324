@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MenuIcon } from "lucide-react";
 import { useState } from "react";
@@ -13,6 +14,7 @@ import UserMenu from "@/components/user-menu";
 import { apiClient, type Wallet } from "@/lib/api-client";
 import { authClient } from "@/lib/auth-client";
 import { useWallet } from "@/lib/market-hooks";
+import { marketQueryKeys } from "@/lib/query-client";
 
 const coinFormatter = new Intl.NumberFormat("de-CH");
 const navigationLinks = [
@@ -23,13 +25,13 @@ const navigationLinks = [
 ] as const;
 
 export default function Header() {
+  const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
   const isSignedIn = Boolean(session?.user);
   const { data: wallet, error, isLoading } = useWallet(isSignedIn);
   const [claimError, setClaimError] = useState<string>();
   const [isClaiming, setIsClaiming] = useState(false);
-  const [walletOverride, setWalletOverride] = useState<Wallet>();
-  const currentWallet = walletOverride ?? wallet;
+  const currentWallet = wallet;
 
   return (
     <header className="sticky top-0 z-20 border-[#1d2117] border-b bg-[#050604] text-zinc-100">
@@ -73,7 +75,18 @@ export default function Header() {
 
                 try {
                   const claimedWallet = await apiClient.claimDailyCoins();
-                  setWalletOverride(claimedWallet);
+                  queryClient.setQueryData(
+                    marketQueryKeys.wallet,
+                    claimedWallet
+                  );
+                  await Promise.all([
+                    queryClient.invalidateQueries({
+                      queryKey: marketQueryKeys.portfolio,
+                    }),
+                    queryClient.invalidateQueries({
+                      queryKey: marketQueryKeys.leaderboard,
+                    }),
+                  ]);
                 } catch (error) {
                   setClaimError(
                     error instanceof Error

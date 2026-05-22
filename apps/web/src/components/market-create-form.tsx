@@ -1,15 +1,18 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import { Label } from "@/components/label";
 import { apiClient, type Market } from "@/lib/api-client";
+import { marketQueryKeys } from "@/lib/query-client";
 
 interface MarketCreateFormProps {
   onCreated?: (market: Market) => void;
 }
 
 export function MarketCreateForm({ onCreated }: MarketCreateFormProps) {
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [closesAt, setClosesAt] = useState("");
@@ -25,6 +28,12 @@ export function MarketCreateForm({ onCreated }: MarketCreateFormProps) {
         description,
         closesAt: new Date(closesAt).toISOString(),
       });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.markets }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.userCount,
+        }),
+      ]);
       toast.success("Markt erstellt");
       setTitle("");
       setDescription("");
