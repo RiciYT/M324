@@ -2,7 +2,7 @@ import { useGSAP } from "@gsap/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/button";
 import { Skeleton } from "@/components/skeleton";
 import type { LeaderboardEntry, Market } from "@/lib/api-client";
