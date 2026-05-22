@@ -232,12 +232,12 @@ function HomeComponent() {
       </section>
 
       <section className="border-[#20231b] border-y">
-        <div className="mx-auto grid max-w-[1320px] gap-10 px-5 py-16 sm:px-8 md:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-10">
+        <div className="mx-auto grid max-w-[1320px] gap-8 px-5 py-12 sm:px-8 md:py-16 lg:grid-cols-[0.6fr_0.4fr] lg:px-10">
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <h2 className="font-semibold text-4xl leading-tight md:text-6xl">
+            <h2 className="font-semibold text-3xl leading-tight md:text-4xl">
               Die Quote ist ernst. Die Frage nicht.
             </h2>
-            <p className="scrub-copy mt-8 max-w-xl text-2xl text-zinc-300 leading-[1.35] md:text-3xl">
+            <p className="scrub-copy mt-6 max-w-xl text-xl text-zinc-300 leading-[1.35] md:text-2xl">
               {revealWords.map((word) => (
                 <span className="reveal-word inline-block pr-2" key={word}>
                   {word}
