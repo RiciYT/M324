@@ -5,6 +5,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
 import { Button } from "@/components/button";
 import { Skeleton } from "@/components/skeleton";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import type { LeaderboardEntry, Market } from "@/lib/api-client";
 import { useLeaderboard, useMarkets, useUserCount } from "@/lib/market-hooks";
 
@@ -470,45 +476,30 @@ function ParodyAccordions() {
     },
   ] as const;
 
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
   return (
-    <div className="flex min-h-[520px] flex-col gap-3 md:flex-row">
-      {items.map((item, idx) => {
-        const isOpen = openIndex === idx;
-        return (
-          <article
-            className={`motion-media flex min-h-[170px] flex-1 cursor-pointer overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] transition-all duration-300 ${isOpen ? "border-[#c8ff00]/40 shadow-[0_8px_30px_rgba(200,255,0,0.12)] md:flex-[1.4]" : "md:flex-1"}`}
-            key={item.title}
-            onClick={() => setOpenIndex(isOpen ? null : idx)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setOpenIndex(isOpen ? null : idx);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-          >
+    <Accordion>
+      {items.map((item, idx) => (
+        <AccordionItem key={item.title} value={idx}>
+          <div className="grid items-start gap-4 md:grid-cols-[1fr_auto]">
             <div
               aria-hidden="true"
-              className={`min-w-24 bg-center bg-cover md:min-w-32 ${isOpen ? "" : "contrast-125 grayscale"}`}
+              className="h-40 rounded-[8px] border border-zinc-800 bg-center bg-cover"
               style={{ backgroundImage: `url(${item.image})` }}
             />
-            <div className="flex min-w-0 flex-col justify-end p-5">
-              <h3 className="text-balance font-semibold text-2xl">
-                {item.title}
-              </h3>
-              <p
-                className={`mt-3 max-w-sm text-sm leading-6 ${isOpen ? "text-zinc-100" : "text-zinc-400"}`}
-              >
-                {item.body}
-              </p>
+            <div>
+              <AccordionTrigger value={idx}>
+                <div className="flex items-center gap-4">
+                  <span className="text-balance font-semibold text-2xl">
+                    {item.title}
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent value={idx}>{item.body}</AccordionContent>
             </div>
-          </article>
-        );
-      })}
-    </div>
+          </div>
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 }
 
