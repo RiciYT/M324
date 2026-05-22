@@ -147,7 +147,7 @@ export default function SignInForm({
 
       <div className="mt-4 text-center">
         <Button
-          className="text-indigo-600 hover:text-indigo-800"
+          className="text-[#c8ff00] hover:text-[#b7eb00]"
           onClick={onSwitchToSignUp}
           variant="link"
         >
