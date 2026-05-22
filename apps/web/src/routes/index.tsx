@@ -110,8 +110,12 @@ function HomeComponent() {
       //     }
       //   );
       // }
+    },
+    { scope: pageRef }
+  );
 
-      // Count-up animation for preview metrics
+  useGSAP(
+    () => {
       for (const el of gsap.utils.toArray<HTMLElement>(".count-up")) {
         const target = Number(el.dataset.value ?? 0);
         const format = el.dataset.format ?? "plain";
@@ -136,7 +140,11 @@ function HomeComponent() {
         });
       }
     },
-    { scope: pageRef }
+    {
+      dependencies: [activeMarkets.length, markets?.length, totalPool],
+      revertOnUpdate: true,
+      scope: pageRef,
+    }
   );
 
   return (
