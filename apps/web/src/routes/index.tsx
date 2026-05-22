@@ -5,12 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
 import { Button } from "@/components/button";
 import { Skeleton } from "@/components/skeleton";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import type { LeaderboardEntry, Market } from "@/lib/api-client";
 import { useLeaderboard, useMarkets, useUserCount } from "@/lib/market-hooks";
 
@@ -479,29 +473,24 @@ function ParodyAccordions() {
   ] as const;
 
   return (
-    <Accordion>
-      {items.map((item, idx) => (
-        <AccordionItem key={item.title} value={idx}>
-          <div className="grid items-start gap-4 md:grid-cols-[1fr_auto]">
-            <div
-              aria-hidden="true"
-              className="h-40 rounded-[8px] border border-zinc-800 bg-center bg-cover"
-              style={{ backgroundImage: `url(${item.image})` }}
-            />
-            <div>
-              <AccordionTrigger value={idx}>
-                <div className="flex items-center gap-4">
-                  <span className="text-balance font-semibold text-2xl">
-                    {item.title}
-                  </span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent value={idx}>{item.body}</AccordionContent>
-            </div>
+    <div className="grid gap-6">
+      {items.map((item) => (
+        <article
+          className="overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] p-4 shadow-[0_1px_0_rgba(255,255,255,0.04)]"
+          key={item.title}
+        >
+          <div
+            aria-hidden="true"
+            className="h-40 overflow-hidden rounded-[8px] bg-center bg-cover"
+            style={{ backgroundImage: `url(${item.image})` }}
+          />
+          <div className="mt-4">
+            <h3 className="font-semibold text-2xl">{item.title}</h3>
+            <p className="mt-2 text-sm text-zinc-400">{item.body}</p>
           </div>
-        </AccordionItem>
+        </article>
       ))}
-    </Accordion>
+    </div>
   );
 }
 
