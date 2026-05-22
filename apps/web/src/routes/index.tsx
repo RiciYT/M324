@@ -244,13 +244,11 @@ function HomeComponent() {
             </p>
           </div>
 
-          <>
-            <HowItWorksSection />
-
-            <ParodyAccordions />
-          </>
+          <ParodyAccordions />
         </div>
       </section>
+
+      <HowItWorksSection />
 
       <section className="mx-auto max-w-[1320px] px-5 py-16 sm:px-8 md:py-20 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
