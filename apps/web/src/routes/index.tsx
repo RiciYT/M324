@@ -96,23 +96,25 @@ function HomeComponent() {
         }
       );
 
-      for (const item of gsap.utils.toArray<HTMLElement>(".motion-media")) {
-        gsap.fromTo(
-          item,
-          { opacity: 0.76, scale: 0.97 },
-          {
-            ease: "none",
-            opacity: 1,
-            scale: 1,
-            scrollTrigger: {
-              end: "bottom 24%",
-              scrub: true,
-              start: "top 86%",
-              trigger: item,
-            },
-          }
-        );
-      }
+      // Animations for .motion-media disabled per user request (images should not move)
+      // Previously used GSAP scroll-triggered scale/opacity animations; left intentionally static.
+      // for (const item of gsap.utils.toArray<HTMLElement>(".motion-media")) {
+      //   gsap.fromTo(
+      //     item,
+      //     { opacity: 0.76, scale: 0.97 },
+      //     {
+      //       ease: "none",
+      //       opacity: 1,
+      //       scale: 1,
+      //       scrollTrigger: {
+      //         end: "bottom 24%",
+      //         scrub: true,
+      //         start: "top 86%",
+      //         trigger: item,
+      //       },
+      //     }
+      //   );
+      // }
 
       // Count-up animation for preview metrics
       for (const el of gsap.utils.toArray<HTMLElement>(".count-up")) {
@@ -160,7 +162,7 @@ function HomeComponent() {
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(244,244,239,0.04)_0%,rgba(244,244,239,0.82)_68%,#f4f4ef_100%)] dark:bg-[linear-gradient(180deg,rgba(5,6,4,0.12)_0%,rgba(5,6,4,0.74)_58%,#050604_100%)]"
         />
 
-        <div className="hero-copy relative mx-auto flex min-h-[calc(76svh-4rem)] max-w-[1320px] flex-col items-center justify-center px-5 py-16 text-center sm:px-8 lg:px-10">
+        <div className="hero-copy relative mx-auto flex min-h-[calc(80svh-4rem)] max-w-[1320px] flex-col items-center justify-center px-5 py-24 text-center sm:px-8 lg:px-10">
           <h1 className="max-w-6xl text-balance font-semibold text-[clamp(3rem,7vw,6.5rem)] leading-[0.9] tracking-normal">
             <span>
               <span className="text-[#c8ff00]">Polymarket</span>, aber für{" "}
