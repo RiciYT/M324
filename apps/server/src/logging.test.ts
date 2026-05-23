@@ -86,7 +86,7 @@ describe("createLokiPayload", () => {
     });
 
     expect(payload.streams).toHaveLength(1);
-    expect(payload.streams[0]?.labels).toEqual({
+    expect(payload.streams[0]?.stream).toEqual({
       app: "m324-server",
       env: "development",
       event: "server.request.completed",
