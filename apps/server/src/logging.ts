@@ -3,7 +3,7 @@ type LogLevel = "info" | "warn" | "error";
 type LogContext = Record<string, boolean | number | string | undefined>;
 
 interface LokiStreamValues {
-  labels: Record<string, string>;
+  stream: Record<string, string>;
   values: [string, string][];
 }
 
@@ -72,7 +72,7 @@ export const createLokiPayload = (
 ): LokiPushPayload => ({
   streams: [
     {
-      labels: {
+      stream: {
         app: config.serviceName,
         env: config.environment,
         event: entry.event,
