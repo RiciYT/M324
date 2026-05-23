@@ -293,55 +293,68 @@ function HomeComponent() {
         </div>
       </section>
 
-      <section className="border-[#20231b] border-t">
-        <div className="mx-auto flex max-w-[1320px] flex-col gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:px-10">
-          <div className="max-w-3xl">
-            <h2 className="font-semibold text-4xl leading-tight md:text-6xl">
-              Such dir einen Markt. Oder bau den nächsten Unsinn.
-            </h2>
-            <p className="mt-5 max-w-xl text-zinc-400 leading-7">
-              ShitMarket ist schnell genug für Prognosen und ehrlich genug für
-              eine Parodie.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              className="h-12 bg-[#c8ff00] px-6 text-black hover:bg-[#b7eb00]"
-              render={<Link to="/markets" />}
-            >
-              Alle Märkte
-            </Button>
-            <Button
-              className="h-12 border-zinc-700 px-6"
-              render={<Link to="/leaderboard" />}
-              variant="outline"
-            >
-              Rangliste
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <footer className="mx-auto max-w-[1320px] px-5 py-8 text-zinc-400 sm:px-8 lg:px-10">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-[#c8ff00]">Shit</span>Market
-          </div>
-          <div className="flex gap-4">
-            <Link className="hover:text-[#c8ff00]" to="/">
-              Home
-            </Link>
-            <Link className="hover:text-[#c8ff00]" to="/markets">
-              Märkte
-            </Link>
-            <Link className="hover:text-[#c8ff00]" to="/leaderboard">
-              Rangliste
-            </Link>
-          </div>
-          <div className="text-sm">© {CURRENT_YEAR} ShitMarket</div>
-        </div>
-      </footer>
+      <HomeCta />
+      <HomeFooter />
     </main>
+  );
+}
+
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+function HomeCta() {
+  return (
+    <section className="border-[#20231b] border-t">
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:px-10">
+        <div className="max-w-3xl">
+          <h2 className="font-semibold text-4xl leading-tight md:text-6xl">
+            Such dir einen Markt. Oder bau den nächsten Unsinn.
+          </h2>
+          <p className="mt-5 max-w-xl text-zinc-400 leading-7">
+            ShitMarket ist schnell genug für Prognosen und ehrlich genug für
+            eine Parodie.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button
+            className="h-12 bg-[#c8ff00] px-6 text-black hover:bg-[#b7eb00]"
+            render={<Link to="/markets" />}
+          >
+            Alle Märkte
+          </Button>
+          <Button
+            className="h-12 border-zinc-700 px-6"
+            render={<Link to="/leaderboard" />}
+            variant="outline"
+          >
+            Rangliste
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+function HomeFooter() {
+  return (
+    <footer className="mx-auto max-w-[1320px] px-5 py-8 text-zinc-400 sm:px-8 lg:px-10">
+      <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-[#c8ff00]">Shit</span>Market
+        </div>
+        <div className="flex gap-4">
+          <Link className="hover:text-[#c8ff00]" to="/">
+            Home
+          </Link>
+          <Link className="hover:text-[#c8ff00]" to="/markets">
+            Märkte
+          </Link>
+          <Link className="hover:text-[#c8ff00]" to="/leaderboard">
+            Rangliste
+          </Link>
+        </div>
+        <div className="text-sm">© {CURRENT_YEAR} ShitMarket</div>
+      </div>
+    </footer>
   );
 }
 
