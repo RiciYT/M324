@@ -73,6 +73,7 @@ async function request<TData>(
   }
 
   const response = await fetch(`${env.VITE_SERVER_URL}${path}`, {
+    credentials: "include",
     ...init,
     headers,
   });

@@ -76,12 +76,12 @@ export default function Header() {
                 try {
                   const claimedWallet = await apiClient.claimDailyCoins();
                   queryClient.setQueryData(
-                    marketQueryKeys.wallet,
+                    marketQueryKeys.wallet(session?.user.id),
                     claimedWallet
                   );
                   await Promise.all([
                     queryClient.invalidateQueries({
-                      queryKey: marketQueryKeys.portfolio,
+                      queryKey: marketQueryKeys.portfolio(),
                     }),
                     queryClient.invalidateQueries({
                       queryKey: marketQueryKeys.leaderboard,

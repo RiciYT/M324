@@ -39,8 +39,14 @@ export function BetForm({
         queryClient.invalidateQueries({
           queryKey: marketQueryKeys.market(marketId),
         }),
-        queryClient.invalidateQueries({ queryKey: marketQueryKeys.wallet }),
-        queryClient.invalidateQueries({ queryKey: marketQueryKeys.portfolio }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.activity(marketId),
+        }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.markets }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.wallet() }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.portfolio(),
+        }),
         queryClient.invalidateQueries({
           queryKey: marketQueryKeys.leaderboard,
         }),

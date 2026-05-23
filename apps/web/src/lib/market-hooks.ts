@@ -8,6 +8,7 @@ import {
   type Transaction,
   type Wallet,
 } from "@/lib/api-client";
+import { authClient } from "@/lib/auth-client";
 import { marketQueryKeys } from "@/lib/query-client";
 
 interface AsyncState<TData> {
@@ -65,16 +66,18 @@ export function useMarketActivity(id: string): AsyncState<MarketActivity[]> {
 }
 
 export function useWallet(enabled = true): AsyncState<Wallet> {
+  const { data: session } = authClient.useSession();
+  const userId = session?.user.id;
   const query = useQuery({
-    enabled,
+    enabled: enabled && Boolean(userId),
     queryFn: () => apiClient.getWallet(),
-    queryKey: marketQueryKeys.wallet,
+    queryKey: marketQueryKeys.wallet(userId),
   });
 
   return {
     data: query.data,
     error: query.error ? getErrorMessage(query.error) : undefined,
-    isLoading: enabled && query.isPending,
+    isLoading: enabled && Boolean(userId) && query.isPending,
   };
 }
 
@@ -82,9 +85,12 @@ export function usePortfolio(): AsyncState<{
   positions: PortfolioPosition[];
   transactions: Transaction[];
 }> {
+  const { data: session } = authClient.useSession();
+  const userId = session?.user.id;
   const query = useQuery({
+    enabled: Boolean(userId),
     queryFn: () => apiClient.getPortfolio(),
-    queryKey: marketQueryKeys.portfolio,
+    queryKey: marketQueryKeys.portfolio(userId),
   });
 
   return {

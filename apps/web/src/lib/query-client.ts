@@ -16,7 +16,9 @@ export const marketQueryKeys = {
   leaderboard: ["leaderboard"] as const,
   market: (id: string) => ["markets", id] as const,
   markets: ["markets"] as const,
-  portfolio: ["portfolio"] as const,
+  portfolio: (userId?: string) =>
+    userId ? (["portfolio", userId] as const) : (["portfolio"] as const),
   userCount: ["users", "count"] as const,
-  wallet: ["wallet"] as const,
+  wallet: (userId?: string) =>
+    userId ? (["wallet", userId] as const) : (["wallet"] as const),
 };

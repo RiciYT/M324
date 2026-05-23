@@ -76,7 +76,11 @@ function MarketDetailRoute() {
         queryClient.invalidateQueries({
           queryKey: marketQueryKeys.leaderboard,
         }),
-        queryClient.invalidateQueries({ queryKey: marketQueryKeys.portfolio }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.markets }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.wallet() }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.portfolio(),
+        }),
       ]);
     } catch (error_) {
       setResolveError(
