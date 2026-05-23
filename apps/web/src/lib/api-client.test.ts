@@ -30,6 +30,8 @@ describe("apiClient", () => {
       title: "Market title",
     });
 
+    const [, requestInit] = fetchMock.mock.calls[0] ?? [];
+
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:3000/api/markets",
       expect.objectContaining({
@@ -39,11 +41,12 @@ describe("apiClient", () => {
           title: "Market title",
         }),
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
         method: "POST",
       })
+    );
+    expect(requestInit?.headers).toBeInstanceOf(Headers);
+    expect((requestInit?.headers as Headers).get("Content-Type")).toBe(
+      "application/json"
     );
   });
 

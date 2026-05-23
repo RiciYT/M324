@@ -153,12 +153,14 @@ function HomeComponent() {
       ref={pageRef}
     >
       <section className="relative isolate overflow-hidden border-[#20231b] border-b">
-        <div
+        <img
+          alt=""
           aria-hidden="true"
-          className="absolute inset-0 bg-center bg-cover opacity-60 contrast-125"
-          style={{
-            backgroundImage: `url(${imageAssets.hero})`,
-          }}
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-60 contrast-125"
+          fetchPriority="high"
+          height={900}
+          src={imageAssets.hero}
+          width={1600}
         />
         <div
           aria-hidden="true"
@@ -291,55 +293,68 @@ function HomeComponent() {
         </div>
       </section>
 
-      <section className="border-[#20231b] border-t">
-        <div className="mx-auto flex max-w-[1320px] flex-col gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:px-10">
-          <div className="max-w-3xl">
-            <h2 className="font-semibold text-4xl leading-tight md:text-6xl">
-              Such dir einen Markt. Oder bau den nächsten Unsinn.
-            </h2>
-            <p className="mt-5 max-w-xl text-zinc-400 leading-7">
-              ShitMarket ist schnell genug für Prognosen und ehrlich genug für
-              eine Parodie.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              className="h-12 bg-[#c8ff00] px-6 text-black hover:bg-[#b7eb00]"
-              render={<Link to="/markets" />}
-            >
-              Alle Märkte
-            </Button>
-            <Button
-              className="h-12 border-zinc-700 px-6"
-              render={<Link to="/leaderboard" />}
-              variant="outline"
-            >
-              Rangliste
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <footer className="mx-auto max-w-[1320px] px-5 py-8 text-zinc-400 sm:px-8 lg:px-10">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="font-bold text-[#c8ff00]">Shit</span>Market
-          </div>
-          <div className="flex gap-4">
-            <Link className="hover:text-[#c8ff00]" to="/">
-              Home
-            </Link>
-            <Link className="hover:text-[#c8ff00]" to="/markets">
-              Märkte
-            </Link>
-            <Link className="hover:text-[#c8ff00]" to="/leaderboard">
-              Rangliste
-            </Link>
-          </div>
-          <div className="text-sm">© {CURRENT_YEAR} ShitMarket</div>
-        </div>
-      </footer>
+      <HomeCta />
+      <HomeFooter />
     </main>
+  );
+}
+
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+function HomeCta() {
+  return (
+    <section className="border-[#20231b] border-t">
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-end lg:justify-between lg:px-10">
+        <div className="max-w-3xl">
+          <h2 className="font-semibold text-4xl leading-tight md:text-6xl">
+            Such dir einen Markt. Oder bau den nächsten Unsinn.
+          </h2>
+          <p className="mt-5 max-w-xl text-zinc-400 leading-7">
+            ShitMarket ist schnell genug für Prognosen und ehrlich genug für
+            eine Parodie.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button
+            className="h-12 bg-[#c8ff00] px-6 text-black hover:bg-[#b7eb00]"
+            render={<Link to="/markets" />}
+          >
+            Alle Märkte
+          </Button>
+          <Button
+            className="h-12 border-zinc-700 px-6"
+            render={<Link to="/leaderboard" />}
+            variant="outline"
+          >
+            Rangliste
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// react-doctor-disable-next-line react-doctor/no-multi-comp
+function HomeFooter() {
+  return (
+    <footer className="mx-auto max-w-[1320px] px-5 py-8 text-zinc-400 sm:px-8 lg:px-10">
+      <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="flex items-center gap-3">
+          <span className="font-bold text-[#c8ff00]">Shit</span>Market
+        </div>
+        <div className="flex gap-4">
+          <Link className="hover:text-[#c8ff00]" to="/">
+            Home
+          </Link>
+          <Link className="hover:text-[#c8ff00]" to="/markets">
+            Märkte
+          </Link>
+          <Link className="hover:text-[#c8ff00]" to="/leaderboard">
+            Rangliste
+          </Link>
+        </div>
+        <div className="text-sm">© {CURRENT_YEAR} ShitMarket</div>
+      </div>
+    </footer>
   );
 }
 
@@ -388,7 +403,7 @@ function ProductPreview({
 function PreviewMetric({ label, value }: { label: string; value: number }) {
   return (
     <div className="p-4">
-      <p className="text-xs text-zinc-500">{label}</p>
+      <p className="text-xs text-zinc-400">{label}</p>
       <p className="mt-1 font-mono font-semibold text-zinc-100 tabular-nums">
         <span
           className="count-up"
@@ -448,7 +463,7 @@ function LeaderboardPanel({
       <div className="flex items-end justify-between gap-4">
         <div>
           <h2 className="font-semibold text-2xl">Rangliste</h2>
-          <p className="mt-1 text-sm text-zinc-500">Wer den Quatsch gewinnt.</p>
+          <p className="mt-1 text-sm text-zinc-400">Wer den Quatsch gewinnt.</p>
         </div>
         <Link
           className="inline-flex h-9 items-center rounded-[6px] border border-zinc-700 px-3 text-sm text-zinc-200 transition-[background-color,border-color,color] duration-150 ease-out hover:border-[#c8ff00]/60 hover:bg-zinc-900 hover:text-[#c8ff00]"
@@ -635,7 +650,7 @@ function LeaderboardPreview({
           className="grid grid-cols-[34px_1fr_auto] items-center gap-3 py-3 text-sm"
           key={user.name}
         >
-          <span className="font-mono text-zinc-500">{user.rank}</span>
+          <span className="font-mono text-zinc-400">{user.rank}</span>
           <span className="font-medium text-zinc-300">{user.name}</span>
           <span className="font-mono font-semibold text-[#c8ff00] tabular-nums">
             {formatLeaderboardProfit(user)}

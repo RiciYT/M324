@@ -66,13 +66,16 @@ async function request<TData>(
   path: string,
   init?: RequestInit
 ): Promise<TData> {
+  const headers = new Headers(init?.headers);
+
+  if (init?.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const response = await fetch(`${env.VITE_SERVER_URL}${path}`, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
     ...init,
+    headers,
   });
 
   if (!response.ok) {
@@ -90,11 +93,13 @@ export const apiClient = {
   }): Promise<Market> {
     return request<Market>("/api/markets", {
       body: JSON.stringify(input),
+      credentials: "include",
       method: "POST",
     });
   },
   claimDailyCoins(): Promise<DailyClaimResult> {
     return request<DailyClaimResult>("/api/wallet/claim", {
+      credentials: "include",
       method: "POST",
     });
   },
@@ -129,10 +134,10 @@ export const apiClient = {
     return request<{
       positions: PortfolioPosition[];
       transactions: Transaction[];
-    }>("/api/portfolio");
+    }>("/api/portfolio", { credentials: "include" });
   },
   getWallet(): Promise<Wallet> {
-    return request<Wallet>("/api/wallet");
+    return request<Wallet>("/api/wallet", { credentials: "include" });
   },
   placeBet(input: {
     amount: number;
@@ -141,6 +146,7 @@ export const apiClient = {
   }): Promise<{ accepted: true }> {
     return request<{ accepted: true }>("/api/bets", {
       body: JSON.stringify(input),
+      credentials: "include",
       method: "POST",
     });
   },
@@ -152,6 +158,7 @@ export const apiClient = {
       `/api/markets/${input.marketId}/resolve`,
       {
         body: JSON.stringify(input),
+        credentials: "include",
         method: "POST",
       }
     );

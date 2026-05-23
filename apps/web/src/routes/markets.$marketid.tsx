@@ -1,4 +1,5 @@
 // biome-ignore-all lint/style/useFilenamingConvention: TanStack Router uses $param filenames for dynamic routes.
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { BetForm } from "@/components/bet-form";
@@ -6,6 +7,7 @@ import { Button } from "@/components/button";
 import { MarketPoolChart } from "@/components/market-pool-chart";
 import { apiClient, type MarketSide } from "@/lib/api-client";
 import { useMarket, useMarketActivity, useWallet } from "@/lib/market-hooks";
+import { marketQueryKeys } from "@/lib/query-client";
 import { useFormattedDate } from "@/lib/use-formatted-date";
 import { cn } from "@/lib/utils";
 
@@ -25,14 +27,12 @@ export const Route = createFileRoute("/markets/$marketid")({
 // react-doctor-disable-next-line react-doctor/only-export-components
 function MarketDetailRoute() {
   const { marketid } = Route.useParams();
-  const [refreshKey, setRefreshKey] = useState(0);
+  const queryClient = useQueryClient();
   const [resolveError, setResolveError] = useState<string>();
   const [isResolving, setIsResolving] = useState(false);
-  const { data: market, error, isLoading } = useMarket(marketid, refreshKey);
-  const { data: activity, isLoading: isActivityLoading } = useMarketActivity(
-    marketid,
-    refreshKey
-  );
+  const { data: market, error, isLoading } = useMarket(marketid);
+  const { data: activity, isLoading: isActivityLoading } =
+    useMarketActivity(marketid);
   const { data: wallet } = useWallet();
   const closesAt = useFormattedDate(market?.closesAt, dateFormatter);
 
@@ -69,7 +69,19 @@ function MarketDetailRoute() {
         marketId: market.id,
         outcome,
       });
-      setRefreshKey((value) => value + 1);
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.market(market.id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.leaderboard,
+        }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.markets }),
+        queryClient.invalidateQueries({ queryKey: marketQueryKeys.wallet() }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.portfolio(),
+        }),
+      ]);
     } catch (error_) {
       setResolveError(
         error_ instanceof Error
@@ -173,7 +185,6 @@ function MarketDetailRoute() {
               <BetForm
                 marketId={market.id}
                 noLabel={noLabel}
-                onBetPlaced={() => setRefreshKey((value) => value + 1)}
                 yesLabel={yesLabel}
               />
             </div>

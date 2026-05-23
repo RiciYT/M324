@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   apiClient,
   type LeaderboardEntry,
@@ -8,6 +8,8 @@ import {
   type Transaction,
   type Wallet,
 } from "@/lib/api-client";
+import { authClient } from "@/lib/auth-client";
+import { marketQueryKeys } from "@/lib/query-client";
 
 interface AsyncState<TData> {
   data?: TData;
@@ -15,123 +17,111 @@ interface AsyncState<TData> {
   isLoading: boolean;
 }
 
-type AsyncAction<TData> =
-  | { type: "idle" }
-  | { type: "loading" }
-  | { type: "success"; data: TData }
-  | { type: "error"; error: string };
-
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : "Unexpected request error";
 
-function useAsyncData<T>(
-  fetcher: () => Promise<T>,
-  enabled = true,
-  refreshKey = 0
-): AsyncState<T> {
-  const [state, dispatch] = useReducer(
-    (_currentState: AsyncState<T>, action: AsyncAction<T>): AsyncState<T> => {
-      switch (action.type) {
-        case "idle":
-          return { data: undefined, error: undefined, isLoading: false };
-        case "loading":
-          return { data: undefined, error: undefined, isLoading: true };
-        case "success":
-          return { data: action.data, isLoading: false };
-        case "error":
-          return { error: action.error, isLoading: false };
-        default:
-          return _currentState;
-      }
-    },
-    {
-      isLoading: true,
-    }
-  );
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: refreshKey intentionally triggers refetches without being read.
-  useEffect(() => {
-    if (!enabled) {
-      dispatch({ type: "idle" });
-      return;
-    }
-
-    let isActive = true;
-    dispatch({ type: "loading" });
-
-    fetcher()
-      .then((data) => {
-        if (isActive) {
-          dispatch({ type: "success", data });
-        }
-      })
-      .catch((error: unknown) => {
-        if (isActive) {
-          dispatch({ type: "error", error: getErrorMessage(error) });
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [enabled, fetcher, refreshKey]);
-
-  return state;
-}
-
 export function useMarkets(): AsyncState<Market[]> {
-  const fetchMarkets = useCallback(() => apiClient.getMarkets(), []);
-  return useAsyncData(fetchMarkets);
+  const query = useQuery({
+    queryFn: () => apiClient.getMarkets(),
+    queryKey: marketQueryKeys.markets,
+  });
+
+  return {
+    data: query.data,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: query.isPending,
+  };
 }
 
-export function useMarket(id: string, refreshKey = 0): AsyncState<Market> {
-  const fetchMarket = useCallback(async () => {
-    const data = await apiClient.getMarket(id);
-    if (!data) {
-      throw new Error("Market not found");
-    }
-    return data;
-  }, [id]);
+export function useMarket(id: string): AsyncState<Market> {
+  const query = useQuery({
+    queryFn: async () => {
+      const data = await apiClient.getMarket(id);
+      if (!data) {
+        throw new Error("Market not found");
+      }
+      return data;
+    },
+    queryKey: marketQueryKeys.market(id),
+  });
 
-  return useAsyncData(fetchMarket, true, refreshKey);
+  return {
+    data: query.data,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: query.isPending,
+  };
 }
 
-export function useMarketActivity(
-  id: string,
-  refreshKey = 0
-): AsyncState<MarketActivity[]> {
-  const fetchActivity = useCallback(
-    () => apiClient.getMarketActivity(id),
-    [id]
-  );
+export function useMarketActivity(id: string): AsyncState<MarketActivity[]> {
+  const query = useQuery({
+    queryFn: () => apiClient.getMarketActivity(id),
+    queryKey: marketQueryKeys.activity(id),
+  });
 
-  return useAsyncData(fetchActivity, true, refreshKey);
+  return {
+    data: query.data,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: query.isPending,
+  };
 }
 
 export function useWallet(enabled = true): AsyncState<Wallet> {
-  const fetchWallet = useCallback(() => apiClient.getWallet(), []);
-  return useAsyncData(fetchWallet, enabled);
+  const { data: session } = authClient.useSession();
+  const userId = session?.user.id;
+  const query = useQuery({
+    enabled: enabled && Boolean(userId),
+    queryFn: () => apiClient.getWallet(),
+    queryKey: marketQueryKeys.wallet(userId),
+  });
+
+  return {
+    data: query.data,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: enabled && Boolean(userId) && query.isPending,
+  };
 }
 
 export function usePortfolio(): AsyncState<{
   positions: PortfolioPosition[];
   transactions: Transaction[];
 }> {
-  const fetchPortfolio = useCallback(() => apiClient.getPortfolio(), []);
-  return useAsyncData(fetchPortfolio);
+  const { data: session } = authClient.useSession();
+  const userId = session?.user.id;
+  const query = useQuery({
+    enabled: Boolean(userId),
+    queryFn: () => apiClient.getPortfolio(),
+    queryKey: marketQueryKeys.portfolio(userId),
+  });
+
+  return {
+    data: query.data,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: query.isPending,
+  };
 }
 
 export function useLeaderboard(): AsyncState<LeaderboardEntry[]> {
-  const fetchLeaderboard = useCallback(() => apiClient.getLeaderboard(), []);
-  return useAsyncData(fetchLeaderboard);
+  const query = useQuery({
+    queryFn: () => apiClient.getLeaderboard(),
+    queryKey: marketQueryKeys.leaderboard,
+  });
+
+  return {
+    data: query.data,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: query.isPending,
+  };
 }
 
 export function useUserCount(): AsyncState<number> {
-  const fetchUserCount = useCallback(() => apiClient.getUserCount(), []);
-  const state = useAsyncData(fetchUserCount);
+  const query = useQuery({
+    queryFn: () => apiClient.getUserCount(),
+    queryKey: marketQueryKeys.userCount,
+  });
+
   return {
-    data: state.data?.count,
-    error: state.error,
-    isLoading: state.isLoading,
+    data: query.data?.count,
+    error: query.error ? getErrorMessage(query.error) : undefined,
+    isLoading: query.isPending,
   };
 }
