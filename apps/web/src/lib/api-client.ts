@@ -16,6 +16,7 @@ export interface Market {
   id: string;
   noPool: number;
   outcome?: MarketSide;
+  serverNow: string;
   status: MarketStatus;
   title: string;
   yesPool: number;

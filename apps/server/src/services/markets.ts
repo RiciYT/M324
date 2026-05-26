@@ -41,6 +41,7 @@ export async function createMarket(
   input: CreateMarketInput,
   createdBy: string
 ) {
+  const serverNow = new Date();
   const [row] = await db
     .insert(market)
     .values({
@@ -57,7 +58,7 @@ export async function createMarket(
     throw new Error("Market creation failed");
   }
 
-  return toApiMarket(row, 0, 0);
+  return toApiMarket(row, 0, 0, serverNow);
 }
 
 export async function resolveMarket(db: Database, input: ResolveMarketInput) {
@@ -135,6 +136,7 @@ export async function resolveMarket(db: Database, input: ResolveMarketInput) {
 }
 
 async function getMarkets(db: Database, id?: string) {
+  const serverNow = new Date();
   const rows = await db
     .select({
       closesAt: market.closesAt,
@@ -166,6 +168,7 @@ async function getMarkets(db: Database, id?: string) {
     ...row,
     closesAt: row.closesAt.toISOString(),
     outcome: row.outcome as MarketSide | undefined,
+    serverNow: serverNow.toISOString(),
   }));
 }
 
@@ -217,7 +220,8 @@ function calculateParimutuelPayouts({
 function toApiMarket(
   row: typeof market.$inferSelect,
   yesPool: number,
-  noPool: number
+  noPool: number,
+  serverNow: Date
 ) {
   return {
     closesAt: row.closesAt.toISOString(),
@@ -226,6 +230,7 @@ function toApiMarket(
     id: row.id,
     noPool,
     outcome: row.outcome as MarketSide | undefined,
+    serverNow: serverNow.toISOString(),
     status: row.status,
     title: row.title,
     yesPool,

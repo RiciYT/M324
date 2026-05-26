@@ -5,7 +5,6 @@ import {
   getEffectiveMarketStatus,
   getEffectiveMarketStatusLabel,
 } from "@/lib/market-status";
-import { useCurrentTime } from "@/lib/use-current-time";
 import { useFormattedDate } from "@/lib/use-formatted-date";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
@@ -19,10 +18,10 @@ const percentFormatter = new Intl.NumberFormat("de-CH", {
 
 interface MarketCardProps {
   market: Market;
+  now: Date;
 }
 
-export function MarketCard({ market }: MarketCardProps) {
-  const now = useCurrentTime();
+export function MarketCard({ market, now }: MarketCardProps) {
   const totalPool = market.yesPool + market.noPool;
   const yesRatio = totalPool === 0 ? 0.5 : market.yesPool / totalPool;
   const effectiveStatus = getEffectiveMarketStatus({

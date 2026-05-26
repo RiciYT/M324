@@ -40,7 +40,10 @@ function MarketDetailRoute() {
   const { data: activity, isLoading: isActivityLoading } =
     useMarketActivity(marketid);
   const { data: wallet } = useWallet();
-  const now = useCurrentTime();
+  const now = useCurrentTime({
+    enabled: market?.status === "open",
+    serverNow: market?.serverNow,
+  });
   const closesAt = useFormattedDate(market?.closesAt, dateFormatter);
 
   if (isLoading) {

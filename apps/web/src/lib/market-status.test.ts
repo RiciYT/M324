@@ -34,6 +34,16 @@ describe("getEffectiveMarketStatus", () => {
       })
     ).toBe("resolved");
   });
+
+  it("uses the provided clock instead of the local default clock", () => {
+    expect(
+      getEffectiveMarketStatus({
+        closesAt: "2026-05-26T10:00:01.000Z",
+        now: new Date("2026-05-26T10:00:00.000Z"),
+        status: "open",
+      })
+    ).toBe("open");
+  });
 });
 
 describe("formatMarketTimeRemaining", () => {
