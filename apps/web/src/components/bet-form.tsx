@@ -8,6 +8,7 @@ import { apiClient, type MarketSide } from "@/lib/api-client";
 import { marketQueryKeys } from "@/lib/query-client";
 
 interface BetFormProps {
+  disabled?: boolean;
   marketId: string;
   noLabel?: string;
   onBetPlaced?: () => void;
@@ -15,6 +16,7 @@ interface BetFormProps {
 }
 
 export function BetForm({
+  disabled = false,
   marketId,
   noLabel = "Nein",
   onBetPlaced,
@@ -24,9 +26,15 @@ export function BetForm({
   const [amount, setAmount] = useState("50");
   const [side, setSide] = useState<MarketSide>("yes");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLabel = getSubmitLabel({ disabled, isSubmitting });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (disabled) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -66,6 +74,13 @@ export function BetForm({
 
   return (
     <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+      {disabled ? (
+        <div className="rounded-[6px] border border-zinc-800 bg-black/25 p-3 text-sm text-zinc-400">
+          Dieser Markt ist geschlossen. Es können keine Wetten mehr platziert
+          werden.
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-2 border-zinc-800 border-b pb-4">
         <Button
           aria-pressed={side === "yes"}
@@ -74,6 +89,7 @@ export function BetForm({
               ? "h-11 rounded-[6px] bg-[#c8ff00] font-medium text-black hover:bg-[#b7eb00]"
               : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-medium text-zinc-200 hover:bg-zinc-900"
           }
+          disabled={disabled}
           onClick={() => setSide("yes")}
           type="button"
           variant={side === "yes" ? "default" : "outline"}
@@ -87,6 +103,7 @@ export function BetForm({
               ? "h-11 rounded-[6px] bg-destructive font-medium text-white hover:bg-destructive/90"
               : "h-11 rounded-[6px] border-zinc-700 bg-black/20 font-medium text-zinc-200 hover:bg-zinc-900"
           }
+          disabled={disabled}
           onClick={() => setSide("no")}
           type="button"
           variant={side === "no" ? "default" : "outline"}
@@ -106,6 +123,7 @@ export function BetForm({
         </div>
         <Input
           className="h-12 rounded-[6px] border-zinc-700 bg-black/30 font-mono text-zinc-100"
+          disabled={disabled}
           id="bet-amount"
           min="1"
           onChange={(event) => setAmount(event.target.value)}
@@ -118,6 +136,7 @@ export function BetForm({
         {[10, 50, 100].map((value) => (
           <Button
             className="h-8 rounded-[6px] border-zinc-700 bg-zinc-900 px-3 font-mono text-xs text-zinc-300 hover:bg-zinc-800"
+            disabled={disabled}
             key={value}
             onClick={() => setAmount(String(Number(amount || 0) + value))}
             type="button"
@@ -130,11 +149,29 @@ export function BetForm({
 
       <Button
         className="h-12 rounded-[6px] bg-[#c8ff00] font-medium text-black hover:bg-[#b7eb00]"
-        disabled={isSubmitting}
+        disabled={disabled || isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Wird gesetzt…" : "Wette setzen"}
+        {submitLabel}
       </Button>
     </form>
   );
+}
+
+function getSubmitLabel({
+  disabled,
+  isSubmitting,
+}: {
+  disabled: boolean;
+  isSubmitting: boolean;
+}) {
+  if (disabled) {
+    return "Markt geschlossen";
+  }
+
+  if (isSubmitting) {
+    return "Wird gesetzt…";
+  }
+
+  return "Wette setzen";
 }
