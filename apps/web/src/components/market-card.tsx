@@ -1,5 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import type { Market } from "@/lib/api-client";
+import {
+  formatMarketTimeRemaining,
+  getEffectiveMarketStatus,
+  getEffectiveMarketStatusLabel,
+} from "@/lib/market-status";
 import { useFormattedDate } from "@/lib/use-formatted-date";
 
 const creditFormatter = new Intl.NumberFormat("de-CH");
@@ -13,12 +18,22 @@ const percentFormatter = new Intl.NumberFormat("de-CH", {
 
 interface MarketCardProps {
   market: Market;
+  now: Date;
 }
 
-export function MarketCard({ market }: MarketCardProps) {
+export function MarketCard({ market, now }: MarketCardProps) {
   const totalPool = market.yesPool + market.noPool;
   const yesRatio = totalPool === 0 ? 0.5 : market.yesPool / totalPool;
-  const statusLabel = market.status === "open" ? "Offen" : "Aufgelöst";
+  const effectiveStatus = getEffectiveMarketStatus({
+    closesAt: market.closesAt,
+    now,
+    status: market.status,
+  });
+  const statusLabel = getEffectiveMarketStatusLabel(effectiveStatus);
+  const timeRemaining = formatMarketTimeRemaining({
+    closesAt: market.closesAt,
+    now,
+  });
   const noRatio = 1 - yesRatio;
   const closesAt = useFormattedDate(market.closesAt, dateFormatter);
 
@@ -27,6 +42,9 @@ export function MarketCard({ market }: MarketCardProps) {
       <div className="min-w-0">
         <div className="mb-2 flex flex-wrap items-center gap-3 text-xs text-zinc-500">
           <span>{statusLabel}</span>
+          {effectiveStatus === "open" ? (
+            <span>Noch {timeRemaining}</span>
+          ) : null}
           <span>{closesAt}</span>
           <span>{creditFormatter.format(totalPool)} Coins</span>
         </div>

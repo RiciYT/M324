@@ -7,7 +7,13 @@ import { Button } from "@/components/button";
 import { MarketPoolChart } from "@/components/market-pool-chart";
 import { apiClient, type MarketSide } from "@/lib/api-client";
 import { useMarket, useMarketActivity, useWallet } from "@/lib/market-hooks";
+import {
+  formatMarketTimeRemaining,
+  getEffectiveMarketStatus,
+  getEffectiveMarketStatusLabel,
+} from "@/lib/market-status";
 import { marketQueryKeys } from "@/lib/query-client";
+import { useCurrentTime } from "@/lib/use-current-time";
 import { useFormattedDate } from "@/lib/use-formatted-date";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +40,10 @@ function MarketDetailRoute() {
   const { data: activity, isLoading: isActivityLoading } =
     useMarketActivity(marketid);
   const { data: wallet } = useWallet();
+  const now = useCurrentTime({
+    enabled: market?.status === "open",
+    serverNow: market?.serverNow,
+  });
   const closesAt = useFormattedDate(market?.closesAt, dateFormatter);
 
   if (isLoading) {
@@ -57,7 +67,16 @@ function MarketDetailRoute() {
   const noRatio = 1 - yesRatio;
   const yesLabel = `Ja ${percentFormatter.format(yesRatio)}`;
   const noLabel = `Nein ${percentFormatter.format(noRatio)}`;
-  const statusLabel = market.status === "open" ? "Offen" : "Aufgelöst";
+  const effectiveStatus = getEffectiveMarketStatus({
+    closesAt: market.closesAt,
+    now,
+    status: market.status,
+  });
+  const statusLabel = getEffectiveMarketStatusLabel(effectiveStatus);
+  const timeRemaining = formatMarketTimeRemaining({
+    closesAt: market.closesAt,
+    now,
+  });
   const isAdmin = wallet?.role === "admin";
 
   const handleResolve = async (outcome: MarketSide) => {
@@ -100,6 +119,9 @@ function MarketDetailRoute() {
           <div className="mb-7 flex flex-col gap-4 border-[#20231b] border-b pb-6">
             <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
               <span>{statusLabel}</span>
+              {effectiveStatus === "open" ? (
+                <span>Noch {timeRemaining}</span>
+              ) : null}
               <span>{closesAt}</span>
             </div>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -183,6 +205,7 @@ function MarketDetailRoute() {
             </div>
             <div className="p-4">
               <BetForm
+                disabled={effectiveStatus !== "open"}
                 marketId={market.id}
                 noLabel={noLabel}
                 yesLabel={yesLabel}

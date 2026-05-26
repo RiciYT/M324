@@ -2,6 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { MarketCard } from "@/components/market-card";
 import { useMarkets } from "@/lib/market-hooks";
+import {
+  type EffectiveMarketStatus,
+  getEffectiveMarketStatus,
+} from "@/lib/market-status";
+import { useCurrentTime } from "@/lib/use-current-time";
 
 export const Route = createFileRoute("/markets/")({
   component: MarketsIndexRoute,
@@ -10,6 +15,7 @@ export const Route = createFileRoute("/markets/")({
 const filters = [
   { label: "Alle", value: "all" },
   { label: "Offen", value: "open" },
+  { label: "Geschlossen", value: "expired" },
   { label: "Aufgelöst", value: "resolved" },
 ] as const;
 
@@ -19,14 +25,29 @@ type MarketFilter = (typeof filters)[number]["value"];
 function MarketsIndexRoute() {
   const { data: markets, error, isLoading } = useMarkets();
   const [activeFilter, setActiveFilter] = useState<MarketFilter>("all");
+  const firstServerNow = markets?.[0]?.serverNow;
+  const hasOpenMarkets =
+    markets?.some((market) => market.status === "open") ?? false;
+  const now = useCurrentTime({
+    enabled: hasOpenMarkets,
+    serverNow: firstServerNow,
+  });
+  const effectiveMarketRows =
+    markets?.map((market) => ({
+      market,
+      status: getEffectiveMarketStatus({
+        closesAt: market.closesAt,
+        now,
+        status: market.status,
+      }),
+    })) ?? [];
   const filteredMarkets =
-    markets?.filter(
-      (market) => activeFilter === "all" || market.status === activeFilter
-    ) ?? [];
-  const openCount =
-    markets?.filter((market) => market.status === "open").length ?? 0;
-  const resolvedCount =
-    markets?.filter((market) => market.status === "resolved").length ?? 0;
+    effectiveMarketRows
+      .filter((row) => activeFilter === "all" || row.status === activeFilter)
+      .map((row) => row.market) ?? [];
+  const openCount = getStatusCount(effectiveMarketRows, "open");
+  const expiredCount = getStatusCount(effectiveMarketRows, "expired");
+  const resolvedCount = getStatusCount(effectiveMarketRows, "resolved");
   const marketCount = markets?.length ?? 0;
 
   return (
@@ -39,8 +60,8 @@ function MarketsIndexRoute() {
               Offene und aufgelöste Fragen mit Quote, Pool und Ablaufdatum.
             </p>
             <p className="mt-3 font-mono text-xs text-zinc-500 tabular-nums">
-              {marketCount} Märkte / {openCount} offen / {resolvedCount}{" "}
-              aufgelöst
+              {marketCount} Märkte / {openCount} offen / {expiredCount}{" "}
+              geschlossen / {resolvedCount} aufgelöst
             </p>
           </div>
           <Link
@@ -69,6 +90,7 @@ function MarketsIndexRoute() {
                   filter: filter.value,
                   marketCount,
                   openCount,
+                  expiredCount,
                   resolvedCount,
                 })}
               </span>
@@ -94,7 +116,7 @@ function MarketsIndexRoute() {
 
         <div className="border-zinc-800 border-b">
           {filteredMarkets.map((market) => (
-            <MarketCard key={market.id} market={market} />
+            <MarketCard key={market.id} market={market} now={now} />
           ))}
         </div>
       </section>
@@ -106,13 +128,19 @@ function getFilterCount({
   filter,
   marketCount,
   openCount,
+  expiredCount,
   resolvedCount,
 }: {
   filter: MarketFilter;
+  expiredCount: number;
   marketCount: number;
   openCount: number;
   resolvedCount: number;
 }) {
+  if (filter === "expired") {
+    return expiredCount;
+  }
+
   if (filter === "open") {
     return openCount;
   }
@@ -122,4 +150,11 @@ function getFilterCount({
   }
 
   return marketCount;
+}
+
+function getStatusCount(
+  rows: { status: EffectiveMarketStatus }[],
+  status: EffectiveMarketStatus
+) {
+  return rows.filter((row) => row.status === status).length;
 }
