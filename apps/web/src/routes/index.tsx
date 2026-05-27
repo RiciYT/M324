@@ -34,10 +34,21 @@ const imageAssets = {
   rumorWall: "/images/shitmarket-rumor-wall.jpg",
   terminal: "/images/shitmarket-terminal.jpg",
 } as const;
-const revealWords =
-  "ShitMarket nimmt die Mechanik ernst und den Markt nicht. Du setzt Coins auf Fragen, die niemand finanzieren sollte, aber alle diskutieren.".split(
-    " "
-  );
+const revealWords = (() => {
+  const counts = new Map<string, number>();
+
+  return "ShitMarket nimmt die Mechanik ernst und den Markt nicht. Du setzt Coins auf Fragen, die niemand finanzieren sollte, aber alle diskutieren."
+    .split(" ")
+    .map((word) => {
+      const count = counts.get(word) ?? 0;
+      counts.set(word, count + 1);
+
+      return {
+        id: count === 0 ? word : `${word}-${count}`,
+        text: word,
+      };
+    });
+})();
 const CURRENT_YEAR = new Date().getFullYear();
 
 function HomeComponent() {
@@ -249,12 +260,9 @@ function HomeComponent() {
               Die Quote ist ernst. Die Frage nicht.
             </h2>
             <p className="scrub-copy mt-6 max-w-xl text-xl text-zinc-300 leading-[1.35] md:text-2xl">
-              {revealWords.map((word, index) => (
-                <span
-                  className="reveal-word inline-block pr-2"
-                  key={`${word}-${index}`}
-                >
-                  {word}
+              {revealWords.map((word) => (
+                <span className="reveal-word inline-block pr-2" key={word.id}>
+                  {word.text}
                 </span>
               ))}
             </p>
