@@ -45,7 +45,7 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <div className="grid h-svh grid-rows-[auto_1fr]">
+        <div className="grid min-h-dvh grid-rows-[auto_1fr] overflow-x-hidden">
           <a
             className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-[6px] focus:bg-[#c8ff00] focus:px-3 focus:py-2 focus:text-black"
             href="#main-content"

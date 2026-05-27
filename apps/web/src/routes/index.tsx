@@ -249,8 +249,11 @@ function HomeComponent() {
               Die Quote ist ernst. Die Frage nicht.
             </h2>
             <p className="scrub-copy mt-6 max-w-xl text-xl text-zinc-300 leading-[1.35] md:text-2xl">
-              {revealWords.map((word) => (
-                <span className="reveal-word inline-block pr-2" key={word}>
+              {revealWords.map((word, index) => (
+                <span
+                  className="reveal-word inline-block pr-2"
+                  key={`${word}-${index}`}
+                >
                   {word}
                 </span>
               ))}
@@ -564,10 +567,10 @@ function QuoteCarousel() {
   ] as const;
 
   return (
-    <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto md:grid md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-3">
       {quotes.map((quote) => (
         <figure
-          className="motion-media min-w-[80%] snap-start overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] shadow-[0_1px_0_rgba(255,255,255,0.04)] md:min-w-auto"
+          className="motion-media min-w-0 overflow-hidden rounded-[8px] border border-zinc-800 bg-[#11120f] shadow-[0_1px_0_rgba(255,255,255,0.04)]"
           key={quote.name}
         >
           <div className="h-48 overflow-hidden">
