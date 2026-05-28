@@ -80,7 +80,39 @@ function LeaderboardRoute() {
                 <h2 className="mb-4 font-semibold text-xl text-zinc-200">
                   Weitere Platzierungen
                 </h2>
-                <div className="overflow-x-auto border-zinc-800 border-y">
+                <div className="grid gap-3 lg:hidden">
+                  {tableEntries.map((entry) => (
+                    <div
+                      className="grid gap-2 rounded-[8px] border border-zinc-800 bg-[#11120f] p-4 text-sm"
+                      key={entry.rank}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-mono text-zinc-500">
+                          #{entry.rank}
+                        </span>
+                        <span
+                          className={
+                            entry.pnl >= 0
+                              ? "font-mono font-semibold text-[#c8ff00] tabular-nums"
+                              : "font-mono font-semibold text-destructive tabular-nums"
+                          }
+                        >
+                          {entry.pnl > 0 ? "+" : ""}
+                          {creditFormatter.format(entry.pnl)}
+                        </span>
+                      </div>
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="min-w-0 font-medium text-zinc-200">
+                          {entry.name}
+                        </span>
+                        <span className="font-mono text-zinc-300 tabular-nums">
+                          {creditFormatter.format(entry.credits)} Coins
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="hidden lg:block">
                   <table className="w-full min-w-[620px] text-left text-sm">
                     <thead className="text-zinc-500">
                       <tr className="border-zinc-800 border-b">
