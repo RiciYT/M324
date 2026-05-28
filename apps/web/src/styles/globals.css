@@ -124,12 +124,21 @@
     @apply border-border outline-ring/50;
   }
   body {
+    background-color: var(--background);
     @apply font-sans bg-background text-foreground antialiased;
   }
   html {
+    color-scheme: dark;
     scrollbar-color: gray transparent;
     scrollbar-width: thin;
+    background-color: var(--background);
     @apply font-sans;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
   }
 
   html::-webkit-scrollbar {
